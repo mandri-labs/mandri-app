@@ -1,0 +1,42 @@
+.session-replay {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.session-replay > .shell {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+.session-replay-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 160px 10px 12px;
+  font: 12px monospace;
+  border-bottom: 1px solid #7775;
+}
+.session-replay-controls button,
+.session-replay-restart {
+  color: inherit;
+  background: transparent;
+  border: 1px solid #7778;
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.session-replay-restart {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 10;
+}
+.session-replay-controls details {
+  max-width: 100%;
+}
+.session-replay-controls pre {
+  max-height: 240px;
+  overflow: auto;
+  white-space: pre-wrap;
+}

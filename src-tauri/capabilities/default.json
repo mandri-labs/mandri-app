@@ -1,0 +1,25 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Least-privilege permissions for the Mandri client",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "clipboard-manager:allow-read-image",
+    "core:window:allow-set-position",
+    "core:window:allow-set-size",
+    "core:window:allow-set-focus",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-unminimize",
+    "core:window:allow-maximize",
+    "core:window:allow-is-maximized",
+    "core:window:allow-inner-size",
+    "core:window:allow-outer-position",
+    "notification:default",
+    "os:default",
+    "dialog:default",
+    "opener:default",
+    "log:default"
+  ]
+}

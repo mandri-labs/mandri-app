@@ -1,0 +1,178 @@
+.transcript {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.transcript-viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  scrollbar-gutter: stable;
+  padding-inline-end: var(--transcript-scroll-padding, 8px);
+  width: calc(100% + var(--transcript-scroll-extension, 8px));
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.transcript-inner {
+  position: relative;
+  width: 100%;
+}
+
+.transcript-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 2px 16px;
+}
+
+.transcript-status {
+  position: absolute;
+  right: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  pointer-events: none;
+}
+
+.transcript-status-top {
+  /* Loading must not resize or move the virtualized reading viewport. */
+  top: 0;
+  z-index: 1;
+  min-height: 24px;
+  padding: 2px 16px;
+  justify-content: center;
+  background: var(--color-base);
+}
+
+.transcript-status-bottom {
+  bottom: 8px;
+}
+
+.transcript-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-high);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+}
+
+.transcript-jump:hover {
+  background: var(--color-raised-hover);
+}
+
+.transcript-jump svg {
+  stroke-width: var(--icon-stroke-width);
+}
+
+.transcript-spin {
+  display: inline-flex;
+  flex: none;
+  transform-origin: center;
+  animation: transcript-spin 1s linear infinite;
+}
+
+.transcript-status svg {
+  stroke-width: var(--icon-stroke-width);
+}
+
+@keyframes transcript-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.transcript-viewport {
+  scrollbar-width: thin;
+  overflow-anchor: none;
+}
+.transcript-status-bottom {
+  position: static;
+  flex: none;
+  min-height: 28px;
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 8px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .transcript-spin { display: none; animation: none; }
+}
+.transcript-jump {
+  font-size: var(--font-size-small);
+  padding: 6px 10px;
+}
+
+.transcript-elapsed {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.transcript-buffered {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.transcript-turn-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.transcript-turn-summary::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-subtle);
+}
+/* Status changes keep the same text metrics; only activity has a shimmer. */
+.transcript-turn-summary,
+.transcript-activity {
+  padding: 10px 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.tr-thinking-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+
+/* Keep the navigation control outside the reading and diff surfaces. */
+.transcript-navigation {
+  flex: none;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tr-activity-group-items {
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tr-activity-group-items > .tr-disclosure,
+.tr-activity-group-items > .tr-tool {
+  margin-block: 8px;
+}
+
+.tr-activity-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Match the virtual transcript's initial inset and row spacing before creation. */
+.transcript-inner--startup { padding-top: 24px; }
+.transcript-item--static { position: relative; }

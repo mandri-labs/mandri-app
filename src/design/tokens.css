@@ -1,0 +1,74 @@
+:root {
+  --color-base: #16140f;
+  --color-base-hover: #22201b;
+  --color-raised: #1e1b15;
+  --color-raised-hover: #292621;
+  --color-surface-high: #2e2b23;
+  --color-border-subtle: #332e26;
+  --color-border-strong: #423b30;
+  --color-ink-on-fill: #16140f;
+  --color-diff-add-bg: #1d2425;
+  --color-diff-add-fg: #7cc5e7;
+  --color-diff-del-bg: #2e221b;
+  --color-diff-del-fg: #f0a08c;
+  --color-accent: #4f97c6;
+  --color-accent-bright: #7cc5e7;
+  --color-danger: #e28570;
+  --color-ember: #c2924a;
+  --color-text-primary: #ece7dd;
+  --color-text-muted: #9c968a;
+
+  --radius-xs: 6px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 12px;
+  --radius-dialog: 12px;
+  --radius-composer: 16px;
+  --radius-pill: 999px;
+
+  --shell-header-height: 44px;
+
+  --font-ui: "Hanken Grotesk Variable", system-ui, sans-serif;
+  --font-serif: "Fraunces Variable", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --font-size-hero: 24px;
+  --font-size-title: 20px;
+  --font-size-logo: 18px;
+  --font-size-large: 16px;
+  --font-size-body: 14px;
+  --font-size-label: 13px;
+  --font-size-small: 12px;
+  --font-size-code: 12px;
+  --font-size-telemetry: 10px;
+
+  --font-weight-heading: 400;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  /* Preserve the source font axes; no custom SOFT/WONK styling. */
+  --font-variation-serif: normal;
+  --icon-stroke-width: 1.2;
+}
+
+[data-theme="light"] {
+  --color-base: #f6f1e7;
+  --color-base-hover: #efe8db;
+  --color-raised: #fdfaf2;
+  --color-raised-hover: #f4eee1;
+  --color-surface-high: #ffffff;
+  --color-border-subtle: #e4dccd;
+  --color-border-strong: #cfc4b0;
+  --color-ink-on-fill: #fdfaf2;
+  --color-diff-add-bg: #e4edf2;
+  --color-diff-add-fg: #1d4f73;
+  --color-diff-del-bg: #f4e6e0;
+  --color-diff-del-fg: #b0492e;
+  --color-accent: #2b6d9c;
+  --color-accent-bright: #1d4f73;
+  --color-danger: #b0492e;
+  --color-ember: #8a5d1f;
+  --color-text-primary: #1a1712;
+  --color-text-muted: #6b6355;
+}

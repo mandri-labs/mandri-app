@@ -1,0 +1,235 @@
+{
+  "description": "Synthetic native JSONL and NDJSON shapes; contains no captured user content.",
+  "history": [
+    {
+      "step_index": 1,
+      "source": "MODEL",
+      "type": "PLANNER_RESPONSE",
+      "status": "DONE",
+      "tool_calls": [
+        {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "echo first",
+            "Cwd": "/synthetic/first",
+            "toolSummary": "First command"
+          }
+        },
+        {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "echo second",
+            "Cwd": "/synthetic/second",
+            "toolSummary": "Second command"
+          }
+        }
+      ]
+    },
+    {
+      "step_index": 2,
+      "source": "MODEL",
+      "type": "GENERIC",
+      "status": "DONE",
+      "content": "Created At: 2026-09-11T20:00:00Z\nCompleted At: 2026-09-11T20:00:01Z\n\nThe command exited with code 0.\nOutput:\nfirst\n"
+    },
+    {
+      "step_index": 3,
+      "source": "MODEL",
+      "type": "GENERIC",
+      "status": "DONE",
+      "content": "Created At: 2026-09-11T20:00:00Z\nCompleted At: 2026-09-11T20:00:02Z\n\nThe command exited with code 0.\nOutput:\nsecond\n"
+    },
+    {
+      "step_index": 4,
+      "source": "MODEL",
+      "type": "PLANNER_RESPONSE",
+      "status": "DONE",
+      "content": "Both commands finished."
+    }
+  ],
+  "live": [
+    {
+      "event": "hook",
+      "hook": "PreToolUse",
+      "data": {
+        "stepIdx": 2,
+        "toolCall": {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "echo first",
+            "Cwd": "/synthetic/first",
+            "toolSummary": "First command"
+          }
+        }
+      }
+    },
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 2,
+        "step_type": "tool",
+        "state": "DONE",
+        "tool_info": {
+          "name": "run_command",
+          "parameters": {
+            "CommandLine": "echo first",
+            "Cwd": "/synthetic/first",
+            "toolSummary": "First command"
+          },
+          "output": "first\n"
+        }
+      }
+    },
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 3,
+        "step_type": "tool",
+        "state": "DONE",
+        "tool_info": {
+          "name": "run_command",
+          "parameters": {
+            "CommandLine": "echo second",
+            "Cwd": "/synthetic/second",
+            "toolSummary": "Second command"
+          },
+          "output": "second\n"
+        }
+      }
+    },
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 4,
+        "step_type": "agent_response",
+        "state": "DONE",
+        "text_delta": "Both commands finished."
+      }
+    }
+  ],
+  "asyncHistory": [
+    {
+      "step_index": 1,
+      "source": "MODEL",
+      "type": "PLANNER_RESPONSE",
+      "status": "DONE",
+      "tool_calls": [
+        {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "sleep 4; echo delayed",
+            "Cwd": "/synthetic",
+            "WaitMsBeforeAsync": 1000
+          }
+        }
+      ]
+    },
+    {
+      "step_index": 2,
+      "source": "MODEL",
+      "type": "GENERIC",
+      "status": "RUNNING",
+      "content": "Created At: 2026-09-11T20:00:00Z\nTool is running as a background task with task id: synthetic-conversation/task-2\nTask Description: sleep 4; echo delayed\nTask logs are available at: file:///synthetic/task-2.log"
+    },
+    {
+      "step_index": 3,
+      "source": "MODEL",
+      "type": "PLANNER_RESPONSE",
+      "status": "DONE",
+      "content": "The command is still running."
+    },
+    {
+      "step_index": 4,
+      "source": "SYSTEM",
+      "type": "SYSTEM_MESSAGE",
+      "status": "DONE",
+      "content": "The following is a <SYSTEM_MESSAGE> not actually sent by the user. It is provided by the system as important information to pay attention to.\n\n<SYSTEM_MESSAGE>\n[Message] timestamp=2026-09-11T20:00:04Z sender=synthetic-conversation/task-2 priority=MESSAGE_PRIORITY_HIGH content=Task id \"synthetic-conversation/task-2\" finished with result:\n\nThe command exited with code 0.\nOutput:\ndelayed\n\n</SYSTEM_MESSAGE>"
+    }
+  ],
+  "asyncLive": [
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 2,
+        "step_type": "tool",
+        "state": "ACTIVE",
+        "tool_name": "run_command",
+        "tool_info": {
+          "name": "run_command",
+          "parameters": {
+            "CommandLine": "sleep 4; echo delayed"
+          }
+        }
+      }
+    },
+    {
+      "event": "hook",
+      "hook": "PreToolUse",
+      "data": {
+        "stepIdx": 2,
+        "toolCall": {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "sleep 4; echo delayed",
+            "Cwd": "/synthetic",
+            "WaitMsBeforeAsync": 1000
+          }
+        }
+      }
+    },
+    {
+      "event": "hook",
+      "hook": "Stop",
+      "data": {
+        "fullyIdle": false
+      }
+    },
+    {
+      "event": "hook",
+      "hook": "PostToolUse",
+      "data": {
+        "stepIdx": 2,
+        "toolCall": {
+          "name": "run_command",
+          "args": {
+            "CommandLine": "sleep 4; echo delayed",
+            "Cwd": "/synthetic",
+            "WaitMsBeforeAsync": 1000
+          }
+        },
+        "error": ""
+      }
+    },
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 2,
+        "step_type": "tool",
+        "state": "DONE",
+        "tool_info": {
+          "name": "run_command",
+          "parameters": {
+            "CommandLine": "sleep 4; echo delayed"
+          },
+          "output": "delayed"
+        }
+      }
+    },
+    {
+      "event": "step_update",
+      "step_update": {
+        "step_index": 4,
+        "step_type": "system_message",
+        "state": "DONE",
+        "duration_seconds": 0.001
+      }
+    },
+    {
+      "event": "hook",
+      "hook": "Stop",
+      "data": {
+        "fullyIdle": true
+      }
+    }
+  ]
+}

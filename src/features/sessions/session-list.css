@@ -1,0 +1,231 @@
+.session-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.session-filters {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-filters select,
+.session-filters input {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-base);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-small);
+  line-height: 28px;
+}
+
+.session-filters select {
+  cursor: pointer;
+}
+
+.session-filters input {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.session-filters input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.session-sync {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.session-sync-spinner {
+  color: var(--color-ember);
+  animation: session-spin 1s linear infinite;
+}
+
+@keyframes session-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.session-note {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-base);
+  color: var(--color-ember);
+  font-size: var(--font-size-small);
+}
+
+.session-empty {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 48px 16px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.session-empty p {
+  margin: 0;
+  font-size: var(--font-size-body);
+}
+
+.session-empty-link {
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.session-empty-link:hover {
+  text-decoration: underline;
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.session-row-line {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.session-row-line > .session-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.session-item:hover {
+  background: var(--color-base-hover);
+}
+
+.session-item--active,
+.session-item--active:hover {
+  background: var(--color-surface-high);
+}
+
+.session-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+}
+
+.session-dot--live {
+  background: var(--color-accent-bright);
+}
+
+.session-dot--idle {
+  background: var(--color-text-muted);
+}
+
+.session-item-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item-meta {
+  display: flex;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.session-item-model {
+  overflow: hidden;
+  max-width: 180px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-code);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-item-project {
+  overflow: hidden;
+  max-width: 160px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.session-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.session-badge--live {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.session-badge--stopped {
+  border-color: var(--color-border-strong);
+}
+
+.session-badge--discovered {
+  border-color: var(--color-ember);
+  color: var(--color-ember);
+}
+
+.session-badge--active {
+  color: var(--color-accent);
+}
+
+.session-badge--idle {
+  color: var(--color-text-muted);
+}
+
+.session-badge--approvals {
+  border-color: var(--color-ember);
+  color: var(--color-ember);
+}

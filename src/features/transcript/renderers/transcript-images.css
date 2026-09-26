@@ -1,0 +1,23 @@
+.tr-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.tr-image {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+}
+.tr-image img {
+  display: block;
+  max-width: min(360px, 100%);
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+.tr-image figcaption,
+.tr-image > span {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}

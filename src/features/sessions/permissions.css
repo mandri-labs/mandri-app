@@ -1,0 +1,81 @@
+.chip-popover.permission-popover {
+  width: min(360px, calc(100vw - 32px));
+}
+.permission-menu {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 4px;
+}
+.permission-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+}
+.permission-option:hover,
+.permission-option[aria-pressed="true"] {
+  background: var(--color-base-hover);
+}
+.permission-option:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.permission-option > span {
+  min-width: 0;
+}
+.permission-option svg {
+  flex-shrink: 0;
+}
+.permission-option-label {
+  display: block;
+  font-size: var(--font-size-label);
+}
+.permission-option-description {
+  display: block;
+  margin-top: 3px;
+  font-size: var(--font-size-small);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.permission-check--hidden {
+  visibility: hidden;
+}
+.permission-option--check-left {
+  justify-content: flex-start;
+  gap: 8px;
+}
+.permission-option--check-left > svg {
+  order: -1;
+}
+
+.settings-menu-heading {
+  padding: 6px 8px;
+  color: var(--color-text-muted);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.4;
+}
+
+[data-setting-tone="amber"] { --setting-color: var(--color-ember); }
+[data-setting-tone="danger"] { --setting-color: var(--color-danger); }
+button.composer-chip[data-setting-tone],
+button.permission-option[data-setting-tone] {
+  color: var(--setting-color);
+}
+[data-setting-tone] .permission-option-label,
+[data-setting-tone] .permission-option-description,
+button.composer-chip[data-setting-tone] svg {
+  color: inherit;
+}

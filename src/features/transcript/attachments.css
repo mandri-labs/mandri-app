@@ -1,0 +1,42 @@
+.attachment-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 240px;
+  border: 1px solid var(--border-subtle, #8884);
+  border-radius: calc(var(--composer-radius, 24px) - var(--composer-inset, 10px) - 1px);
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.attachment-chip img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+.attachment-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment-chip button {
+  display: flex;
+  background: none;
+  color: inherit;
+  border: 0;
+  cursor: pointer;
+  padding: 4px;
+}
+.attachment-add {
+  flex-shrink: 0;
+}
+.session-file-error {
+  color: var(--text-danger, #c44);
+  font-size: 12px;
+  margin-left: 6px;
+}

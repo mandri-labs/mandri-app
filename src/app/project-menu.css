@@ -1,0 +1,20 @@
+.project-menu { position: relative; flex: none; }
+.project-menu-trigger {
+  display: grid; place-items: center; width: 28px; height: 28px;
+  padding: 0; border: 0; border-radius: var(--radius-sm);
+  color: var(--color-text-primary); background: transparent; cursor: pointer;
+}
+.project-menu-trigger:hover, .project-menu-trigger[aria-expanded="true"] { background: var(--color-raised-hover); }
+.project-menu-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+  width: min(320px, calc(100vw - 48px)); box-sizing: border-box;
+  padding: 12px; border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md); background: var(--color-surface-high);
+  color: var(--color-text-primary); box-shadow: 0 8px 24px #0003;
+}
+.project-menu-line { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.project-menu-line svg { flex: none; }
+.project-menu-line strong, .project-menu-path span { overflow-wrap: anywhere; min-width: 0; }
+.project-menu-counts { margin-top: 8px; }
+.project-menu-counts svg, .project-menu-path svg { color: var(--color-text-muted); }
+.project-menu-path { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border-subtle); }

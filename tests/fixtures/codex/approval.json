@@ -1,0 +1,1105 @@
+{
+  "harness": "codex",
+  "scenario": "approval",
+  "capturedAt": "2026-09-04T20:01:08.734Z",
+  "daemonVersionHint": "0.1.0",
+  "modelRef": "openrouter/z-ai/glm-5.2:free",
+  "cwd": "__CWD__",
+  "partial": false,
+  "frames": [
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 1,
+      "ts": 1788552070564,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 1,
+        "source": "codex",
+        "raw": {
+          "id": 1,
+          "result": {
+            "userAgent": "mandri/0.153.2 (Windows 10.0.26200; x86_64) zed/1.17.2_stable.349.c8e44cfa7bda9b2e22c8d6934d78969352e7f61a (mandri; 0.1.0)",
+            "codexHome": "C:\\Users\\synthetic\\.codex",
+            "platformFamily": "windows",
+            "platformOs": "windows"
+          }
+        },
+        "ts": 1788552070564
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 2,
+      "ts": 1788552070564,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 2,
+        "source": "codex",
+        "raw": {
+          "method": "remoteControl/status/changed",
+          "params": {
+            "status": "disabled",
+            "serverName": "synthetic",
+            "installationId": "075ea578-4341-4298-a149-a3a7c2091675",
+            "environmentId": null
+          },
+          "emittedAtMs": 1788552070564
+        },
+        "ts": 1788552070564
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 3,
+      "ts": 1788552071537,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 3,
+        "source": "codex",
+        "raw": {
+          "id": 2,
+          "result": {
+            "thread": {
+              "id": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+              "extra": null,
+              "sessionId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+              "forkedFromId": null,
+              "parentThreadId": null,
+              "preview": "",
+              "ephemeral": false,
+              "section": null,
+              "sectionEnteredAt": null,
+              "projectId": null,
+              "historyMode": "paginated",
+              "modelProvider": "mandri",
+              "model": "openrouter/z-ai/glm-5.2:free",
+              "reasoningEffort": "medium",
+              "createdAt": 1788552071,
+              "updatedAt": 1788552071,
+              "recencyAt": 1788552071,
+              "status": {
+                "type": "idle"
+              },
+              "path": "C:\\Users\\synthetic\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-01-10-01a06e02-c5b9-7542-bc35-2b8dc24253cf.jsonl",
+              "cwd": "__CWD__\\codex\\approval",
+              "cliVersion": "0.153.2",
+              "source": "vscode",
+              "canAcceptDirectInput": true,
+              "threadSource": null,
+              "agentNickname": null,
+              "agentRole": null,
+              "gitInfo": null,
+              "name": null,
+              "turns": []
+            },
+            "model": "openrouter/z-ai/glm-5.2:free",
+            "modelProvider": "mandri",
+            "serviceTier": null,
+            "cwd": "__CWD__\\codex\\approval",
+            "runtimeWorkspaceRoots": [
+              "__CWD__\\codex\\approval"
+            ],
+            "instructionSources": [],
+            "approvalPolicy": "untrusted",
+            "approvalsReviewer": "user",
+            "sandbox": {
+              "type": "readOnly",
+              "networkAccess": false
+            },
+            "activePermissionProfile": {
+              "id": ":read-only",
+              "extends": null
+            },
+            "reasoningEffort": "medium",
+            "multiAgentMode": "explicitRequestOnly"
+          }
+        },
+        "ts": 1788552071537
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 4,
+      "ts": 1788552071537,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 4,
+        "source": "codex",
+        "raw": {
+          "method": "thread/started",
+          "params": {
+            "thread": {
+              "id": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+              "extra": null,
+              "sessionId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+              "forkedFromId": null,
+              "parentThreadId": null,
+              "preview": "",
+              "ephemeral": false,
+              "section": null,
+              "sectionEnteredAt": null,
+              "projectId": null,
+              "historyMode": "paginated",
+              "modelProvider": "mandri",
+              "model": "openrouter/z-ai/glm-5.2:free",
+              "reasoningEffort": "medium",
+              "createdAt": 1788552071,
+              "updatedAt": 1788552071,
+              "recencyAt": 1788552071,
+              "status": {
+                "type": "idle"
+              },
+              "path": "C:\\Users\\synthetic\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T22-01-10-01a06e02-c5b9-7542-bc35-2b8dc24253cf.jsonl",
+              "cwd": "__CWD__\\codex\\approval",
+              "cliVersion": "0.153.2",
+              "source": "vscode",
+              "canAcceptDirectInput": true,
+              "threadSource": null,
+              "agentNickname": null,
+              "agentRole": null,
+              "gitInfo": null,
+              "name": null,
+              "turns": []
+            }
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071537
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 5,
+      "ts": 1788552071537,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 5,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-builds",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071537
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 6,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 6,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "codex_apps",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 7,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 7,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-bindings",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 8,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 8,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "node_repl",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 9,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 9,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "openaiDeveloperDocs",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 10,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 10,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cua_repl",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 11,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 11,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 12,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 12,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-observability",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 13,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 13,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "playwright",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 14,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 14,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "context7",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 15,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 15,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-docs",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 16,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 16,
+        "source": "codex",
+        "raw": {
+          "method": "warning",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "message": "Configured service tier `priority` is not advertised as supported for model `openrouter/z-ai/glm-5.2:free` and will be omitted from requests."
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 17,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 17,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "node_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 18,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 18,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-observability",
+            "status": "failed",
+            "error": "The cloudflare-observability MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-observability`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 19,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 19,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-bindings",
+            "status": "failed",
+            "error": "The cloudflare-bindings MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-bindings`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 20,
+      "ts": 1788552071538,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 20,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cua_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071536
+        },
+        "ts": 1788552071538
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 21,
+      "ts": 1788552071542,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 21,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-builds",
+            "status": "failed",
+            "error": "The cloudflare-builds MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-builds`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071541
+        },
+        "ts": 1788552071542
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 22,
+      "ts": 1788552071545,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 22,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare",
+            "status": "failed",
+            "error": "The cloudflare MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071545
+        },
+        "ts": 1788552071545
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 23,
+      "ts": 1788552071545,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 23,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-bindings",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071545
+        },
+        "ts": 1788552071545
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 24,
+      "ts": 1788552071546,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 24,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-observability",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071545
+        },
+        "ts": 1788552071546
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 25,
+      "ts": 1788552071546,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 25,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-docs",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071545
+        },
+        "ts": 1788552071546
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 26,
+      "ts": 1788552071632,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 26,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-bindings",
+            "status": "failed",
+            "error": "The cloudflare-bindings MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-bindings`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071632
+        },
+        "ts": 1788552071632
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 27,
+      "ts": 1788552071638,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 27,
+        "source": "codex",
+        "raw": {
+          "method": "warning",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "message": "Model metadata for `openrouter/z-ai/glm-5.2:free` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+          },
+          "emittedAtMs": 1788552071637
+        },
+        "ts": 1788552071638
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 28,
+      "ts": 1788552071649,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 28,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cloudflare-observability",
+            "status": "failed",
+            "error": "The cloudflare-observability MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-observability`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788552071648
+        },
+        "ts": 1788552071649
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 29,
+      "ts": 1788552071669,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 29,
+        "source": "codex",
+        "raw": {
+          "id": 3,
+          "result": {
+            "turn": {
+              "id": "01a06e02-c978-7080-b4e1-ed49da2a4da3",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": null,
+              "completedAt": null,
+              "durationMs": null
+            }
+          }
+        },
+        "ts": 1788552071669
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788552071669,
+      "frame": {
+        "type": "response",
+        "op_id": "session.prompt-1788552070444-3ajngu",
+        "ok": true,
+        "result": {
+          "session_id": "a08fad02-2a71-4bd7-92c6-436e684b95c1",
+          "state": "queued",
+          "code": null
+        },
+        "error": null
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 30,
+      "ts": 1788552071716,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 30,
+        "source": "codex",
+        "raw": {
+          "method": "thread/status/changed",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "emittedAtMs": 1788552071716
+        },
+        "ts": 1788552071716
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 31,
+      "ts": 1788552071716,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 31,
+        "source": "codex",
+        "raw": {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "turn": {
+              "id": "01a06e02-c978-7080-b4e1-ed49da2a4da3",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1788552071,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1788552071716
+        },
+        "ts": 1788552071716
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 32,
+      "ts": 1788552071895,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 32,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "codex_apps",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071895
+        },
+        "ts": 1788552071895
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 33,
+      "ts": 1788552071978,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 33,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "openaiDeveloperDocs",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071977
+        },
+        "ts": 1788552071978
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 34,
+      "ts": 1788552071985,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 34,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "context7",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552071984
+        },
+        "ts": 1788552071985
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 35,
+      "ts": 1788552073400,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 35,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "node_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552073399
+        },
+        "ts": 1788552073400
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 36,
+      "ts": 1788552073400,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 36,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "cua_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552073399
+        },
+        "ts": 1788552073400
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 37,
+      "ts": 1788552073400,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 37,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "name": "playwright",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788552073399
+        },
+        "ts": 1788552073400
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 38,
+      "ts": 1788552073445,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 38,
+        "source": "codex",
+        "raw": {
+          "method": "item/started",
+          "params": {
+            "item": {
+              "type": "userMessage",
+              "id": "01a06e02-d0e4-7e90-bfa5-bb7b446c3789",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Use the shell to run exactly this command: git --version. Do not run anything else and report the output.",
+                  "text_elements": []
+                }
+              ]
+            },
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "turnId": "01a06e02-c978-7080-b4e1-ed49da2a4da3",
+            "startedAtMs": 1788552073445
+          },
+          "emittedAtMs": 1788552073445
+        },
+        "ts": 1788552073445
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 39,
+      "ts": 1788552073540,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 39,
+        "source": "codex",
+        "raw": {
+          "method": "item/completed",
+          "params": {
+            "item": {
+              "type": "userMessage",
+              "id": "01a06e02-d0e4-7e90-bfa5-bb7b446c3789",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Use the shell to run exactly this command: git --version. Do not run anything else and report the output.",
+                  "text_elements": []
+                }
+              ]
+            },
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "turnId": "01a06e02-c978-7080-b4e1-ed49da2a4da3",
+            "completedAtMs": 1788552073445
+          },
+          "emittedAtMs": 1788552073540
+        },
+        "ts": 1788552073540
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 40,
+      "ts": 1788552074215,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 40,
+        "source": "codex",
+        "raw": {
+          "method": "thread/status/changed",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "status": {
+              "type": "systemError"
+            }
+          },
+          "emittedAtMs": 1788552074214
+        },
+        "ts": 1788552074215
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 41,
+      "ts": 1788552074215,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 41,
+        "source": "codex",
+        "raw": {
+          "method": "error",
+          "params": {
+            "error": {
+              "message": "exceeded retry limit, last status: 429 Too Many Requests",
+              "codexErrorInfo": {
+                "responseTooManyFailedAttempts": {
+                  "httpStatusCode": 429
+                }
+              },
+              "additionalDetails": null,
+              "misalignment": null
+            },
+            "willRetry": false,
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "turnId": "01a06e02-c978-7080-b4e1-ed49da2a4da3"
+          },
+          "emittedAtMs": 1788552074214
+        },
+        "ts": 1788552074215
+      }
+    },
+    {
+      "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+      "seq": 42,
+      "ts": 1788552074286,
+      "frame": {
+        "topic": "session.a08fad02-2a71-4bd7-92c6-436e684b95c1",
+        "seq": 42,
+        "source": "codex",
+        "raw": {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a06e02-c5b9-7542-bc35-2b8dc24253cf",
+            "turn": {
+              "id": "01a06e02-c978-7080-b4e1-ed49da2a4da3",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "failed",
+              "error": {
+                "message": "exceeded retry limit, last status: 429 Too Many Requests",
+                "codexErrorInfo": {
+                  "responseTooManyFailedAttempts": {
+                    "httpStatusCode": 429
+                  }
+                },
+                "additionalDetails": null,
+                "misalignment": null
+              },
+              "startedAt": 1788552071,
+              "completedAt": 1788552074,
+              "durationMs": 2578
+            }
+          },
+          "emittedAtMs": 1788552074286
+        },
+        "ts": 1788552074286
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788552136271,
+      "frame": {
+        "type": "response",
+        "op_id": "session.interrupt-1788552136268-dbonsi",
+        "ok": true,
+        "result": {
+          "session_id": "a08fad02-2a71-4bd7-92c6-436e684b95c1",
+          "interrupted": false
+        },
+        "error": null
+      }
+    }
+  ],
+  "history": {
+    "entries": [
+      "{\"timestamp\": \"2026-09-04T20:01:11.670Z\", \"ordinal\": 0, \"type\": \"session_meta\", \"payload\": {\"session_id\": \"01a06e02-c5b9-7542-bc35-2b8dc24253cf\", \"id\": \"01a06e02-c5b9-7542-bc35-2b8dc24253cf\", \"timestamp\": \"2026-09-04T20:01:10.586Z\", \"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\approval\", \"originator\": \"mandri\", \"cli_version\": \"0.153.2\", \"source\": \"vscode\", \"model_provider\": \"mandri\", \"base_instructions\": {\"text\": \"Synthetic test context.\"}, \"history_mode\": \"paginated\", \"context_window\": {\"window_id\": \"01a06e02-c5b9-7542-bc35-2b97ec23801f\"}}}",
+      "{\"timestamp\": \"2026-09-04T20:01:11.670Z\", \"ordinal\": 1, \"type\": \"event_msg\", \"payload\": {\"type\": \"task_started\", \"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"started_at\": 1788552071, \"model_context_window\": 258400, \"collaboration_mode_kind\": \"default\"}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.128Z\", \"ordinal\": 2, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06e02-cfa8-7b03-bcaa-48d1f1ec0be1\", \"role\": \"developer\", \"content\": [{\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}, {\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"create_time\": 1788552073.1286, \"content_item_kinds\": [\"host_skills.instructions\", \"permissions.instructions\"]}}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.129Z\", \"ordinal\": 3, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06e02-cfa8-7b03-bcaa-48eb3c22583d\", \"role\": \"user\", \"content\": [{\"type\": \"input_text\", \"text\": \"<recommended_plugins>\\nHere is a list of plugins that are available but not installed.\\n\\n- Airtable (airtable@openai-curated-remote)\\n- Alpaca (alpaca@openai-curated-remote)\\n- Apollo.io (apollo@openai-curated-remote)\\n- Spotify (app-68de829bf7648191acd70a907364c67c@openai-curated-remote)\\n- AllTrails (app-68f1afc5a6008191a701eaaab428816c@openai-curated-remote)\\n- Apple Music (app-6938a94a61d881918ef32cb999ff937c@openai-curated-remote)\\n- LONA Trading Assistant (app-694336b0c0948191a4ad234f9942885b@openai-curated-remote)\\n- SciSpace (app-69439d715a7c8191aed9e2f6649e105f@openai-curated-remote)\\n- Tarot (app-6943a2c078b0819188de39e4fe168d9b@openai-curated-remote)\\n- Todoist: To Do List & Calendar (app-6943b73823548191a9f9216c6790c453@openai-curated-remote)\\n- Consensus (app-6943e6f4a928819195962de16fb9ffe4@openai-curated-remote)\\n- Sider Scholar (app-6948b485f5bc8191adb4df13f369cec7@openai-curated-remote)\\n- True Sky (app-69490a4a06148191a0dd78606a3dbf1f@openai-curated-remote)\\n- Bigdata.com (app-69491eceef3c8191beb70788b7840429@openai-curated-remote)\\n- Gamma (app-698a098735908191989f5788d7ee317e@openai-curated-remote)\\n- Tredict (app-69aef5b699a0819184512d57743fc1cd@openai-curated-remote)\\n- Maersk (app-69b2b5a768d4819190d3a86c5f12e6d9@openai-curated-remote)\\n- Dropbox (app-69b31dc2110c8191b8b47dc98fe5a052@openai-curated-remote)\\n- Parqet (app-69b68652f0308191a27d7c7096cab4f6@openai-curated-remote)\\n- Interactive Brokers (IBKR) (app-69bc11db874881918718abaca20b68ce@openai-curated-remote)\\n- Financial Datasets (app-69cacd9394a88191ba6564e1bb0430fa@openai-curated-remote)\\n- Fathom (app-69d88b99c5c481918e8da9225737e1e9@openai-curated-remote)\\n- vidIQ (app-69dd11f3e50c8191b1ca48d03cf7e2ad@openai-curated-remote)\\n- TickTick:To-Do List & Calendar (app-69ddbaba3fb48191a825f22c21b0599d@openai-curated-remote)\\n- Plaud (app-69f3c30d68288191bbd428a394a78407@openai-curated-remote)\\n- Wolfram (app-69fe0bf66c8481919c513d799406436e@openai-curated-remote)\\n- Runway (app-6a05e3b201788191be12b590b43e6ce3@openai-curated-remote)\\n- Caliber (app-6a05e8f22d408191b13ba3897157f6df@openai-curated-remote)\\n- COROS (app-6a0694cbb2608191bbefb74ba810ab68@openai-curated-remote)\\n- TradingCursor (app-6a0d835ff1dc8191972eeabd14967446@openai-curated-remote)\\n- CoinMarketCap (app-6a172fe86f5481919f73cbc3bc3ad5bb@openai-curated-remote)\\n- Trello (app-6a20b18a639081918c1b438f8381b27e@openai-curated-remote)\\n- Longbridge (app-6a2baf2fad748191812393c3e00308ef@openai-curated-remote)\\n- freddy (app-6a322b52a82c8191b7fb653f9e9f7891@openai-curated-remote)\\n- Higgsfield (app-6a3293e129088191abf0875820e839da@openai-curated-remote)\\n- Stocktwits (app-6a427a19b1f481919c5db13838af00c2@openai-curated-remote)\\n- CoinGecko (app-6a4f02d735388191959c8328877e0bbd@openai-curated-remote)\\n- Asana (asana@openai-curated-remote)\\n- Atlassian Rovo (atlassian-rovo@openai-curated-remote)\\n- Base44 (base44@openai-curated-remote)\\n- Binance (binance@openai-curated-remote)\\n- Box (box@openai-curated-remote)\\n- Canva (canva@openai-curated-remote)\\n- ClickUp (clickup@openai-curated-remote)\\n- Cloudflare (cloudflare@openai-curated-remote)\\n- Codex Security (codex-security@openai-curated-remote)\\n- Figma (figma@openai-curated-remote)\\n- Granola (granola@openai-curated-remote)\\n- HeyGen (heygen@openai-curated-remote)\\n</recommended_plugins>\"}, {\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"create_time\": 1788552073.1286008, \"content_item_kinds\": [\"plugins.recommendations\", \"environments.environment_context\"]}}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.141Z\", \"ordinal\": 4, \"type\": \"world_state\", \"payload\": {\"full\": true, \"state\": {\"agents_md\": {}, \"apps_instructions\": false, \"collaboration_mode\": {\"mode\": \"default\", \"model\": \"openrouter/z-ai/glm-5.2:free\", \"instructions\": \"dfd53114f5f6f9f5fd7816370d0bf2847806246d\"}, \"context_window_guidance\": \"\", \"environments\": {\"environments\": {\"local\": {\"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\approval\", \"status\": \"available\", \"shell\": \"powershell\"}}, \"current_date\": \"2026-09-04\", \"timezone\": \"Europe/Paris\", \"filesystem\": \"<filesystem><workspace_roots><root>C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\approval</root></workspace_roots><permission_profile type=\\\"managed\\\"><file_system type=\\\"restricted\\\"><entry access=\\\"read\\\"><special>:root</special></entry></file_system></permission_profile></filesystem>\"}, \"environments_instructions\": false, \"git_attribution\": false, \"host_skills\": {\"body\": \"Synthetic test context.\", \"includeInstructions\": true}, \"managed_developer_instructions\": {}, \"model\": \"openrouter/z-ai/glm-5.2:free\", \"multi_agent_mode\": {}, \"orchestrator_skills\": {\"includeInstructions\": true, \"enabled\": false}, \"permissions\": {\"instructions\": \"29b3f447d070b358ee21d4dfa2e204fbfa524d49\", \"approved_command_prefixes\": [[\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\", \"-Command\", \"$target = (Resolve-Path -LiteralPath .pytest-claude).Path; $expected = Join-Path (Get-Location).Path '.pytest-claude'; if ($target -ne $expected) { throw \\\"Unexpected cleanup path: $target\\\" }; Remove-Item -LiteralPath $target -Recurse -Force; Test-Path -LiteralPath $expected\"], [\"Invoke-WebRequest\", \"-Uri\", \"https://www.apache.org/licenses/LICENSE-2.0.txt\", \"-OutFile\", \"LICENSE\"], [\"uv\", \"run\", \"mypy\"], [\"uv\", \"run\", \"pytest\"], [\"uv\", \"run\", \"ruff\", \"check\", \"--fix\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"run\", \"ruff\", \"check\", \".\"], [\"uv\", \"run\", \"ruff\", \"check\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"run\", \"ruff\", \"format\", \"mandri/adapters/subagent/codex.py\", \"tests/adapters/test_codex.py\"], [\"uv\", \"run\", \"ruff\", \"format\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"sync\"]]}, \"persistent_mode\": {}, \"personality\": {\"model\": \"openrouter/z-ai/glm-5.2:free\", \"personality\": \"pragmatic\"}, \"plugins_instructions\": false, \"realtime\": {\"active\": false}, \"skills\": {\"includeInstructions\": true}}}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.222Z\", \"ordinal\": 5, \"type\": \"turn_context\", \"payload\": {\"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"root_turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\approval\", \"workspace_roots\": [\"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\approval\"], \"current_date\": \"2026-09-04\", \"timezone\": \"Europe/Paris\", \"approval_policy\": \"untrusted\", \"approvals_reviewer\": \"user\", \"sandbox_policy\": {\"type\": \"read-only\"}, \"permission_profile\": {\"type\": \"managed\", \"file_system\": {\"type\": \"restricted\", \"entries\": [{\"path\": {\"type\": \"special\", \"value\": {\"kind\": \"root\"}}, \"access\": \"read\"}]}, \"network\": \"restricted\"}, \"model\": \"openrouter/z-ai/glm-5.2:free\", \"personality\": \"pragmatic\", \"collaboration_mode\": {\"mode\": \"default\", \"settings\": {\"model\": \"openrouter/z-ai/glm-5.2:free\", \"reasoning_effort\": \"medium\", \"developer_instructions\": null}}, \"multi_agent_version\": \"v1\", \"realtime_active\": false, \"effort\": \"medium\", \"summary\": \"auto\"}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.357Z\", \"ordinal\": 6, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06e02-d08d-7dc1-8cdd-086c2548c3f1\", \"role\": \"user\", \"content\": [{\"type\": \"input_text\", \"text\": \"Use the shell to run exactly this command: git --version. Do not run anything else and report the output.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"create_time\": 1788552073.3572586, \"content_item_kinds\": [\"user.text\"]}}}",
+      "{\"timestamp\": \"2026-09-04T20:01:13.445Z\", \"ordinal\": 7, \"type\": \"event_msg\", \"payload\": {\"type\": \"item_completed\", \"thread_id\": \"01a06e02-c5b9-7542-bc35-2b8dc24253cf\", \"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"item\": {\"type\": \"UserMessage\", \"id\": \"01a06e02-d0e4-7e90-bfa5-bb7b446c3789\", \"content\": [{\"type\": \"text\", \"text\": \"Use the shell to run exactly this command: git --version. Do not run anything else and report the output.\", \"text_elements\": []}]}, \"started_at_ms\": 1788552073445, \"completed_at_ms\": 1788552073445}}",
+      "{\"timestamp\": \"2026-09-04T20:01:14.215Z\", \"ordinal\": 8, \"type\": \"event_msg\", \"payload\": {\"type\": \"task_complete\", \"turn_id\": \"01a06e02-c978-7080-b4e1-ed49da2a4da3\", \"last_agent_message\": null, \"error\": {\"message\": \"exceeded retry limit, last status: 429 Too Many Requests\", \"codex_error_info\": {\"response_too_many_failed_attempts\": {\"http_status_code\": 429}}}, \"started_at\": 1788552071, \"completed_at\": 1788552074, \"duration_ms\": 2578}}"
+    ],
+    "cursorTrail": [
+      {
+        "cursor": null,
+        "count": 9,
+        "has_more": false
+      }
+    ]
+  },
+  "contextProvenance": "Synthetic machine context; original protocol event structure retained."
+}

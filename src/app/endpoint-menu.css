@@ -1,0 +1,32 @@
+.shell-endpoint {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  max-width: calc(100% - 16px);
+  margin: 8px;
+}
+.shell-endpoint-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell-connection > svg {
+  flex-shrink: 0;
+}
+.shell-endpoint-status {
+  display: flex;
+  flex: 0 0 auto;
+  margin-left: 2px;
+}
+.endpoint-menu-heading {
+  padding: 4px 10px 6px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+.endpoint-menu-copy {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.endpoint-menu-divider {
+  border-top: 1px solid var(--color-border-subtle);
+  margin: 4px 0;
+}

@@ -1,0 +1,93 @@
+import { useEffect, useState } from "react";
+
+export type Route =
+  | { name: "dashboard"; cwd?: string; worktree?: boolean; surrogate?: boolean }
+  | { name: "session"; id: string }
+  | { name: "agent"; id: string }
+  | { name: "providers" }
+  | { name: "routes" }
+  | { name: "usage"; sessionId?: string; projectPath?: string }
+  | { name: "settings"; section?: "connection" };
+
+export function parseHash(hash: string): Route {
+  const [path = "", query] = hash.replace(/^#/, "").split("?");
+  if (path === "" || path === "/") {
+    const params = new URLSearchParams(query);
+    const cwd = params.get("cwd");
+    return { name: "dashboard", ...(cwd ? { cwd } : {}),
+      ...(params.get("worktree") === "1" ? { worktree: true } : {}),
+      ...(params.get("surrogate") === "1" ? { surrogate: true } : {}),
+    };
+  }
+  const segments = path.split("/").filter((segment) => segment.length > 0);
+  const first = segments[0];
+  const second = segments[1];
+  switch (first) {
+    case "agent":
+      return second ? { name: "agent", id: decodeURIComponent(second) } : { name: "dashboard" };
+    case "session":
+      if (second !== undefined && second.length > 0) {
+        return { name: "session", id: decodeURIComponent(second) };
+      }
+      return { name: "dashboard" };
+    case "providers":
+      return { name: "providers" };
+    case "usage": {
+      const params = new URLSearchParams(query);
+      const sessionId = params.get("session_id");
+      const projectPath = params.get("project_path");
+      return sessionId ? { name: "usage", sessionId } : projectPath ? { name: "usage", projectPath } : { name: "usage" };
+    }
+    case "routes":
+      return { name: "routes" };
+    case "settings":
+      return new URLSearchParams(query).get("section") === "connection" ? { name: "settings", section: "connection" } : { name: "settings" };
+    default:
+      return { name: "dashboard" };
+  }
+}
+
+export function routeToHash(route: Route): string {
+  switch (route.name) {
+    case "dashboard": {
+      const params = new URLSearchParams({ ...(route.cwd ? { cwd: route.cwd } : {}),
+        ...(route.worktree ? { worktree: "1" } : {}), ...(route.surrogate ? { surrogate: "1" } : {}),
+      });
+      return params.size ? `#/?${params}` : "#/";
+    }
+    case "session":
+      return `#/session/${encodeURIComponent(route.id)}`;
+    case "agent":
+      return `#/agent/${encodeURIComponent(route.id)}`;
+    case "providers":
+      return "#/providers";
+    case "usage": {
+      const params = new URLSearchParams(route.sessionId ? { session_id: route.sessionId } : route.projectPath ? { project_path: route.projectPath } : {});
+      return params.size ? `#/usage?${params}` : "#/usage";
+    }
+    case "routes":
+      return "#/routes";
+    case "settings":
+      return route.section ? `#/settings?section=${route.section}` : "#/settings";
+  }
+}
+
+export function routeTitleKey(route: Route): string {
+  return `core.route.${route.name}`;
+}
+
+export function navigate(route: Route): void {
+  window.location.hash = routeToHash(route);
+}
+
+export function useHashRoute(): Route {
+  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
+  useEffect(() => {
+    const onHashChange = (): void => {
+      setRoute(parseHash(window.location.hash));
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+  return route;
+}

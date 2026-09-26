@@ -1,0 +1,243 @@
+import assert from "node:assert/strict";
+import { mkdir } from "node:fs/promises";
+import { resolve } from "node:path";
+import { chromium, type WebSocketRoute } from "playwright";
+
+// Synthetic API only: never connect the browser to a personal daemon.
+const output = resolve(process.env.MANDRI_USAGE_SMOKE_OUTPUT ?? "../mandri-work-documents/usage-ui-refinement-smoke");
+await mkdir(output, { recursive: true });
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1050 }, locale: "en-US" });
+await context.addInitScript(() => localStorage.setItem("mandri.preferences", JSON.stringify({ state: { language: "en", resolvedLanguage: "en", theme: "dark", daemonBaseUrl: "http://usage.test", endpoints: [{ id: "mock", name: "Synthetic usage", url: "http://usage.test" }], selectedEndpointId: "mock" }, version: 0 })));
+let usageSocket: WebSocketRoute | undefined;
+await context.routeWebSocket("**/v1/ws", (socket) => {
+  usageSocket = socket;
+  socket.onMessage((message) => {
+    const frame = JSON.parse(String(message));
+    if (frame.op === "subscribe") socket.send(JSON.stringify({ op: "subscribed", topic: frame.topic, from_seq: 0 }));
+  });
+});
+const metric = { fact_count: 8, input_tokens: 100000, output_tokens: 12000, cache_read_tokens: 60000, cache_write_tokens: null, reasoning_tokens: null, total_tokens: 112000, request_count: 8, usd_equivalent: "1.00292", reported_cost_usd: null, missing_fields: { cache_write_tokens: 2 }, unpriced_fact_count: 2, incomplete_fact_count: 1, unclassified_fact_count: 0, valuation_bases: { current_price_comparison: 6, unpriced: 2 }, unpriced_reasons: { tariff_or_context_unavailable: 2 } };
+const empty = { ...metric, fact_count: 0, input_tokens: null, output_tokens: null, cache_read_tokens: null, total_tokens: null, request_count: null, usd_equivalent: null, missing_fields: {}, unpriced_fact_count: 0, incomplete_fact_count: 0, valuation_bases: {}, unpriced_reasons: {} };
+let mode = "normal";
+let refreshes = 0;
+let reads = 0;
+let capabilityReads = 0;
+let revision = 42;
+let backgroundGate: Promise<void> | undefined;
+let refreshGate: Promise<void> | undefined;
+const liveEvidence: Record<string, unknown> = {};
+await context.route("**/v1/**", async (route) => {
+  const path = new URL(route.request().url()).pathname;
+  let body: unknown = [];
+  let status = 200;
+  if (path === "/v1/usage/overview") {
+    reads++;
+    if (backgroundGate) await backgroundGate;
+    if (mode === "loading") await new Promise((done) => setTimeout(done, 1200));
+    if (mode === "error") { status = 503; body = { error: { code: "service_unavailable", message: "Synthetic source is offline", detail: {} } }; }
+    else body = { revision: 42, as_of: Date.now(), last_observed_at: Date.now() - 3600000, history_status: { backfill: 1, partial: 1 }, sync_state: { status: "partial", discarded_event_count: 3, discard_reasons: { malformed_record: 1, unproven_reset: 2 } }, catalog: { public: { version: 1, sources: { "https://models.dev/api.json": { price_count: 42, reviewed_at: Date.now() - 3600000, error: null, retry_at: Date.now() + 3600000 }, "https://openrouter.ai/api/v1/models": { price_count: 20, reviewed_at: Date.now() - 7200000, error: "TimeoutError", retry_at: Date.now() + 300000 } } } }, timezone: "UTC", summary: mode === "empty" ? empty : metric, timeseries: mode === "empty" ? [] : Array.from({ length: 30 }, (_, index) => ({ ...metric, date: `2026-09-${String(index + 1).padStart(2, "0")}`, usd_equivalent: index % 7 === 0 ? null : String((index % 8 + 1) / 10), total_tokens: (index % 5 + 1) * 12000 })), breakdown: mode === "empty" ? [] : [{ ...metric, key: "example/model-standard" }, { ...metric, key: "deleted-session-with-retained-metrics", deleted: true, usd_equivalent: null }], breakdown_total: mode === "empty" ? 0 : 2, undated: mode === "empty" ? empty : { ...metric, fact_count: 2 }, unallocated: empty };
+  } else if (path === "/v1/usage/accounts") body = { revision: 42, as_of: Date.now(), accounts: [
+    { account_id: "synthetic-codex-profile", harness: "codex", status: "stale", observed_at: Date.now() - 3600000, plan: "Example subscription", verified: false, windows: [{ bucket_id: "codex", window: "primary", used_percent: 32, window_duration_minutes: 300, resets_at: Date.now() + 3600000 }, { bucket_id: "codex", window: "secondary", used_percent: 0, window_duration_minutes: 10080 }] },
+    { account_id: "synthetic-claude-profile", harness: "claude", status: "unavailable", observed_at: Date.now(), windows: [] },
+    { account_id: "synthetic-agy-profile", harness: "agy", status: "available", observed_at: Date.now(), windows: [{ bucket_id: "pro", remaining_fraction: 0.25, reset_time: new Date(Date.now() + 7200000).toISOString() }] },
+  ] };
+  else if (path === "/v1/usage/capabilities") body = { as_of: Date.now(), capabilities: [{ harness: "codex", live: "available", history: "partial", quotas: "available", detail: "Synthetic fixture; runtime qualification not implied." }, { harness: "claude", live: "available", history: "partial", quotas: "unsupported", detail: "No qualified quota reader." }] };
+  else if (path === "/v1/usage/refresh") { refreshes++; if (refreshGate) await refreshGate; body = { status: "completed", retry_after_ms: 0 }; }
+  else if (path === "/v1/agents/capabilities") body = {};
+  if (path === "/v1/usage/capabilities") capabilityReads++;
+  if (path === "/v1/usage/overview" && status === 200) Object.assign(body as object, { revision });
+  await route.fulfill({ status, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(body) });
+});
+const page = await context.newPage();
+const errors: string[] = [];
+page.on("pageerror", (error) => errors.push(error.message));
+const url = process.env.MANDRI_USAGE_SMOKE_URL ?? "http://127.0.0.1:1428";
+try {
+  await page.goto(`${url}/#/usage`);
+  const hero = page.locator(".usage-cards strong").first();
+  await hero.getByText("$1.00", { exact: true }).waitFor();
+  assert.equal(await page.getByText("Detailed value: $1.00292", { exact: true }).count(), 0);
+  await page.getByRole("button", { name: "About this amount" }).click();
+  await page.getByRole("dialog", { name: "About this amount" }).waitFor();
+  assert.equal(await page.getByText("Detailed value: $1.00292", { exact: true }).isVisible(), true);
+  await page.keyboard.press("Escape");
+  const initialReads = reads;
+  const initialCapabilities = capabilityReads;
+  await page.waitForTimeout(6000);
+  assert.equal(reads, initialReads);
+  assert.equal(capabilityReads, initialCapabilities);
+  liveEvidence.idleMilliseconds = 6000;
+  liveEvidence.idleOverviewReads = reads - initialReads;
+  liveEvidence.idleCapabilityReads = capabilityReads - initialCapabilities;
+  let seq = 0;
+  const sendRevision = (value: number) => {
+    assert.ok(usageSocket);
+    usageSocket.send(JSON.stringify({ topic: "usage.changed", seq: ++seq, source: "mandri", raw: { revision: value }, ts: Date.now() }));
+  };
+  usageSocket!.send(JSON.stringify({ op: "subscribed", topic: "usage.changed", from_seq: 0 }));
+  sendRevision(42); sendRevision(41); sendRevision(42);
+  await page.waitForTimeout(500);
+  assert.equal(reads, initialReads);
+  liveEvidence.duplicateOverviewReads = reads - initialReads;
+  let releaseBackground!: () => void;
+  backgroundGate = new Promise<void>((done) => { releaseBackground = done; });
+  const backgroundRequest = page.waitForRequest((request) => new URL(request.url()).pathname === "/v1/usage/overview");
+  revision = 45;
+  metric.usd_equivalent = "2.00292";
+  sendRevision(43); sendRevision(44); sendRevision(45);
+  await backgroundRequest;
+  assert.equal(await hero.innerText(), "$1.00");
+  assert.equal(await hero.isVisible(), true);
+  assert.equal(await page.locator(".usage-results").getAttribute("data-changing-inclusion"), "false");
+  assert.equal(await hero.evaluate((element) => getComputedStyle(element).opacity), "1");
+  assert.equal(await page.getByText("Loading usage snapshot…").count(), 0);
+  const sampleAnimation = () => hero.evaluate((element) => new Promise<string[]>((done) => {
+    const samples = [element.textContent ?? ""];
+    const observer = new MutationObserver(() => samples.push(element.textContent ?? ""));
+    observer.observe(element, { childList: true, characterData: true, subtree: true });
+    setTimeout(() => { observer.disconnect(); done(samples); }, 800);
+  }));
+  const animated = sampleAnimation();
+  await page.waitForTimeout(50);
+  releaseBackground(); backgroundGate = undefined;
+  const animationSamples = await animated;
+  assert.equal(await hero.innerText(), "$2.00");
+  assert.ok(animationSamples.some((value) => value !== "$1.00" && value !== "$2.00"), JSON.stringify(animationSamples));
+  assert.equal(reads - initialReads, 1);
+  assert.equal(capabilityReads, initialCapabilities);
+  liveEvidence.coalescedOverviewReads = reads - initialReads;
+  liveEvidence.animationSamples = animationSamples;
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const reduced = sampleAnimation();
+  revision = 46; metric.usd_equivalent = "3.00292"; sendRevision(46);
+  const reducedSamples = await reduced;
+  assert.equal(await hero.innerText(), "$3.00");
+  assert.ok(reducedSamples.every((value) => value === "$2.00" || value === "$3.00"), JSON.stringify(reducedSamples));
+  liveEvidence.reducedMotionSamples = reducedSamples;
+  revision = 47; metric.usd_equivalent = "1.00292"; sendRevision(47);
+  await hero.getByText("$1.00", { exact: true }).waitFor();
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  assert.equal(await page.getByRole("heading", { name: "Current API equivalent", exact: true }).isVisible(), true);
+  assert.equal(await page.getByText("API equivalent · not your subscription bill", { exact: true }).count(), 0);
+  assert.equal(await page.locator(".usage-quality summary").count(), 1);
+  assert.equal(await page.getByText(/3 excluded daemon events/).isVisible(), true);
+  assert.equal(await page.getByText("models.dev", { exact: true }).count(), 0);
+  await page.getByRole("button", { name: "Price sources" }).click();
+  assert.equal(await page.getByText("models.dev", { exact: true }).isVisible(), true);
+  assert.equal(await page.getByText("Stale prices · last update failed", { exact: true }).isVisible(), true);
+  await page.screenshot({ path: resolve(output, "price-info.png"), fullPage: true });
+  await page.keyboard.press("Escape");
+  const stableCard = await hero.elementHandle();
+  const stableChart = await page.locator(".usage-chart").elementHandle();
+  backgroundGate = new Promise<void>((done) => { releaseBackground = done; });
+  const filterRequest = page.waitForRequest((request) => new URL(request.url()).searchParams.get("include_deleted") === "false");
+  const inclusion = page.getByRole("checkbox", { name: "Include deleted sessions" });
+  assert.equal(await inclusion.isVisible(), true);
+  await inclusion.uncheck();
+  await filterRequest;
+  assert.equal(await page.locator(".usage-skeleton").count(), 0);
+  assert.equal(await stableCard!.evaluate((element) => element.isConnected), true);
+  assert.equal(await stableChart!.evaluate((element) => element.isConnected), true);
+  assert.equal(await page.locator(".usage-results").getAttribute("aria-busy"), "true");
+  assert.equal(await page.locator(".usage-results").getAttribute("data-changing-inclusion"), "true");
+  assert.equal(await hero.isVisible(), false);
+  metric.usd_equivalent = "1.50292";
+  releaseBackground(); backgroundGate = undefined;
+  await hero.getByText("$1.50", { exact: true }).waitFor();
+  assert.equal(await stableCard!.evaluate((element) => element.isConnected), true);
+  assert.equal(await stableChart!.evaluate((element) => element.isConnected), true);
+  liveEvidence.filterDomPreserved = true;
+  metric.usd_equivalent = "1.00292";
+  await inclusion.check();
+  await hero.getByText("$1.00", { exact: true }).waitFor();
+  await page.screenshot({ path: resolve(output, "desktop-dark.png"), fullPage: true });
+  await page.locator(".usage-quality summary").click();
+  await page.screenshot({ path: resolve(output, "quality-details.png"), fullPage: true });
+  await page.locator(".usage-quality summary").click();
+  await page.locator(".usage-footer").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: resolve(output, "compact-footer.png"), fullPage: true });
+  const firstDay = page.locator(".usage-bar-slot").first();
+  await firstDay.focus();
+  await page.keyboard.press("ArrowRight");
+  assert.equal(await page.locator(".usage-bar-slot").nth(1).evaluate((element) => element === document.activeElement), true);
+  assert.ok((await page.locator(".usage-chart-readout").innerText()).includes("Sep 2"));
+  await page.getByRole("button", { name: "Tokens", exact: true }).click();
+  assert.ok((await page.locator(".usage-chart-readout").innerText()).includes("24,000"));
+  await page.getByRole("button", { name: "USD equivalent", exact: true }).click();
+  assert.equal(refreshes, 0);
+  await page.getByText("Show daily data table", { exact: true }).click();
+  assert.equal(await page.getByRole("table", { name: "Daily usage", exact: true }).isVisible(), true);
+  await page.getByText("Show daily data table", { exact: true }).click();
+  let releaseRefresh!: () => void;
+  refreshGate = new Promise<void>((done) => { releaseRefresh = done; });
+  await page.getByRole("button", { name: "Refresh sources" }).click();
+  await page.getByRole("button", { name: "Refreshing sources" }).waitFor();
+  assert.equal(await page.getByRole("button", { name: "Refreshing sources" }).isDisabled(), true);
+  assert.equal(refreshes, 1);
+  releaseRefresh();
+  await page.getByRole("button", { name: "Refresh sources" }).waitFor();
+  await page.getByRole("button", { name: "Accounts", exact: true }).click();
+  await page.getByText("Stale snapshot").waitFor();
+  assert.equal(await page.getByRole("progressbar").count(), 3);
+  await page.screenshot({ path: resolve(output, "accounts-dark.png"), fullPage: true });
+  await page.evaluate(() => { document.documentElement.dataset.theme = "light"; });
+  await page.screenshot({ path: resolve(output, "accounts-light.png"), fullPage: true });
+  await page.getByRole("button", { name: "Consumption", exact: true }).click();
+  await hero.getByText("$1.00", { exact: true }).waitFor();
+  assert.equal(capabilityReads, initialCapabilities);
+  await page.screenshot({ path: resolve(output, "desktop-light.png"), fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: resolve(output, "mobile-light.png"), fullPage: true });
+  const overflow = await page.locator(".usage-page").evaluate((element) => ({ width: element.clientWidth, scroll: element.scrollWidth, right: element.getBoundingClientRect().right, viewport: innerWidth }));
+  assert.ok(overflow.scroll <= overflow.width + 1 && overflow.right <= overflow.viewport + 1, JSON.stringify(overflow));
+  await page.locator(".usage-cards").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: resolve(output, "mobile-cards.png"), fullPage: true });
+  await page.locator(".usage-chart").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: resolve(output, "mobile-chart.png"), fullPage: true });
+  await page.evaluate(async () => {
+    const { changeLocale } = await import(String("/src/i18n/index.ts"));
+    await changeLocale("fr");
+  });
+  await page.getByRole("heading", { name: "Consommation quotidienne" }).waitFor();
+  await page.screenshot({ path: resolve(output, "mobile-chart-fr.png"), fullPage: true });
+  for (const width of [320, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    const fits = await page.locator(".usage-page").evaluate((element) => element.scrollWidth <= element.clientWidth + 1 && element.getBoundingClientRect().right <= innerWidth + 1);
+    assert.ok(fits, `French layout overflows at ${width}px`);
+    await page.getByRole("button", { name: "À propos du montant" }).click();
+    const panelFits = await page.getByRole("dialog").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight;
+    });
+    assert.ok(panelFits, `Info panel overflows at ${width}px`);
+    await page.keyboard.press("Escape");
+  }
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  await page.locator(".usage-page-header").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: resolve(output, "desktop-light-fr.png"), fullPage: true });
+  await page.evaluate(async () => {
+    const { changeLocale } = await import(String("/src/i18n/index.ts"));
+    await changeLocale("en");
+  });
+  await page.setViewportSize({ width: 1440, height: 1050 });
+  mode = "empty"; await page.reload(); await page.getByText(/This does not establish zero consumption/).waitFor();
+  await page.screenshot({ path: resolve(output, "empty.png"), fullPage: true });
+  mode = "error"; await page.reload(); await page.getByRole("button", { name: "Retry", exact: true }).waitFor();
+  await page.screenshot({ path: resolve(output, "error.png"), fullPage: true });
+  mode = "loading"; await page.reload(); await page.getByText("Loading usage snapshot…").waitFor();
+  await page.screenshot({ path: resolve(output, "loading.png"), fullPage: true });
+  await hero.getByText("$1.00", { exact: true }).waitFor();
+  await page.evaluate(async () => {
+    const { connectionStore } = await import(String("/src/stores/connection.ts"));
+    connectionStore.getState().setStatus("offline");
+  });
+  await page.getByText(/Daemon disconnected/).waitFor();
+  await page.screenshot({ path: resolve(output, "offline.png"), fullPage: true });
+  assert.equal(errors.length, 0, errors.join("\n"));
+  console.log(JSON.stringify({ output, reads, capabilityReads, refreshes, errors, overflow, liveEvidence }));
+} catch (error) {
+  await page.screenshot({ path: resolve(output, "failure.png"), fullPage: true });
+  console.error(await page.locator("body").innerText(), errors);
+  throw error;
+} finally { await browser.close(); }

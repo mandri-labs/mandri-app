@@ -1,0 +1,84 @@
+.collection-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-raised);
+}
+
+.collection-panel-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.collection-panel-item {
+  min-width: 0;
+  padding: 14px;
+}
+
+.collection-panel-item + .collection-panel-item {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.collection-panel-item--selected {
+  background: var(--color-base-hover);
+}
+
+.collection-panel-empty {
+  margin: 0;
+  padding: 24px 14px 14px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body);
+  text-align: center;
+}
+
+.collection-panel-footer {
+  padding: 12px;
+}
+
+.collection-panel-list + .collection-panel-footer {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.collection-panel-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.collection-panel-add > svg {
+  flex-shrink: 0;
+}
+
+.collection-panel-add:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
+}
+
+.collection-panel :is(button, input, select):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collection-panel-add {
+    transition: none;
+  }
+}

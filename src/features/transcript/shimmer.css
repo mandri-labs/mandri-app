@@ -1,0 +1,41 @@
+/* Keep normal text as the fallback when text clipping is unavailable. */
+.tr-shimmer {
+  display: inline-block;
+  color: var(--color-text-muted);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .tr-shimmer {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-text-muted) 0%,
+      var(--color-text-muted) 35%,
+      var(--color-text-primary) 50%,
+      var(--color-text-muted) 65%,
+      var(--color-text-muted) 100%
+    );
+    background-size: 300% 100%;
+    background-repeat: no-repeat;
+    background-position: 100% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: transcript-shimmer 4s linear .6s infinite;
+  }
+}
+
+/* A one-second left-to-right sweep followed by three seconds at rest. */
+@keyframes transcript-shimmer {
+  0% { background-position: 100% 0; }
+  25%, 100% { background-position: 0% 0; }
+}
+
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .tr-shimmer {
+    animation: none;
+    background: none;
+    color: var(--color-text-muted);
+    -webkit-text-fill-color: currentColor;
+  }
+}

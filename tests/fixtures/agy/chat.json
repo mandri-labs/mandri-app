@@ -1,0 +1,57 @@
+{
+  "harness": "agy",
+  "scenario": "chat",
+  "modelRef": "synthetic/local",
+  "capturedAt": "2026-09-11T00:00:00Z",
+  "daemonVersionHint": "synthetic contract fixture; not a captured inference",
+  "frames": [
+    {
+      "topic": "session.synthetic-agy-session",
+      "seq": 1,
+      "ts": 1000,
+      "frame": {
+        "topic": "session.synthetic-agy-session",
+        "seq": 1,
+        "source": "agy",
+        "raw": {
+          "event": "step_update",
+          "step_update": {
+            "conversation_id": "synthetic-agy-conversation",
+            "step_index": 0,
+            "state": "DONE",
+            "step_type": "user_input",
+            "text_delta": "Synthetic greeting"
+          }
+        },
+        "ts": 1000
+      }
+    },
+    {
+      "topic": "session.synthetic-agy-session",
+      "seq": 2,
+      "ts": 1001,
+      "frame": {
+        "topic": "session.synthetic-agy-session",
+        "seq": 2,
+        "source": "agy",
+        "raw": {
+          "event": "step_update",
+          "step_update": {
+            "conversation_id": "synthetic-agy-conversation",
+            "step_index": 1,
+            "state": "DONE",
+            "step_type": "agent_response",
+            "text_delta": "Hello from the synthetic fixture."
+          }
+        },
+        "ts": 1001
+      }
+    }
+  ],
+  "history": {
+    "entries": [
+      "{\"step_index\": 0, \"type\": \"USER_INPUT\", \"status\": \"DONE\", \"content\": \"Synthetic greeting\"}",
+      "{\"step_index\": 1, \"type\": \"PLANNER_RESPONSE\", \"status\": \"DONE\", \"content\": \"Hello from the synthetic fixture.\"}"
+    ]
+  }
+}

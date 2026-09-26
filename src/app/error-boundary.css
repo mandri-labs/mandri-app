@@ -1,0 +1,81 @@
+.error-boundary {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.error-boundary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 560px;
+  max-width: 100%;
+  padding: 20px;
+  background: var(--color-diff-del-bg);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+}
+
+.error-boundary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--color-diff-del-fg);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-heading);
+}
+
+.error-boundary-title svg {
+  flex: none;
+  stroke-width: var(--icon-stroke-width);
+}
+
+.error-boundary-note {
+  margin: 0;
+  color: var(--color-diff-del-fg);
+  font-size: var(--font-size-label);
+}
+
+.error-boundary-detail {
+  margin: 0;
+  max-height: 160px;
+  overflow: auto;
+  padding: 10px;
+  background: var(--color-base);
+  border-radius: var(--radius-sm);
+  color: var(--color-diff-del-fg);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-code);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.error-boundary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.error-boundary-copied {
+  color: var(--color-accent-bright);
+  font-size: var(--font-size-small);
+}
+
+.error-boundary-button {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-base);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-label);
+  cursor: pointer;
+}
+
+.error-boundary-button:hover {
+  background: var(--color-base-hover);
+}

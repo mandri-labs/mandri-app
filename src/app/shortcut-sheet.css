@@ -1,0 +1,61 @@
+.shortcut-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 96px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.shortcut-sheet-panel {
+  width: 420px;
+  max-width: calc(100vw - 48px);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 20px;
+  background: var(--color-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-dialog);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.shortcut-sheet-title {
+  margin: 0 0 12px;
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-heading);
+  color: var(--color-text-primary);
+}
+
+.shortcut-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcut-sheet-table td {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-label);
+  color: var(--color-text-primary);
+}
+
+.shortcut-sheet-table tr:last-child td {
+  border-bottom: none;
+}
+
+.shortcut-sheet-table td:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.shortcut-sheet-key {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--color-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-code);
+}

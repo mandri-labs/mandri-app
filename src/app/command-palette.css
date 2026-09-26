@@ -1,0 +1,103 @@
+.command-palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(16px, 12vh, 96px) 16px 16px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.command-palette-panel {
+  display: flex;
+  flex-direction: column;
+  width: 520px;
+  max-width: 100%;
+  max-height: min(560px, calc(100dvh - clamp(16px, 12vh, 96px) - 16px));
+  overflow: hidden;
+  background: var(--color-raised);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-dialog);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.command-palette-input {
+  flex: 0 0 auto;
+  min-width: 0;
+  height: 38px;
+  margin: 10px 10px 8px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-ui);
+  font-size: var(--font-size-label);
+}
+
+.command-palette-input:focus {
+  outline: none;
+  border-color: var(--color-border-strong);
+}
+.command-palette-input::placeholder { color: var(--color-text-muted); }
+
+.command-palette-list {
+  flex: 1 1 auto;
+  margin: 0;
+  min-height: 0;
+  padding: 0 10px 10px;
+  overflow-y: auto;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  overscroll-behavior: contain;
+}
+.command-palette-list > li { flex: none; min-width: 0; }
+
+.command-palette-section {
+  margin-top: 8px;
+  padding: 12px 10px 6px;
+  border-top: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.command-palette-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-label);
+  text-align: left;
+  cursor: pointer;
+}
+.command-palette-item > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.command-palette-item:hover {
+  background: var(--color-base-hover);
+}
+
+.command-palette-item--active,
+.command-palette-item--active:hover {
+  background: var(--color-surface-high);
+}
+
+.command-palette-item .session-dot {
+  margin-left: auto;
+}
+
+.command-palette-empty {
+  padding: 16px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-body);
+}

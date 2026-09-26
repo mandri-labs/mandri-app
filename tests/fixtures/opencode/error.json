@@ -1,0 +1,3728 @@
+{
+  "harness": "opencode",
+  "scenario": "error",
+  "modelRef": "openrouter/z-ai/glm-5.3-flash",
+  "capturedAt": "2026-09-04T20:27:20.168Z",
+  "frames": [
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 1,
+      "ts": 1788553643255,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 1,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac4f3001dW0r6PF2EpRXIi",
+          "type": "server.connected",
+          "properties": {}
+        },
+        "ts": 1788553643255
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788553643270,
+      "frame": {
+        "type": "response",
+        "op_id": "session.prompt-1788553643231-su3ohg",
+        "ok": true,
+        "result": {
+          "session_id": "5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+          "state": "steered",
+          "code": null
+        },
+        "error": null
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 2,
+      "ts": 1788553643340,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 2,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac53c001HoyJpKPVy7TSDH",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "New session - 2026-09-04T20:27:23.191Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553643322
+              }
+            }
+          }
+        },
+        "ts": 1788553643340
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 3,
+      "ts": 1788553644153,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 3,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac544001JV481qGPftQNcm",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "user",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "time": {
+                "created": 1788553643322
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              }
+            }
+          }
+        },
+        "ts": 1788553644153
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 4,
+      "ts": 1788553644153,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 4,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac7e6001JLwQUFi5aeitLx",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "text",
+              "text": "Use the shell to run exactly this command: node -e \"process.exit(3)\". Report the command result.",
+              "messageID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "id": "prt_06e1ac54300117Hfdh24DnDk3n"
+            },
+            "time": 1788553644005
+          }
+        },
+        "ts": 1788553644153
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 5,
+      "ts": 1788553644153,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 5,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac7eb001QCuFYFkFwNeKWS",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "New session - 2026-09-04T20:27:23.191Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553644009
+              }
+            }
+          }
+        },
+        "ts": 1788553644153
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 6,
+      "ts": 1788553644186,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 6,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac7f1001lIti0eN3Nc1FnW",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553644186
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 7,
+      "ts": 1788553644186,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 7,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ac7f5001VTy7KptREJT5Ni",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553644021
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553644186
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 8,
+      "ts": 1788553646099,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 8,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1acff9001hZg3Yb6xldlj4h",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "New session - 2026-09-04T20:27:23.191Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553646072
+              }
+            }
+          }
+        },
+        "ts": 1788553646099
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 9,
+      "ts": 1788553646099,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 9,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1acffe001DmFROliGLijJ55",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "diff": []
+          }
+        },
+        "ts": 1788553646099
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 10,
+      "ts": 1788553646099,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 10,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0010015grJQ4Z4Iaxt4Z",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553643322
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "id": "msg_06e1ac53a001a4urNowwF69nQH",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "summary": {
+                "diffs": []
+              }
+            }
+          }
+        },
+        "ts": 1788553646099
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 11,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 11,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad07e001GBsxMf1sNqCr3P",
+          "type": "plugin.added",
+          "properties": {
+            "id": "core/config-reference"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 12,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 12,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad080001pHtcuQaPRDJUmv",
+          "type": "plugin.added",
+          "properties": {
+            "id": "agent"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 13,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 13,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad082001QY1cj6ke9pYfQ5",
+          "type": "plugin.added",
+          "properties": {
+            "id": "command"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 14,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 14,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad083001MNOz1orxlCucyk",
+          "type": "plugin.added",
+          "properties": {
+            "id": "skill"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 15,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 15,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad088001pIjBMrWRAQAOsI",
+          "type": "plugin.added",
+          "properties": {
+            "id": "models-dev"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 16,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 16,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad08a001OWWiaNF2ixx2Sj",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-agent"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 17,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 17,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad08b001fjJFb4hIhRlcDz",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-command"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 18,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 18,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad08d0019rmJIcE6SByYPm",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-skill"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 19,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 19,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad08f0019TLwj7HXhzaLS1",
+          "type": "plugin.added",
+          "properties": {
+            "id": "alibaba"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 20,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 20,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0910015DfH1IAuVrKvoS",
+          "type": "plugin.added",
+          "properties": {
+            "id": "amazon-bedrock"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 21,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 21,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad092001KJ1CR0aewNdaqT",
+          "type": "plugin.added",
+          "properties": {
+            "id": "anthropic"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 22,
+      "ts": 1788553646319,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 22,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad093001IOXFjrJv0xiaz3",
+          "type": "plugin.added",
+          "properties": {
+            "id": "azure-cognitive-services"
+          }
+        },
+        "ts": 1788553646319
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 23,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 23,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e0001cNnFSq7aQAg5P2",
+          "type": "plugin.added",
+          "properties": {
+            "id": "azure"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 24,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 24,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e1001UVfgGsjNYIXAqx",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cerebras"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 25,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 25,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e1002nEsaCtG5yvqaRr",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cloudflare-ai-gateway"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 26,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 26,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e300117WooTlBw9FwGD",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cloudflare-workers-ai"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 27,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 27,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e3002TyHvYMeLN1Y4GN",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cohere"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 28,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 28,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e40018RnYr7DZBx06L4",
+          "type": "plugin.added",
+          "properties": {
+            "id": "deepinfra"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 29,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 29,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e40024AW3CfcvgyJa8U",
+          "type": "plugin.added",
+          "properties": {
+            "id": "gateway"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 30,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 30,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e5001dgRv3YTDPcUsOn",
+          "type": "plugin.added",
+          "properties": {
+            "id": "github-copilot"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 31,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 31,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e6001B98ry9IWAXSnFb",
+          "type": "plugin.added",
+          "properties": {
+            "id": "gitlab"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 32,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 32,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e7001XkVrCs6siTsSNY",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 33,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 33,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0e8001PYybivxs9wh4n6",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google-vertex-anthropic"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 34,
+      "ts": 1788553646344,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 34,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0ea001LLFI8f4sa2CJ6r",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google-vertex"
+          }
+        },
+        "ts": 1788553646344
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 35,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 35,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad0ff001op2llTnvOgMrwZ",
+          "type": "plugin.added",
+          "properties": {
+            "id": "groq"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 36,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 36,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad100001DNZyA2WFM4bYgM",
+          "type": "plugin.added",
+          "properties": {
+            "id": "kilo"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 37,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 37,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad100002aUQEzXbdSeHg7E",
+          "type": "plugin.added",
+          "properties": {
+            "id": "llmgateway"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 38,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 38,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad101001yujEKSoWlaqoSq",
+          "type": "plugin.added",
+          "properties": {
+            "id": "mistral"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 39,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 39,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad101002Js2XijLwZ2VuIN",
+          "type": "plugin.added",
+          "properties": {
+            "id": "nvidia"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 40,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 40,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad104001fAdjNbr67Tdfva",
+          "type": "plugin.added",
+          "properties": {
+            "id": "opencode"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 41,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 41,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad104002r7611rO1669uRQ",
+          "type": "plugin.added",
+          "properties": {
+            "id": "snowflake-cortex"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 42,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 42,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad104003XdVTCJz64y9H1L",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openai-compatible"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 43,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 43,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad105001NIHH33ZHypvgjo",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openai"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 44,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 44,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad106001s39FxJfZ1Yddap",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openrouter"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 45,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 45,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad1060026aNbm7P8t3Onwi",
+          "type": "plugin.added",
+          "properties": {
+            "id": "perplexity"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 46,
+      "ts": 1788553646696,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 46,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad107001jD0DM1y3glfiRU",
+          "type": "plugin.added",
+          "properties": {
+            "id": "sap-ai-core"
+          }
+        },
+        "ts": 1788553646696
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 47,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 47,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad259001NBI6hVzFuWhNdM",
+          "type": "catalog.updated",
+          "properties": {}
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 48,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 48,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad107002WbEf3s5ukxsRRB",
+          "type": "plugin.added",
+          "properties": {
+            "id": "togetherai"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 49,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 49,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25a001vUcwmgmX8LsqM2",
+          "type": "plugin.added",
+          "properties": {
+            "id": "vercel"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 50,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 50,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25b001BaAvAhf3eLx2Sl",
+          "type": "plugin.added",
+          "properties": {
+            "id": "venice"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 51,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 51,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25b0021VvyOtI7DTgxAB",
+          "type": "plugin.added",
+          "properties": {
+            "id": "xai"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 52,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 52,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25c001xpRS1S9yD198mO",
+          "type": "plugin.added",
+          "properties": {
+            "id": "zenmux"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 53,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 53,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25c002Od4Izaa9HOTDcl",
+          "type": "plugin.added",
+          "properties": {
+            "id": "dynamic-provider"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 54,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 54,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad25f001toWsurvIBt0lQS",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-plugin"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 55,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 55,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad260001tkJMDu877B6N4p",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-provider"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 56,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 56,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad261001BKOSyaNBBmkmBq",
+          "type": "plugin.added",
+          "properties": {
+            "id": "variant"
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 57,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 57,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad263001AoBw4p7Ms3Q3bO",
+          "type": "reference.updated",
+          "properties": {}
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 58,
+      "ts": 1788553646734,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 58,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad286001136gbERoqQ0KK7",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "Running node -e process.exit(3)",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553646072
+              }
+            }
+          }
+        },
+        "ts": 1788553646734
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 59,
+      "ts": 1788553646986,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 59,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad2cd001NHBVsvNl5LedGD",
+          "type": "integration.updated",
+          "properties": {}
+        },
+        "ts": 1788553646986
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 60,
+      "ts": 1788553646986,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 60,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad388001MXZVzb3lQaQOzp",
+          "type": "catalog.updated",
+          "properties": {}
+        },
+        "ts": 1788553646986
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 61,
+      "ts": 1788553647017,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 61,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad3a60014fIKLUCktgGjGG",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553647017
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 62,
+      "ts": 1788553647872,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 62,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad6f7001piZA0V5FRBqBHc",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ad6f6001elgv2cMwU9V8Cw",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-start"
+            },
+            "time": 1788553647863
+          }
+        },
+        "ts": 1788553647872
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 63,
+      "ts": 1788553647872,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 63,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad6fb001mxX8ip3R3bNr0v",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "reasoning",
+              "text": "",
+              "time": {
+                "start": 1788553647867
+              }
+            },
+            "time": 1788553647867
+          }
+        },
+        "ts": 1788553647872
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 64,
+      "ts": 1788553647872,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 64,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad6ff0010cbllnAoOFLO1x",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": "User"
+          }
+        },
+        "ts": 1788553647872
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 65,
+      "ts": 1788553647882,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 65,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad709001964y2upXyBqD6h",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " wants exact"
+          }
+        },
+        "ts": 1788553647882
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 66,
+      "ts": 1788553647913,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 66,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad727001V5uizQVnTjnnWr",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " command run via"
+          }
+        },
+        "ts": 1788553647913
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 67,
+      "ts": 1788553647922,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 67,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad731001VxLBfrNQHyRDAq",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " shell. Windows"
+          }
+        },
+        "ts": 1788553647922
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 68,
+      "ts": 1788553647952,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 68,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad74f001N5WSZoOkhPl7lD",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " PowerShell."
+          }
+        },
+        "ts": 1788553647952
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 69,
+      "ts": 1788553647976,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 69,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7670012xhPoOeDKp4a1d",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " Command"
+          }
+        },
+        "ts": 1788553647976
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 70,
+      "ts": 1788553647992,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 70,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad777001bTo7Y0qedDkL5c",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": ": node -e"
+          }
+        },
+        "ts": 1788553647992
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 71,
+      "ts": 1788553648016,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 71,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad78f001mwGHhFfcb4IQAh",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " \"process.exit("
+          }
+        },
+        "ts": 1788553648016
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 72,
+      "ts": 1788553648036,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 72,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7a3001rvpOsZ1EhBMWiH",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": "3)\". Node"
+          }
+        },
+        "ts": 1788553648036
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 73,
+      "ts": 1788553648049,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 73,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7b00013rb0vy3RBlqPcm",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " exits with code"
+          }
+        },
+        "ts": 1788553648049
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 74,
+      "ts": 1788553648077,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 74,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7cb001ghIrZ33G2Sfkle",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " 3. PowerShell"
+          }
+        },
+        "ts": 1788553648077
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 75,
+      "ts": 1788553648105,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 75,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7e8001aVSDl1ukF1K30H",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": " will report exit code"
+          }
+        },
+        "ts": 1788553648105
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 76,
+      "ts": 1788553648120,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 76,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad7f6001OBc4CwxNIVTFpJ",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+            "partID": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+            "field": "text",
+            "delta": ". Run it."
+          }
+        },
+        "ts": 1788553648120
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 77,
+      "ts": 1788553648149,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 77,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad80b001FC7huyPm1tApxf",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ad6fb0013fLLoIoayioJ2Z",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "reasoning",
+              "text": "User wants exact command run via shell. Windows PowerShell. Command: node -e \"process.exit(3)\". Node exits with code 3. PowerShell will report exit code. Run it.",
+              "time": {
+                "start": 1788553647867,
+                "end": 1788553648139
+              }
+            },
+            "time": 1788553648139
+          }
+        },
+        "ts": 1788553648149
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 78,
+      "ts": 1788553648149,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 78,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad810001pCqoujvJTBsr8j",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ad810001tJ0JcwI0hdoVeW",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-a0dcd39467665390",
+              "state": {
+                "status": "pending",
+                "input": {},
+                "raw": ""
+              }
+            },
+            "time": 1788553648144
+          }
+        },
+        "ts": 1788553648149
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 79,
+      "ts": 1788553648228,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 79,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad858001uPOVeK4Pmb4GBD",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-a0dcd39467665390",
+              "state": {
+                "status": "running",
+                "input": {
+                  "command": "node -e \"process.exit(3)\""
+                },
+                "time": {
+                  "start": 1788553648216
+                }
+              },
+              "id": "prt_06e1ad810001tJ0JcwI0hdoVeW",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs"
+            },
+            "time": 1788553648216
+          }
+        },
+        "ts": 1788553648228
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 80,
+      "ts": 1788553648283,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 80,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ad89500138bkHmCcEm29Qx",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-a0dcd39467665390",
+              "state": {
+                "metadata": {
+                  "output": ""
+                },
+                "status": "running",
+                "input": {
+                  "command": "node -e \"process.exit(3)\""
+                },
+                "time": {
+                  "start": 1788553648216
+                }
+              },
+              "id": "prt_06e1ad810001tJ0JcwI0hdoVeW",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs"
+            },
+            "time": 1788553648277
+          }
+        },
+        "ts": 1788553648283
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 81,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 81,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add57001Vcnec2BA9C13Bp",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-a0dcd39467665390",
+              "state": {
+                "status": "completed",
+                "input": {
+                  "command": "node -e \"process.exit(3)\""
+                },
+                "output": "(no output)",
+                "metadata": {
+                  "output": "(no output)",
+                  "exit": 1,
+                  "truncated": false
+                },
+                "title": "node -e \"process.exit(3)\"",
+                "time": {
+                  "start": 1788553648216,
+                  "end": 1788553649495
+                }
+              },
+              "id": "prt_06e1ad810001tJ0JcwI0hdoVeW",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs"
+            },
+            "time": 1788553649495
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 82,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 82,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add5e0016XAQaJDMyGlRNR",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1add5e001xNYzAhGfriX0I4",
+              "reason": "tool-calls",
+              "messageID": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-finish",
+              "tokens": {
+                "total": 13790,
+                "input": 13733,
+                "output": 19,
+                "reasoning": 38,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "cost": 0
+            },
+            "time": 1788553649502
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 83,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 83,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add62001YJnf0TouuLTSpk",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13790,
+                "input": 13733,
+                "output": 19,
+                "reasoning": 38,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553644021,
+                "completed": 1788553649510
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "tool-calls"
+            }
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 84,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 84,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add67001ZnUhNyvPT6cU9d",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ac7f5001WGG4kR72WtzBGs",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13790,
+                "input": 13733,
+                "output": 19,
+                "reasoning": 38,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553644021,
+                "completed": 1788553649510
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "tool-calls"
+            }
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 85,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 85,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add690018NJp7Y6rSjeHqa",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 86,
+      "ts": 1788553649543,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 86,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add6d001fR7KiAC2ZR48vx",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553649517
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553649543
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 87,
+      "ts": 1788553649554,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 87,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add80001PT7MxRGxDKfVIo",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "Running node -e process.exit(3)",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 13733,
+                "output": 19,
+                "reasoning": 38,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553649535
+              }
+            }
+          }
+        },
+        "ts": 1788553649554
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 88,
+      "ts": 1788553649554,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 88,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add83001F3GAnDFAt38V0P",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "diff": []
+          }
+        },
+        "ts": 1788553649554
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 89,
+      "ts": 1788553649554,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 89,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add84001A3GhFMv9WYhJbE",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553643322
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "summary": {
+                "diffs": []
+              },
+              "id": "msg_06e1ac53a001a4urNowwF69nQH",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553649554
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 90,
+      "ts": 1788553649561,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 90,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1add97001txhtPvcaH9rWB3",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553649561
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 91,
+      "ts": 1788553650470,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 91,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae11e0019b9ooU1LtjLoxa",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ae11e001ZS9KtZErIcf4dD",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-start"
+            },
+            "time": 1788553650462
+          }
+        },
+        "ts": 1788553650470
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 92,
+      "ts": 1788553650470,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 92,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae122001n609ADRzyRT1Ai",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ae122001vk6CuDLqqMgvPl",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "reasoning",
+              "text": "",
+              "time": {
+                "start": 1788553650466
+              }
+            },
+            "time": 1788553650466
+          }
+        },
+        "ts": 1788553650470
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 93,
+      "ts": 1788553650470,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 93,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1250010UEJNXU2o0P1DT",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "Command"
+          }
+        },
+        "ts": 1788553650470
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 94,
+      "ts": 1788553650527,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 94,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae15d001ClYxxkj8MpMhK8",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " produced"
+          }
+        },
+        "ts": 1788553650527
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 95,
+      "ts": 1788553650527,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 95,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae15e001TwX0RkP5kb3qcc",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " no output. Exit"
+          }
+        },
+        "ts": 1788553650527
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 96,
+      "ts": 1788553650527,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 96,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae15e002vNLAIbxMW11jo1",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " code 3 —"
+          }
+        },
+        "ts": 1788553650527
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 97,
+      "ts": 1788553650527,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 97,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae15e0039sxBIFQvm4Ecrf",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " tool"
+          }
+        },
+        "ts": 1788553650527
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 98,
+      "ts": 1788553650538,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 98,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1690019e24VTQ3vbHhiF",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " doesn"
+          }
+        },
+        "ts": 1788553650538
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 99,
+      "ts": 1788553650562,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 99,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae181001Z5SsQ9wrfI6PjC",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "'t show exit"
+          }
+        },
+        "ts": 1788553650562
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 100,
+      "ts": 1788553650579,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 100,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae192001QAX1VKC0LuWNiE",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " code but"
+          }
+        },
+        "ts": 1788553650579
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 101,
+      "ts": 1788553650606,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 101,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1ad0012IuNvct8Tgl4kf",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " likely"
+          }
+        },
+        "ts": 1788553650606
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 102,
+      "ts": 1788553650619,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 102,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1ba0016yfDXv4FuGulg6",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " erro"
+          }
+        },
+        "ts": 1788553650619
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 103,
+      "ts": 1788553650649,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 103,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1d8001PgTCszQAcYmJ7V",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "red silently"
+          }
+        },
+        "ts": 1788553650649
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 104,
+      "ts": 1788553650661,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 104,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae1e4001gfgv5OYNRWUwOM",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "? Result"
+          }
+        },
+        "ts": 1788553650661
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 105,
+      "ts": 1788553650692,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 105,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae20300187yF5lt58zpM3y",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " shows \"("
+          }
+        },
+        "ts": 1788553650692
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 106,
+      "ts": 1788553650713,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 106,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae218001ZKN5LVE9rtElOl",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "no output)\"."
+          }
+        },
+        "ts": 1788553650713
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 107,
+      "ts": 1788553650729,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 107,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae2280011qLc2cVFa556Cn",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " Verify"
+          }
+        },
+        "ts": 1788553650729
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 108,
+      "ts": 1788553650759,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 108,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae246001qcEgQTDRO4tsmz",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": " exit code explicitly"
+          }
+        },
+        "ts": 1788553650759
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 109,
+      "ts": 1788553650782,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 109,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae2540014McP59KThu4vbB",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+            "partID": "prt_06e1ae122001vk6CuDLqqMgvPl",
+            "field": "text",
+            "delta": "."
+          }
+        },
+        "ts": 1788553650782
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 110,
+      "ts": 1788553650783,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 110,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae256001uDg3iQVgAZpawh",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ae122001vk6CuDLqqMgvPl",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "reasoning",
+              "text": "Command produced no output. Exit code 3 — tool doesn't show exit code but likely errored silently? Result shows \"(no output)\". Verify exit code explicitly.",
+              "time": {
+                "start": 1788553650466,
+                "end": 1788553650773
+              }
+            },
+            "time": 1788553650774
+          }
+        },
+        "ts": 1788553650783
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 111,
+      "ts": 1788553650783,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 111,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae25a001aGDTZMYj8crajL",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ae25a001R78ULM0bV8ZeuJ",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-860cd19f4cecad64",
+              "state": {
+                "status": "pending",
+                "input": {},
+                "raw": ""
+              }
+            },
+            "time": 1788553650778
+          }
+        },
+        "ts": 1788553650783
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 112,
+      "ts": 1788553651824,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 112,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae2ea001BVfDsxvoQ9Q0Iv",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-860cd19f4cecad64",
+              "state": {
+                "metadata": {
+                  "output": ""
+                },
+                "status": "running",
+                "input": {
+                  "command": "node -e \"process.exit(3)\"; $LASTEXITCODE"
+                },
+                "time": {
+                  "start": 1788553650921
+                }
+              },
+              "id": "prt_06e1ae25a001R78ULM0bV8ZeuJ",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF"
+            },
+            "time": 1788553650921
+          }
+        },
+        "ts": 1788553651824
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 113,
+      "ts": 1788553651824,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 113,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae2ed001feEyM3ezM2okLP",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-860cd19f4cecad64",
+              "state": {
+                "metadata": {
+                  "output": ""
+                },
+                "status": "running",
+                "input": {
+                  "command": "node -e \"process.exit(3)\"; $LASTEXITCODE"
+                },
+                "time": {
+                  "start": 1788553650921
+                }
+              },
+              "id": "prt_06e1ae25a001R78ULM0bV8ZeuJ",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF"
+            },
+            "time": 1788553650925
+          }
+        },
+        "ts": 1788553651824
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 114,
+      "ts": 1788553652090,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 114,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae776001KxuEreiPyCrPFD",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-860cd19f4cecad64",
+              "state": {
+                "metadata": {
+                  "output": "3\r\n"
+                },
+                "status": "running",
+                "input": {
+                  "command": "node -e \"process.exit(3)\"; $LASTEXITCODE"
+                },
+                "time": {
+                  "start": 1788553650921
+                }
+              },
+              "id": "prt_06e1ae25a001R78ULM0bV8ZeuJ",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF"
+            },
+            "time": 1788553652086
+          }
+        },
+        "ts": 1788553652090
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 115,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 115,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae780001qIJ6mnDSw4Jp2u",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "type": "tool",
+              "tool": "bash",
+              "callID": "chatcmpl-tool-860cd19f4cecad64",
+              "state": {
+                "status": "completed",
+                "input": {
+                  "command": "node -e \"process.exit(3)\"; $LASTEXITCODE"
+                },
+                "output": "3\r\n",
+                "metadata": {
+                  "output": "3\r\n",
+                  "exit": 0,
+                  "truncated": false
+                },
+                "title": "node -e \"process.exit(3)\"; $LASTEXITCODE",
+                "time": {
+                  "start": 1788553650921,
+                  "end": 1788553652096
+                }
+              },
+              "id": "prt_06e1ae25a001R78ULM0bV8ZeuJ",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF"
+            },
+            "time": 1788553652096
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 116,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 116,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae7830015QWlwCOVDlyGAO",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1ae783001M6tXswCCktqvvO",
+              "reason": "tool-calls",
+              "messageID": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-finish",
+              "tokens": {
+                "total": 13854,
+                "input": 4581,
+                "output": 24,
+                "reasoning": 33,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "cost": 0
+            },
+            "time": 1788553652099
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 117,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 117,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae787001AH8KmLfTw1BraA",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13854,
+                "input": 4581,
+                "output": 24,
+                "reasoning": 33,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553649517,
+                "completed": 1788553652106
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "tool-calls"
+            }
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 118,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 118,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae78a001KfXBAtCR3EBvOe",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1add6d001KBp0bweSv5VhAF",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13854,
+                "input": 4581,
+                "output": 24,
+                "reasoning": 33,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553649517,
+                "completed": 1788553652106
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "tool-calls"
+            }
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 119,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 119,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae78c00179XkcU61gPCJOY",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 120,
+      "ts": 1788553652134,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 120,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae78e001F0VBY5ptuIYaP3",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553652110
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553652134
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 121,
+      "ts": 1788553652145,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 121,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae79f001xw6DEFrPlz2L51",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "Running node -e process.exit(3)",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 18314,
+                "output": 43,
+                "reasoning": 71,
+                "cache": {
+                  "read": 9216,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553652126
+              }
+            }
+          }
+        },
+        "ts": 1788553652145
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 122,
+      "ts": 1788553652145,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 122,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae7a1001m1rDKERgdhIK8w",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "diff": []
+          }
+        },
+        "ts": 1788553652145
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 123,
+      "ts": 1788553652145,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 123,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae7a2001rksJcVix09QezT",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553643322
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "summary": {
+                "diffs": []
+              },
+              "id": "msg_06e1ac53a001a4urNowwF69nQH",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553652145
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 124,
+      "ts": 1788553652158,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 124,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1ae7bd001GcFuJJwxo3dqFT",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553652158
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 125,
+      "ts": 1788553653279,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 125,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec1e001gUMZoKjPykC3QS",
+          "type": "server.heartbeat",
+          "properties": {}
+        },
+        "ts": 1788553653279
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 126,
+      "ts": 1788553653357,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 126,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec65001JrSzoHlJBKvQ3T",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1aec65001Y0IqBYty5b7jpt",
+              "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-start"
+            },
+            "time": 1788553653349
+          }
+        },
+        "ts": 1788553653357
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 127,
+      "ts": 1788553653357,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 127,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec690018859UNvJj1mDpf",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1aec69001B2hZE10jS5j425",
+              "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "text",
+              "text": "",
+              "time": {
+                "start": 1788553653353
+              }
+            },
+            "time": 1788553653353
+          }
+        },
+        "ts": 1788553653357
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 128,
+      "ts": 1788553653357,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 128,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec6c001bba2RiiRd6wTsv",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": "Command ran"
+          }
+        },
+        "ts": 1788553653357
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 129,
+      "ts": 1788553653378,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 129,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec810018y6w4wD1MtEadB",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": ","
+          }
+        },
+        "ts": 1788553653378
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 130,
+      "ts": 1788553653408,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 130,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aec9e0019Up2xhkpLZvDid",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": " no"
+          }
+        },
+        "ts": 1788553653408
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 131,
+      "ts": 1788553653426,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 131,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aecb1001gu5DnzBs0LRn0X",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": " output. Exit code"
+          }
+        },
+        "ts": 1788553653426
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 132,
+      "ts": 1788553653449,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 132,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aecc70014OOooflDpOfT1H",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": ": **3**"
+          }
+        },
+        "ts": 1788553653449
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 133,
+      "ts": 1788553653479,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 133,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aece6001Mkk4BU21Yhns1O",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": " (as expected"
+          }
+        },
+        "ts": 1788553653479
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 134,
+      "ts": 1788553653486,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 134,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aeced001Vlmc2DCXFZjRYH",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": " — `process.exit"
+          }
+        },
+        "ts": 1788553653486
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 135,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 135,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed18001w87VQgrhPAE6S9",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+            "partID": "prt_06e1aec69001B2hZE10jS5j425",
+            "field": "text",
+            "delta": "(3)`)."
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 136,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 136,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed1a001YgXb1V8OCSLpH9",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1aec69001B2hZE10jS5j425",
+              "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "text",
+              "text": "Command ran, no output. Exit code: **3** (as expected — `process.exit(3)`).",
+              "time": {
+                "start": 1788553653353,
+                "end": 1788553653530
+              }
+            },
+            "time": 1788553653530
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 137,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 137,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed210018FjLvP9eHgxa1H",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "part": {
+              "id": "prt_06e1aed210019LW7O9YTJi45Gw",
+              "reason": "stop",
+              "messageID": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "type": "step-finish",
+              "tokens": {
+                "total": 13885,
+                "input": 4644,
+                "output": 25,
+                "reasoning": 0,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "cost": 0
+            },
+            "time": 1788553653537
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 138,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 138,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed29001LMkGNF5xfXZWFF",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13885,
+                "input": 4644,
+                "output": 25,
+                "reasoning": 0,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553652110,
+                "completed": 1788553653549
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "stop"
+            }
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 139,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 139,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed2d001DtfX4estYjdA7i",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "msg_06e1ae78e001oXC742NrjLMOzm",
+              "parentID": "msg_06e1ac53a001a4urNowwF69nQH",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\error",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13885,
+                "input": 4644,
+                "output": 25,
+                "reasoning": 0,
+                "cache": {
+                  "write": 0,
+                  "read": 9216
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553652110,
+                "completed": 1788553653549
+              },
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "finish": "stop"
+            }
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 140,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 140,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed31001MV0Njkd6BmDXZR",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 141,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 141,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed39001Iq1aycYLR2f1VR",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "status": {
+              "type": "idle"
+            }
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 142,
+      "ts": 1788553653573,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 142,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed390023DVnZ0zV65H3zc",
+          "type": "session.idle",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+          }
+        },
+        "ts": 1788553653573
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 143,
+      "ts": 1788553653588,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 143,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed3b001JEMtEnHRfJOOey",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "id": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+              "slug": "cosmic-comet",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\error",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/error",
+              "title": "Running node -e process.exit(3)",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 22958,
+                "output": 68,
+                "reasoning": 71,
+                "cache": {
+                  "read": 18432,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553643191,
+                "updated": 1788553653562
+              }
+            }
+          }
+        },
+        "ts": 1788553653588
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 144,
+      "ts": 1788553653588,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 144,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed3f001LFysaD77juhQ6C",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "diff": []
+          }
+        },
+        "ts": 1788553653588
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 145,
+      "ts": 1788553653588,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 145,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1aed41001nSRuti0thO0HZl",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553643322
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "summary": {
+                "diffs": []
+              },
+              "id": "msg_06e1ac53a001a4urNowwF69nQH",
+              "sessionID": "ses_f91e53b48ffesVX7MUMmGjrt0S"
+            }
+          }
+        },
+        "ts": 1788553653588
+      }
+    },
+    {
+      "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+      "seq": 146,
+      "ts": 1788553663290,
+      "frame": {
+        "topic": "session.5db0fb3d-1971-4410-ab4b-bd5864e959ad",
+        "seq": 146,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1b1331001EPn21jsBOcoVuE",
+          "type": "server.heartbeat",
+          "properties": {}
+        },
+        "ts": 1788553663290
+      }
+    }
+  ],
+  "history": {
+    "entries": []
+  },
+  "historyError": {
+    "code": "harness_store_unavailable",
+    "message": "cannot read opencode store: unable to open database file"
+  }
+}

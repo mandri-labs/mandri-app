@@ -1,0 +1,1193 @@
+{
+  "harness": "codex",
+  "scenario": "chat",
+  "capturedAt": "2026-09-04T19:57:53.843Z",
+  "daemonVersionHint": "0.1.0",
+  "modelRef": "openrouter/z-ai/glm-5.2:free",
+  "cwd": "__CWD__",
+  "partial": false,
+  "frames": [
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 1,
+      "ts": 1788551875788,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 1,
+        "source": "codex",
+        "raw": {
+          "id": 1,
+          "result": {
+            "userAgent": "mandri/0.153.2 (Windows 10.0.26200; x86_64) zed/1.17.2_stable.349.c8e44cfa7bda9b2e22c8d6934d78969352e7f61a (mandri; 0.1.0)",
+            "codexHome": "C:\\Users\\synthetic\\.codex",
+            "platformFamily": "windows",
+            "platformOs": "windows"
+          }
+        },
+        "ts": 1788551875788
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 2,
+      "ts": 1788551875788,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 2,
+        "source": "codex",
+        "raw": {
+          "method": "remoteControl/status/changed",
+          "params": {
+            "status": "disabled",
+            "serverName": "synthetic",
+            "installationId": "075ea578-4341-4298-a149-a3a7c2091675",
+            "environmentId": null
+          },
+          "emittedAtMs": 1788551875787
+        },
+        "ts": 1788551875788
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 3,
+      "ts": 1788551876747,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 3,
+        "source": "codex",
+        "raw": {
+          "id": 2,
+          "result": {
+            "thread": {
+              "id": "01a06dff-ccde-7642-8588-d2c2c543d314",
+              "extra": null,
+              "sessionId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+              "forkedFromId": null,
+              "parentThreadId": null,
+              "preview": "",
+              "ephemeral": false,
+              "section": null,
+              "sectionEnteredAt": null,
+              "projectId": null,
+              "historyMode": "paginated",
+              "modelProvider": "mandri",
+              "model": "openrouter/z-ai/glm-5.2:free",
+              "reasoningEffort": "medium",
+              "createdAt": 1788551876,
+              "updatedAt": 1788551876,
+              "recencyAt": 1788551876,
+              "status": {
+                "type": "idle"
+              },
+              "path": "C:\\Users\\synthetic\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T21-57-55-01a06dff-ccde-7642-8588-d2c2c543d314.jsonl",
+              "cwd": "__CWD__\\codex\\chat",
+              "cliVersion": "0.153.2",
+              "source": "vscode",
+              "canAcceptDirectInput": true,
+              "threadSource": null,
+              "agentNickname": null,
+              "agentRole": null,
+              "gitInfo": null,
+              "name": null,
+              "turns": []
+            },
+            "model": "openrouter/z-ai/glm-5.2:free",
+            "modelProvider": "mandri",
+            "serviceTier": null,
+            "cwd": "__CWD__\\codex\\chat",
+            "runtimeWorkspaceRoots": [
+              "__CWD__\\codex\\chat"
+            ],
+            "instructionSources": [],
+            "approvalPolicy": "never",
+            "approvalsReviewer": "user",
+            "sandbox": {
+              "type": "readOnly",
+              "networkAccess": false
+            },
+            "activePermissionProfile": {
+              "id": ":read-only",
+              "extends": null
+            },
+            "reasoningEffort": "medium",
+            "multiAgentMode": "explicitRequestOnly"
+          }
+        },
+        "ts": 1788551876747
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 4,
+      "ts": 1788551876747,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 4,
+        "source": "codex",
+        "raw": {
+          "method": "thread/started",
+          "params": {
+            "thread": {
+              "id": "01a06dff-ccde-7642-8588-d2c2c543d314",
+              "extra": null,
+              "sessionId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+              "forkedFromId": null,
+              "parentThreadId": null,
+              "preview": "",
+              "ephemeral": false,
+              "section": null,
+              "sectionEnteredAt": null,
+              "projectId": null,
+              "historyMode": "paginated",
+              "modelProvider": "mandri",
+              "model": "openrouter/z-ai/glm-5.2:free",
+              "reasoningEffort": "medium",
+              "createdAt": 1788551876,
+              "updatedAt": 1788551876,
+              "recencyAt": 1788551876,
+              "status": {
+                "type": "idle"
+              },
+              "path": "C:\\Users\\synthetic\\.codex\\sessions\\2026\\09\\04\\rollout-2026-09-04T21-57-55-01a06dff-ccde-7642-8588-d2c2c543d314.jsonl",
+              "cwd": "__CWD__\\codex\\chat",
+              "cliVersion": "0.153.2",
+              "source": "vscode",
+              "canAcceptDirectInput": true,
+              "threadSource": null,
+              "agentNickname": null,
+              "agentRole": null,
+              "gitInfo": null,
+              "name": null,
+              "turns": []
+            }
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876747
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 5,
+      "ts": 1788551876747,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 5,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "openaiDeveloperDocs",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876747
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 6,
+      "ts": 1788551876749,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 6,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-docs",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876749
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 7,
+      "ts": 1788551876749,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 7,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "playwright",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876749
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 8,
+      "ts": 1788551876750,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 8,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-observability",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876750
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 9,
+      "ts": 1788551876750,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 9,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876750
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 10,
+      "ts": 1788551876750,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 10,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "node_repl",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876750
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 11,
+      "ts": 1788551876750,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 11,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "context7",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876750
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 12,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 12,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-builds",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 13,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 13,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-bindings",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 14,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 14,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "codex_apps",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 15,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 15,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cua_repl",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 16,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 16,
+        "source": "codex",
+        "raw": {
+          "method": "warning",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "message": "Configured service tier `priority` is not advertised as supported for model `openrouter/z-ai/glm-5.2:free` and will be omitted from requests."
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 17,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 17,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-bindings",
+            "status": "failed",
+            "error": "The cloudflare-bindings MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-bindings`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 18,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 18,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "node_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 19,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 19,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-observability",
+            "status": "failed",
+            "error": "The cloudflare-observability MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-observability`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 20,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 20,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-builds",
+            "status": "failed",
+            "error": "The cloudflare-builds MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-builds`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 21,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 21,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare",
+            "status": "failed",
+            "error": "The cloudflare MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 22,
+      "ts": 1788551876751,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 22,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-docs",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876746
+        },
+        "ts": 1788551876751
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 23,
+      "ts": 1788551876761,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 23,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-bindings",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876758
+        },
+        "ts": 1788551876761
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 24,
+      "ts": 1788551876761,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 24,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-builds",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876760
+        },
+        "ts": 1788551876761
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 25,
+      "ts": 1788551876762,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 25,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876760
+        },
+        "ts": 1788551876762
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 26,
+      "ts": 1788551876763,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 26,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-observability",
+            "status": "starting",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876760
+        },
+        "ts": 1788551876763
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 27,
+      "ts": 1788551876827,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 27,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cua_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551876827
+        },
+        "ts": 1788551876827
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 28,
+      "ts": 1788551876847,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 28,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare",
+            "status": "failed",
+            "error": "The cloudflare MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876846
+        },
+        "ts": 1788551876847
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 29,
+      "ts": 1788551876851,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 29,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-bindings",
+            "status": "failed",
+            "error": "The cloudflare-bindings MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-bindings`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876851
+        },
+        "ts": 1788551876851
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 30,
+      "ts": 1788551876853,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 30,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-builds",
+            "status": "failed",
+            "error": "The cloudflare-builds MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-builds`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876853
+        },
+        "ts": 1788551876853
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 31,
+      "ts": 1788551876857,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 31,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-observability",
+            "status": "failed",
+            "error": "The cloudflare-observability MCP server requires OAuth reauthentication. Run `codex mcp login cloudflare-observability`.",
+            "failureReason": "reauthenticationRequired"
+          },
+          "emittedAtMs": 1788551876857
+        },
+        "ts": 1788551876857
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 32,
+      "ts": 1788551876883,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 32,
+        "source": "codex",
+        "raw": {
+          "method": "warning",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "message": "Model metadata for `openrouter/z-ai/glm-5.2:free` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."
+          },
+          "emittedAtMs": 1788551876883
+        },
+        "ts": 1788551876883
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 33,
+      "ts": 1788551876904,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 33,
+        "source": "codex",
+        "raw": {
+          "id": 3,
+          "result": {
+            "turn": {
+              "id": "01a06dff-d098-7a53-8263-6288f4d699d6",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": null,
+              "completedAt": null,
+              "durationMs": null
+            }
+          }
+        },
+        "ts": 1788551876904
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788551876905,
+      "frame": {
+        "type": "response",
+        "op_id": "session.prompt-1788551875576-nzlg1u",
+        "ok": true,
+        "result": {
+          "session_id": "5c8c0c00-5397-498c-b976-da236d6dce78",
+          "state": "queued",
+          "code": null
+        },
+        "error": null
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 34,
+      "ts": 1788551876954,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 34,
+        "source": "codex",
+        "raw": {
+          "method": "thread/status/changed",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "status": {
+              "type": "active",
+              "activeFlags": []
+            }
+          },
+          "emittedAtMs": 1788551876954
+        },
+        "ts": 1788551876954
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 35,
+      "ts": 1788551876954,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 35,
+        "source": "codex",
+        "raw": {
+          "method": "turn/started",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "turn": {
+              "id": "01a06dff-d098-7a53-8263-6288f4d699d6",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "inProgress",
+              "error": null,
+              "startedAt": 1788551876,
+              "completedAt": null,
+              "durationMs": null
+            }
+          },
+          "emittedAtMs": 1788551876954
+        },
+        "ts": 1788551876954
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 36,
+      "ts": 1788551877056,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 36,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "openaiDeveloperDocs",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551877056
+        },
+        "ts": 1788551877056
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 37,
+      "ts": 1788551877141,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 37,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "codex_apps",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551877140
+        },
+        "ts": 1788551877141
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 38,
+      "ts": 1788551877175,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 38,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "context7",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551877175
+        },
+        "ts": 1788551877175
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 39,
+      "ts": 1788551878581,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 39,
+        "source": "codex",
+        "raw": {
+          "method": "item/started",
+          "params": {
+            "item": {
+              "type": "userMessage",
+              "id": "01a06dff-d7b5-7ad0-b958-9de8dd559984",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Reply with exactly: CAPTURE_CHAT_OK and nothing else.",
+                  "text_elements": []
+                }
+              ]
+            },
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "turnId": "01a06dff-d098-7a53-8263-6288f4d699d6",
+            "startedAtMs": 1788551878581
+          },
+          "emittedAtMs": 1788551878581
+        },
+        "ts": 1788551878581
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 40,
+      "ts": 1788551878615,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 40,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "node_repl",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551878614
+        },
+        "ts": 1788551878615
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 41,
+      "ts": 1788551878615,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 41,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "cloudflare-docs",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551878614
+        },
+        "ts": 1788551878615
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 42,
+      "ts": 1788551878616,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 42,
+        "source": "codex",
+        "raw": {
+          "method": "mcpServer/startupStatus/updated",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "name": "playwright",
+            "status": "ready",
+            "error": null,
+            "failureReason": null
+          },
+          "emittedAtMs": 1788551878614
+        },
+        "ts": 1788551878616
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 43,
+      "ts": 1788551878675,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 43,
+        "source": "codex",
+        "raw": {
+          "method": "item/completed",
+          "params": {
+            "item": {
+              "type": "userMessage",
+              "id": "01a06dff-d7b5-7ad0-b958-9de8dd559984",
+              "clientId": null,
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Reply with exactly: CAPTURE_CHAT_OK and nothing else.",
+                  "text_elements": []
+                }
+              ]
+            },
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "turnId": "01a06dff-d098-7a53-8263-6288f4d699d6",
+            "completedAtMs": 1788551878581
+          },
+          "emittedAtMs": 1788551878675
+        },
+        "ts": 1788551878675
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 44,
+      "ts": 1788551880321,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 44,
+        "source": "codex",
+        "raw": {
+          "method": "thread/status/changed",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "status": {
+              "type": "systemError"
+            }
+          },
+          "emittedAtMs": 1788551880321
+        },
+        "ts": 1788551880321
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 45,
+      "ts": 1788551880321,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 45,
+        "source": "codex",
+        "raw": {
+          "method": "error",
+          "params": {
+            "error": {
+              "message": "exceeded retry limit, last status: 429 Too Many Requests",
+              "codexErrorInfo": {
+                "responseTooManyFailedAttempts": {
+                  "httpStatusCode": 429
+                }
+              },
+              "additionalDetails": null,
+              "misalignment": null
+            },
+            "willRetry": false,
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "turnId": "01a06dff-d098-7a53-8263-6288f4d699d6"
+          },
+          "emittedAtMs": 1788551880321
+        },
+        "ts": 1788551880321
+      }
+    },
+    {
+      "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+      "seq": 46,
+      "ts": 1788551880404,
+      "frame": {
+        "topic": "session.5c8c0c00-5397-498c-b976-da236d6dce78",
+        "seq": 46,
+        "source": "codex",
+        "raw": {
+          "method": "turn/completed",
+          "params": {
+            "threadId": "01a06dff-ccde-7642-8588-d2c2c543d314",
+            "turn": {
+              "id": "01a06dff-d098-7a53-8263-6288f4d699d6",
+              "items": [],
+              "itemsView": "notLoaded",
+              "status": "failed",
+              "error": {
+                "message": "exceeded retry limit, last status: 429 Too Many Requests",
+                "codexErrorInfo": {
+                  "responseTooManyFailedAttempts": {
+                    "httpStatusCode": 429
+                  }
+                },
+                "additionalDetails": null,
+                "misalignment": null
+              },
+              "startedAt": 1788551876,
+              "completedAt": 1788551880,
+              "durationMs": 3440
+            }
+          },
+          "emittedAtMs": 1788551880404
+        },
+        "ts": 1788551880404
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788551941773,
+      "frame": {
+        "type": "response",
+        "op_id": "session.interrupt-1788551941763-r4p88a",
+        "ok": true,
+        "result": {
+          "session_id": "5c8c0c00-5397-498c-b976-da236d6dce78",
+          "interrupted": false
+        },
+        "error": null
+      }
+    }
+  ],
+  "history": {
+    "entries": [
+      "{\"timestamp\": \"2026-09-04T19:57:56.905Z\", \"ordinal\": 0, \"type\": \"session_meta\", \"payload\": {\"session_id\": \"01a06dff-ccde-7642-8588-d2c2c543d314\", \"id\": \"01a06dff-ccde-7642-8588-d2c2c543d314\", \"timestamp\": \"2026-09-04T19:57:55.808Z\", \"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\chat\", \"originator\": \"mandri\", \"cli_version\": \"0.153.2\", \"source\": \"vscode\", \"model_provider\": \"mandri\", \"base_instructions\": {\"text\": \"Synthetic test context.\"}, \"history_mode\": \"paginated\", \"context_window\": {\"window_id\": \"01a06dff-ccde-7642-8588-d2dbbe0b559c\"}}}",
+      "{\"timestamp\": \"2026-09-04T19:57:56.905Z\", \"ordinal\": 1, \"type\": \"event_msg\", \"payload\": {\"type\": \"task_started\", \"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"started_at\": 1788551876, \"model_context_window\": 258400, \"collaboration_mode_kind\": \"default\"}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.252Z\", \"ordinal\": 2, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06dff-d66c-73d1-91ed-e7102aa3a0af\", \"role\": \"developer\", \"content\": [{\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}, {\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"create_time\": 1788551878.2527099, \"content_item_kinds\": [\"host_skills.instructions\", \"permissions.instructions\"]}}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.253Z\", \"ordinal\": 3, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06dff-d66c-73d1-91ed-e72c6e85fa8c\", \"role\": \"user\", \"content\": [{\"type\": \"input_text\", \"text\": \"<recommended_plugins>\\nHere is a list of plugins that are available but not installed.\\n\\n- Airtable (airtable@openai-curated-remote)\\n- Alpaca (alpaca@openai-curated-remote)\\n- Apollo.io (apollo@openai-curated-remote)\\n- Spotify (app-68de829bf7648191acd70a907364c67c@openai-curated-remote)\\n- AllTrails (app-68f1afc5a6008191a701eaaab428816c@openai-curated-remote)\\n- Apple Music (app-6938a94a61d881918ef32cb999ff937c@openai-curated-remote)\\n- LONA Trading Assistant (app-694336b0c0948191a4ad234f9942885b@openai-curated-remote)\\n- SciSpace (app-69439d715a7c8191aed9e2f6649e105f@openai-curated-remote)\\n- Tarot (app-6943a2c078b0819188de39e4fe168d9b@openai-curated-remote)\\n- Todoist: To Do List & Calendar (app-6943b73823548191a9f9216c6790c453@openai-curated-remote)\\n- Consensus (app-6943e6f4a928819195962de16fb9ffe4@openai-curated-remote)\\n- Sider Scholar (app-6948b485f5bc8191adb4df13f369cec7@openai-curated-remote)\\n- True Sky (app-69490a4a06148191a0dd78606a3dbf1f@openai-curated-remote)\\n- Bigdata.com (app-69491eceef3c8191beb70788b7840429@openai-curated-remote)\\n- Gamma (app-698a098735908191989f5788d7ee317e@openai-curated-remote)\\n- Tredict (app-69aef5b699a0819184512d57743fc1cd@openai-curated-remote)\\n- Maersk (app-69b2b5a768d4819190d3a86c5f12e6d9@openai-curated-remote)\\n- Dropbox (app-69b31dc2110c8191b8b47dc98fe5a052@openai-curated-remote)\\n- Parqet (app-69b68652f0308191a27d7c7096cab4f6@openai-curated-remote)\\n- Interactive Brokers (IBKR) (app-69bc11db874881918718abaca20b68ce@openai-curated-remote)\\n- Financial Datasets (app-69cacd9394a88191ba6564e1bb0430fa@openai-curated-remote)\\n- Fathom (app-69d88b99c5c481918e8da9225737e1e9@openai-curated-remote)\\n- vidIQ (app-69dd11f3e50c8191b1ca48d03cf7e2ad@openai-curated-remote)\\n- TickTick:To-Do List & Calendar (app-69ddbaba3fb48191a825f22c21b0599d@openai-curated-remote)\\n- Plaud (app-69f3c30d68288191bbd428a394a78407@openai-curated-remote)\\n- Wolfram (app-69fe0bf66c8481919c513d799406436e@openai-curated-remote)\\n- Runway (app-6a05e3b201788191be12b590b43e6ce3@openai-curated-remote)\\n- Caliber (app-6a05e8f22d408191b13ba3897157f6df@openai-curated-remote)\\n- COROS (app-6a0694cbb2608191bbefb74ba810ab68@openai-curated-remote)\\n- TradingCursor (app-6a0d835ff1dc8191972eeabd14967446@openai-curated-remote)\\n- CoinMarketCap (app-6a172fe86f5481919f73cbc3bc3ad5bb@openai-curated-remote)\\n- Trello (app-6a20b18a639081918c1b438f8381b27e@openai-curated-remote)\\n- Longbridge (app-6a2baf2fad748191812393c3e00308ef@openai-curated-remote)\\n- freddy (app-6a322b52a82c8191b7fb653f9e9f7891@openai-curated-remote)\\n- Higgsfield (app-6a3293e129088191abf0875820e839da@openai-curated-remote)\\n- Stocktwits (app-6a427a19b1f481919c5db13838af00c2@openai-curated-remote)\\n- CoinGecko (app-6a4f02d735388191959c8328877e0bbd@openai-curated-remote)\\n- Asana (asana@openai-curated-remote)\\n- Atlassian Rovo (atlassian-rovo@openai-curated-remote)\\n- Base44 (base44@openai-curated-remote)\\n- Binance (binance@openai-curated-remote)\\n- Box (box@openai-curated-remote)\\n- Canva (canva@openai-curated-remote)\\n- ClickUp (clickup@openai-curated-remote)\\n- Cloudflare (cloudflare@openai-curated-remote)\\n- Codex Security (codex-security@openai-curated-remote)\\n- Figma (figma@openai-curated-remote)\\n- Granola (granola@openai-curated-remote)\\n- HeyGen (heygen@openai-curated-remote)\\n</recommended_plugins>\"}, {\"type\": \"input_text\", \"text\": \"Synthetic test context.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"create_time\": 1788551878.2527106, \"content_item_kinds\": [\"plugins.recommendations\", \"environments.environment_context\"]}}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.264Z\", \"ordinal\": 4, \"type\": \"world_state\", \"payload\": {\"full\": true, \"state\": {\"agents_md\": {}, \"apps_instructions\": false, \"collaboration_mode\": {\"mode\": \"default\", \"model\": \"openrouter/z-ai/glm-5.2:free\", \"instructions\": \"dfd53114f5f6f9f5fd7816370d0bf2847806246d\"}, \"context_window_guidance\": \"\", \"environments\": {\"environments\": {\"local\": {\"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\chat\", \"status\": \"available\", \"shell\": \"powershell\"}}, \"current_date\": \"2026-09-04\", \"timezone\": \"Europe/Paris\", \"filesystem\": \"<filesystem><workspace_roots><root>C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\chat</root></workspace_roots><permission_profile type=\\\"managed\\\"><file_system type=\\\"restricted\\\"><entry access=\\\"read\\\"><special>:root</special></entry></file_system></permission_profile></filesystem>\"}, \"environments_instructions\": false, \"git_attribution\": false, \"host_skills\": {\"body\": \"Synthetic test context.\", \"includeInstructions\": true}, \"managed_developer_instructions\": {}, \"model\": \"openrouter/z-ai/glm-5.2:free\", \"multi_agent_mode\": {}, \"orchestrator_skills\": {\"includeInstructions\": true, \"enabled\": false}, \"permissions\": {\"instructions\": \"fed2f53df24dd05a217b734cf7ad9abefa7cc6a2\", \"approved_command_prefixes\": [[\"C:\\\\Program Files\\\\PowerShell\\\\7\\\\pwsh.exe\", \"-Command\", \"$target = (Resolve-Path -LiteralPath .pytest-claude).Path; $expected = Join-Path (Get-Location).Path '.pytest-claude'; if ($target -ne $expected) { throw \\\"Unexpected cleanup path: $target\\\" }; Remove-Item -LiteralPath $target -Recurse -Force; Test-Path -LiteralPath $expected\"], [\"Invoke-WebRequest\", \"-Uri\", \"https://www.apache.org/licenses/LICENSE-2.0.txt\", \"-OutFile\", \"LICENSE\"], [\"uv\", \"run\", \"mypy\"], [\"uv\", \"run\", \"pytest\"], [\"uv\", \"run\", \"ruff\", \"check\", \"--fix\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"run\", \"ruff\", \"check\", \".\"], [\"uv\", \"run\", \"ruff\", \"check\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"run\", \"ruff\", \"format\", \"mandri/adapters/subagent/codex.py\", \"tests/adapters/test_codex.py\"], [\"uv\", \"run\", \"ruff\", \"format\", \"mandri/adapters/subagent/opencode.py\", \"tests/adapters/test_opencode.py\"], [\"uv\", \"sync\"]]}, \"persistent_mode\": {}, \"personality\": {\"model\": \"openrouter/z-ai/glm-5.2:free\", \"personality\": \"pragmatic\"}, \"plugins_instructions\": false, \"realtime\": {\"active\": false}, \"skills\": {\"includeInstructions\": true}}}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.340Z\", \"ordinal\": 5, \"type\": \"turn_context\", \"payload\": {\"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"root_turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"cwd\": \"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\chat\", \"workspace_roots\": [\"C:\\\\Users\\\\synthetic\\\\AppData\\\\Local\\\\Temp\\\\__CWD__\\\\codex\\\\chat\"], \"current_date\": \"2026-09-04\", \"timezone\": \"Europe/Paris\", \"approval_policy\": \"never\", \"approvals_reviewer\": \"user\", \"sandbox_policy\": {\"type\": \"read-only\"}, \"permission_profile\": {\"type\": \"managed\", \"file_system\": {\"type\": \"restricted\", \"entries\": [{\"path\": {\"type\": \"special\", \"value\": {\"kind\": \"root\"}}, \"access\": \"read\"}]}, \"network\": \"restricted\"}, \"model\": \"openrouter/z-ai/glm-5.2:free\", \"personality\": \"pragmatic\", \"collaboration_mode\": {\"mode\": \"default\", \"settings\": {\"model\": \"openrouter/z-ai/glm-5.2:free\", \"reasoning_effort\": \"medium\", \"developer_instructions\": null}}, \"multi_agent_version\": \"v1\", \"realtime_active\": false, \"effort\": \"medium\", \"summary\": \"auto\"}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.487Z\", \"ordinal\": 6, \"type\": \"response_item\", \"payload\": {\"type\": \"message\", \"id\": \"msg_01a06dff-d757-79f2-982b-0cd1e5d8c7bb\", \"role\": \"user\", \"content\": [{\"type\": \"input_text\", \"text\": \"Reply with exactly: CAPTURE_CHAT_OK and nothing else.\"}], \"internal_chat_message_metadata_passthrough\": {\"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"create_time\": 1788551878.4877107, \"content_item_kinds\": [\"user.text\"]}}}",
+      "{\"timestamp\": \"2026-09-04T19:57:58.581Z\", \"ordinal\": 7, \"type\": \"event_msg\", \"payload\": {\"type\": \"item_completed\", \"thread_id\": \"01a06dff-ccde-7642-8588-d2c2c543d314\", \"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"item\": {\"type\": \"UserMessage\", \"id\": \"01a06dff-d7b5-7ad0-b958-9de8dd559984\", \"content\": [{\"type\": \"text\", \"text\": \"Reply with exactly: CAPTURE_CHAT_OK and nothing else.\", \"text_elements\": []}]}, \"started_at_ms\": 1788551878581, \"completed_at_ms\": 1788551878581}}",
+      "{\"timestamp\": \"2026-09-04T19:58:00.323Z\", \"ordinal\": 8, \"type\": \"event_msg\", \"payload\": {\"type\": \"task_complete\", \"turn_id\": \"01a06dff-d098-7a53-8263-6288f4d699d6\", \"last_agent_message\": null, \"error\": {\"message\": \"exceeded retry limit, last status: 429 Too Many Requests\", \"codex_error_info\": {\"response_too_many_failed_attempts\": {\"http_status_code\": 429}}}, \"started_at\": 1788551876, \"completed_at\": 1788551880, \"duration_ms\": 3440}}"
+    ],
+    "cursorTrail": [
+      {
+        "cursor": null,
+        "count": 9,
+        "has_more": false
+      }
+    ]
+  },
+  "contextProvenance": "Synthetic machine context; original protocol event structure retained."
+}

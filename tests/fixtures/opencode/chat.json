@@ -1,0 +1,2081 @@
+{
+  "harness": "opencode",
+  "scenario": "chat",
+  "modelRef": "openrouter/z-ai/glm-5.3-flash",
+  "capturedAt": "2026-09-04T20:25:26.949Z",
+  "frames": [
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 1,
+      "ts": 1788553530073,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 1,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190ad2001mNm1TbRQV2LBwl",
+          "type": "server.connected",
+          "properties": {}
+        },
+        "ts": 1788553530073
+      }
+    },
+    {
+      "topic": null,
+      "seq": null,
+      "ts": 1788553530085,
+      "frame": {
+        "type": "response",
+        "op_id": "session.prompt-1788553530046-3dxpyb",
+        "ok": true,
+        "result": {
+          "session_id": "48479364-f003-4772-8409-b66bd60c88fb",
+          "state": "steered",
+          "code": null
+        },
+        "error": null
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 2,
+      "ts": 1788553530152,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 2,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190b160011HEqVFUehjSZUL",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "slug": "cosmic-falcon",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\chat",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/chat",
+              "title": "New session - 2026-09-04T20:25:30.012Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553530012,
+                "updated": 1788553530130
+              }
+            }
+          }
+        },
+        "ts": 1788553530152
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 3,
+      "ts": 1788553530783,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 3,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190b1e001K4PhDtbNxInsWx",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "msg_06e190b12001S9N24Iqx01YBkE",
+              "role": "user",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "time": {
+                "created": 1788553530130
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              }
+            }
+          }
+        },
+        "ts": 1788553530783
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 4,
+      "ts": 1788553530783,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 4,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190d0e0017vJouq1EhqNALP",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "type": "text",
+              "text": "Reply with exactly: CAPTURE_CHAT_OK and nothing else.",
+              "messageID": "msg_06e190b12001S9N24Iqx01YBkE",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "id": "prt_06e190b1d0015mx3eiuZ0C35Gq"
+            },
+            "time": 1788553530638
+          }
+        },
+        "ts": 1788553530783
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 5,
+      "ts": 1788553530783,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 5,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190d12001FpNImWSAhbSVHD",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "slug": "cosmic-falcon",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\chat",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/chat",
+              "title": "New session - 2026-09-04T20:25:30.012Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553530012,
+                "updated": 1788553530641
+              }
+            }
+          }
+        },
+        "ts": 1788553530783
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 6,
+      "ts": 1788553530815,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 6,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190d1a0015N8rQ2GXupUN5W",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553530815
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 7,
+      "ts": 1788553530815,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 7,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e190d20001xMHbQddBlLlrqL",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "msg_06e190d200017yLRL3D8d84gpY",
+              "parentID": "msg_06e190b12001S9N24Iqx01YBkE",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\chat",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553530656
+              },
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa"
+            }
+          }
+        },
+        "ts": 1788553530815
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 8,
+      "ts": 1788553532858,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 8,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1915a5001HGy2gFEtCXWYLV",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "slug": "cosmic-falcon",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\chat",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/chat",
+              "title": "New session - 2026-09-04T20:25:30.012Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 0,
+                "output": 0,
+                "reasoning": 0,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553530012,
+                "updated": 1788553532835
+              }
+            }
+          }
+        },
+        "ts": 1788553532858
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 9,
+      "ts": 1788553532858,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 9,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1915a9001ls11hg00KCiz6j",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "diff": []
+          }
+        },
+        "ts": 1788553532858
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 10,
+      "ts": 1788553532858,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 10,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1915ac001QJ0s5oK7pErz7f",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553530130
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "id": "msg_06e190b12001S9N24Iqx01YBkE",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "summary": {
+                "diffs": []
+              }
+            }
+          }
+        },
+        "ts": 1788553532858
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 11,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 11,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191623001wFh5SUxddUFlpS",
+          "type": "plugin.added",
+          "properties": {
+            "id": "core/config-reference"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 12,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 12,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162400115pT93FkRF3hRm",
+          "type": "plugin.added",
+          "properties": {
+            "id": "agent"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 13,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 13,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191624002ohI9To9hnTwMVa",
+          "type": "plugin.added",
+          "properties": {
+            "id": "command"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 14,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 14,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1916250010CcDKUqTpdMQmz",
+          "type": "plugin.added",
+          "properties": {
+            "id": "skill"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 15,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 15,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191627001TRnWHPXZ4Awemj",
+          "type": "plugin.added",
+          "properties": {
+            "id": "models-dev"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 16,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 16,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191628001Xn6P3j3kx7U54S",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-agent"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 17,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 17,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162a001sWbOSZyC93T9iG",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-command"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 18,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 18,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162b001i3x5Y7pALucKBs",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-skill"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 19,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 19,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162b002hP1KxcFBqna6Oz",
+          "type": "plugin.added",
+          "properties": {
+            "id": "alibaba"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 20,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 20,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162d001aCuIowiqyHLExB",
+          "type": "plugin.added",
+          "properties": {
+            "id": "amazon-bedrock"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 21,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 21,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162e001HsDRdNzbvkhhz1",
+          "type": "plugin.added",
+          "properties": {
+            "id": "anthropic"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 22,
+      "ts": 1788553533059,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 22,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19162e002CQwWzmQEznQIIc",
+          "type": "plugin.added",
+          "properties": {
+            "id": "azure-cognitive-services"
+          }
+        },
+        "ts": 1788553533059
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 23,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 23,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191679001a5O3tHOlxSEnFO",
+          "type": "plugin.added",
+          "properties": {
+            "id": "azure"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 24,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 24,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191679002d71PvnQJVev0A6",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cerebras"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 25,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 25,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167a001c0gMQo4MFfb8rE",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cloudflare-ai-gateway"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 26,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 26,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167b001wBXjuGVAckdzX2",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cloudflare-workers-ai"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 27,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 27,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167c0013YgRDqX8WSlob8",
+          "type": "plugin.added",
+          "properties": {
+            "id": "cohere"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 28,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 28,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167c002rG0FGo9461BMvE",
+          "type": "plugin.added",
+          "properties": {
+            "id": "deepinfra"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 29,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 29,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167d001cF1Ggj24Q5jGw0",
+          "type": "plugin.added",
+          "properties": {
+            "id": "gateway"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 30,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 30,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167e001PwZRDQKhMa59K4",
+          "type": "plugin.added",
+          "properties": {
+            "id": "github-copilot"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 31,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 31,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167e0026T3hE2d8FRfJaN",
+          "type": "plugin.added",
+          "properties": {
+            "id": "gitlab"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 32,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 32,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167f001yl7EB1dwE7KF3E",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 33,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 33,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19167f002HvtWObS17GtB7F",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google-vertex-anthropic"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 34,
+      "ts": 1788553533085,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 34,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191680001t5fBkro5OMlzyp",
+          "type": "plugin.added",
+          "properties": {
+            "id": "google-vertex"
+          }
+        },
+        "ts": 1788553533085
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 35,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 35,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191693001j5ucn9vEfEym6e",
+          "type": "plugin.added",
+          "properties": {
+            "id": "groq"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 36,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 36,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191693002xYbRn9fn27SIYX",
+          "type": "plugin.added",
+          "properties": {
+            "id": "kilo"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 37,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 37,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191694001UNBgaE9cVH9Kr5",
+          "type": "plugin.added",
+          "properties": {
+            "id": "llmgateway"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 38,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 38,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191695001co1L2ipsCsKKbe",
+          "type": "plugin.added",
+          "properties": {
+            "id": "mistral"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 39,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 39,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191695002A0GohwVeuafMQs",
+          "type": "plugin.added",
+          "properties": {
+            "id": "nvidia"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 40,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 40,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1916980017tELX7oQFzid7b",
+          "type": "plugin.added",
+          "properties": {
+            "id": "opencode"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 41,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 41,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191698002jPkUnuiiTd0B7c",
+          "type": "plugin.added",
+          "properties": {
+            "id": "snowflake-cortex"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 42,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 42,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191698003GWw8twbjFnEUbZ",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openai-compatible"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 43,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 43,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191699001RLXMTxC6nUV1VS",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openai"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 44,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 44,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19169a0014rYpgP5UmmW0TX",
+          "type": "plugin.added",
+          "properties": {
+            "id": "openrouter"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 45,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 45,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19169a002mlRGKK14x6g825",
+          "type": "plugin.added",
+          "properties": {
+            "id": "perplexity"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 46,
+      "ts": 1788553533414,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 46,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19169b001qLxlFFkpsdl9BC",
+          "type": "plugin.added",
+          "properties": {
+            "id": "sap-ai-core"
+          }
+        },
+        "ts": 1788553533414
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 47,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 47,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917d6001pR0Z55IIbPjkGR",
+          "type": "catalog.updated",
+          "properties": {}
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 48,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 48,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19169b002c71UYac7Ci3Lq7",
+          "type": "plugin.added",
+          "properties": {
+            "id": "togetherai"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 49,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 49,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917d7001UJKzToKQYbfZ43",
+          "type": "plugin.added",
+          "properties": {
+            "id": "vercel"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 50,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 50,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917d80012KfAJCRqRl3Hbe",
+          "type": "plugin.added",
+          "properties": {
+            "id": "venice"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 51,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 51,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917d8002DHJNRfuFaecxne",
+          "type": "plugin.added",
+          "properties": {
+            "id": "xai"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 52,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 52,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917d90017cj6I3TAyMqIlp",
+          "type": "plugin.added",
+          "properties": {
+            "id": "zenmux"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 53,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 53,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917da001r7AbAuCnjTZSKQ",
+          "type": "plugin.added",
+          "properties": {
+            "id": "dynamic-provider"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 54,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 54,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917dd001LbLJLCu1YzuiWw",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-plugin"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 55,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 55,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917de001VdhvlQHOg87Gjx",
+          "type": "plugin.added",
+          "properties": {
+            "id": "config-provider"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 56,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 56,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917df001qWDb3H2cyLnand",
+          "type": "plugin.added",
+          "properties": {
+            "id": "variant"
+          }
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 57,
+      "ts": 1788553533474,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 57,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1917e1001z4KUttDUsCAarN",
+          "type": "reference.updated",
+          "properties": {}
+        },
+        "ts": 1788553533474
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 58,
+      "ts": 1788553533732,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 58,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191849001YwXM6huy42TAs7",
+          "type": "integration.updated",
+          "properties": {}
+        },
+        "ts": 1788553533732
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 59,
+      "ts": 1788553533732,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 59,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19191d001oOEtCKV2UYYIvX",
+          "type": "catalog.updated",
+          "properties": {}
+        },
+        "ts": 1788553533732
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 60,
+      "ts": 1788553533799,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 60,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e191956001dRj15iwnTEaIX3",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553533799
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 61,
+      "ts": 1788553536024,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 61,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19220e001u3uWOGxj85HMKC",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e19220e001rfo4JITLjV6tbv",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "step-start"
+            },
+            "time": 1788553536014
+          }
+        },
+        "ts": 1788553536024
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 62,
+      "ts": 1788553536024,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 62,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192212001X2syYBDKCE443K",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e192212001PoWtYxoYzDsV6z",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "reasoning",
+              "text": "",
+              "time": {
+                "start": 1788553536018
+              }
+            },
+            "time": 1788553536018
+          }
+        },
+        "ts": 1788553536024
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 63,
+      "ts": 1788553536024,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 63,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192216001TpNpqcGI3Mslur",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": "Capture"
+          }
+        },
+        "ts": 1788553536024
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 64,
+      "ts": 1788553536024,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 64,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922160026Ou261meXFIhqd",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " test"
+          }
+        },
+        "ts": 1788553536024
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 65,
+      "ts": 1788553536024,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 65,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192217001TQ59KF6vpZ8Hto",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": "."
+          }
+        },
+        "ts": 1788553536024
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 66,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 66,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19222e001YPf3CM28hFWrKR",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " Reply"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 67,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 67,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19222f001Ps74HmDljDUN7s",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " exact"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 68,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 68,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192230001B1oQ1tseIAj4uU",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " string"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 69,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 69,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192230002NZSdk0auAiA2tw",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": ","
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 70,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 70,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192231001NAgGn9bohcV1FW",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " nothing"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 71,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 71,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192231002I1CWNmvjCfy412",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": " else"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 72,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 72,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192231003AV7HPKJz5k5qMx",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e192212001PoWtYxoYzDsV6z",
+            "field": "text",
+            "delta": "."
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 73,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 73,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922320018sdDmy5REC5QI1",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e192212001PoWtYxoYzDsV6z",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "reasoning",
+              "text": "Capture test. Reply exact string, nothing else.",
+              "time": {
+                "start": 1788553536018,
+                "end": 1788553536050
+              }
+            },
+            "time": 1788553536050
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 74,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 74,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192236001q82vrALdDlwPZ9",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e1922350019vnTU01BebTakc",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "text",
+              "text": "",
+              "time": {
+                "start": 1788553536053
+              }
+            },
+            "time": 1788553536054
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 75,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 75,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19223b001VhOIE05GGp0jPv",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e1922350019vnTU01BebTakc",
+            "field": "text",
+            "delta": "CAP"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 76,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 76,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19223c001EN5lyIatL2x897",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e1922350019vnTU01BebTakc",
+            "field": "text",
+            "delta": "TURE"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 77,
+      "ts": 1788553536062,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 77,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e19223c002HlSXDrF1Bzr5fg",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e1922350019vnTU01BebTakc",
+            "field": "text",
+            "delta": "_CHAT"
+          }
+        },
+        "ts": 1788553536062
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 78,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 78,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922a1001G0DGZdvMW8bmus",
+          "type": "message.part.delta",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+            "partID": "prt_06e1922350019vnTU01BebTakc",
+            "field": "text",
+            "delta": "_OK"
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 79,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 79,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922a3001cMIFoFK8F4RkwP",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e1922350019vnTU01BebTakc",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "text",
+              "text": "CAPTURE_CHAT_OK",
+              "time": {
+                "start": 1788553536053,
+                "end": 1788553536163
+              }
+            },
+            "time": 1788553536163
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 80,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 80,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922aa001dhpUV7VaD4FQKS",
+          "type": "message.part.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "part": {
+              "id": "prt_06e1922aa001x2W5h4CiSuNUZ4",
+              "reason": "stop",
+              "messageID": "msg_06e190d200017yLRL3D8d84gpY",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "type": "step-finish",
+              "tokens": {
+                "total": 13739,
+                "input": 13723,
+                "output": 6,
+                "reasoning": 10,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "cost": 0
+            },
+            "time": 1788553536170
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 81,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 81,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922ae0018aXao4uJXuNqkH",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "msg_06e190d200017yLRL3D8d84gpY",
+              "parentID": "msg_06e190b12001S9N24Iqx01YBkE",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\chat",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13739,
+                "input": 13723,
+                "output": 6,
+                "reasoning": 10,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553530656,
+                "completed": 1788553536178
+              },
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "finish": "stop"
+            }
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 82,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 82,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922b2001MdsVcZbWjgxDRI",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "msg_06e190d200017yLRL3D8d84gpY",
+              "parentID": "msg_06e190b12001S9N24Iqx01YBkE",
+              "role": "assistant",
+              "mode": "build",
+              "agent": "build",
+              "path": {
+                "cwd": "__CWD__\\opencode\\chat",
+                "root": "/"
+              },
+              "cost": 0,
+              "tokens": {
+                "total": 13739,
+                "input": 13723,
+                "output": 6,
+                "reasoning": 10,
+                "cache": {
+                  "write": 0,
+                  "read": 0
+                }
+              },
+              "modelID": "openrouter/z-ai/glm-5.3-flash",
+              "providerID": "mandri",
+              "time": {
+                "created": 1788553530656,
+                "completed": 1788553536178
+              },
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "finish": "stop"
+            }
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 83,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 83,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922b4001Vz8Jkb4zcAj2OC",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "status": {
+              "type": "busy"
+            }
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 84,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 84,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922b80018c2NVmDk1tPfIl",
+          "type": "session.status",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "status": {
+              "type": "idle"
+            }
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 85,
+      "ts": 1788553536197,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 85,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922b9001uOpdePInb11HBg",
+          "type": "session.idle",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa"
+          }
+        },
+        "ts": 1788553536197
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 86,
+      "ts": 1788553536211,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 86,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922bb001VCgqjUapyDNC5x",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "slug": "cosmic-falcon",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\chat",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/chat",
+              "title": "New session - 2026-09-04T20:25:30.012Z",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 13723,
+                "output": 6,
+                "reasoning": 10,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553530012,
+                "updated": 1788553536185
+              }
+            }
+          }
+        },
+        "ts": 1788553536211
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 87,
+      "ts": 1788553536211,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 87,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922c0001otIlTjf10WuXU1",
+          "type": "session.diff",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "diff": []
+          }
+        },
+        "ts": 1788553536211
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 88,
+      "ts": 1788553536211,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 88,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1922c1001sWDZSFJ2X9GAQI",
+          "type": "message.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "role": "user",
+              "time": {
+                "created": 1788553530130
+              },
+              "agent": "build",
+              "model": {
+                "providerID": "mandri",
+                "modelID": "openrouter/z-ai/glm-5.3-flash"
+              },
+              "summary": {
+                "diffs": []
+              },
+              "id": "msg_06e190b12001S9N24Iqx01YBkE",
+              "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa"
+            }
+          }
+        },
+        "ts": 1788553536211
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 89,
+      "ts": 1788553538254,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 89,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e192aca001kqHvebYcsDDuiD",
+          "type": "session.updated",
+          "properties": {
+            "sessionID": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+            "info": {
+              "id": "ses_f91e6f564ffeTtb26cuLJHW5Qa",
+              "slug": "cosmic-falcon",
+              "projectID": "global",
+              "directory": "__CWD__\\opencode\\chat",
+              "path": "Users/__HOST__/AppData/Local/Temp/__CWD__/opencode/chat",
+              "title": "CAPTURE_CHAT_OK marker request",
+              "agent": "build",
+              "model": {
+                "id": "openrouter/z-ai/glm-5.3-flash",
+                "providerID": "mandri",
+                "variant": "default"
+              },
+              "version": "1.18.28",
+              "summary": {
+                "additions": 0,
+                "deletions": 0,
+                "files": 0
+              },
+              "cost": 0,
+              "tokens": {
+                "input": 13723,
+                "output": 6,
+                "reasoning": 10,
+                "cache": {
+                  "read": 0,
+                  "write": 0
+                }
+              },
+              "time": {
+                "created": 1788553530012,
+                "updated": 1788553536185
+              }
+            }
+          }
+        },
+        "ts": 1788553538254
+      }
+    },
+    {
+      "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+      "seq": 90,
+      "ts": 1788553540089,
+      "frame": {
+        "topic": "session.48479364-f003-4772-8409-b66bd60c88fb",
+        "seq": 90,
+        "source": "opencode",
+        "raw": {
+          "id": "evt_06e1931f8001vwWL7b92cvUIyA",
+          "type": "server.heartbeat",
+          "properties": {}
+        },
+        "ts": 1788553540089
+      }
+    }
+  ],
+  "history": {
+    "entries": []
+  },
+  "historyError": {
+    "code": "harness_store_unavailable",
+    "message": "cannot read opencode store: unable to open database file"
+  }
+}

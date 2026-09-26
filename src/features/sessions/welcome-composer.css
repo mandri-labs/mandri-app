@@ -1,0 +1,158 @@
+.welcome-composer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+}
+
+.welcome-greeting {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-title);
+  font-weight: var(--font-weight-heading);
+  color: var(--color-text-primary);
+}
+
+.welcome-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.welcome-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-label);
+  text-align: left;
+  cursor: pointer;
+}
+
+.welcome-menu-row:hover:not(:disabled) {
+  background: var(--color-base-hover);
+}
+
+.welcome-menu-row:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.welcome-menu-row--active {
+  background: var(--color-surface-high);
+}
+
+.welcome-menu-row svg {
+  flex: none;
+  stroke-width: var(--icon-stroke-width);
+  color: var(--color-text-muted);
+}
+
+.welcome-menu-row-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.welcome-menu-row-reason {
+  margin-left: auto;
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+
+.welcome-menu-row-anchor {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--radius-sm);
+}
+
+.welcome-menu-row-anchor .welcome-menu-row {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.welcome-config-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  align-self: center;
+  justify-content: center;
+  max-width: 100%;
+  gap: 4px 8px;
+  margin-top: -12px;
+  padding: 6px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--color-raised);
+}
+.welcome-config-bar .composer-chip-anchor {
+  min-width: 0;
+  max-width: 100%;
+}
+.welcome-config-trigger {
+  min-width: 0;
+  max-width: 100%;
+  height: auto;
+  min-height: 28px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+.welcome-config-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-align: left;
+}
+.welcome-config-trigger:hover,
+.welcome-config-trigger[aria-expanded="true"] {
+  color: var(--color-text-primary);
+}
+.chip-popover--folder {
+  max-height: none;
+  min-width: 0;
+}
+.welcome-model-notice {
+  margin: 0 8px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+.welcome-composer .composer-tools > .composer-chip-anchor {
+  min-width: 0;
+}
+.welcome-composer .composer-tools .composer-chip {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.welcome-composer .composer-chip-anchor--model {
+  margin-left: auto;
+}
+
+.welcome-permissions-popover,
+.welcome-protection-popover {
+  width: 360px;
+  font-family: var(--font-ui);
+}
+.welcome-permissions-popover .permission-menu,
+.welcome-protection-popover .permission-menu {
+  padding: 0;
+  gap: 2px;
+}
+.welcome-permissions-popover .permission-option,
+.welcome-protection-popover .permission-option {
+  padding: 6px 8px;
+}
+
+.welcome-composer > .composer {
+  position: relative;
+}

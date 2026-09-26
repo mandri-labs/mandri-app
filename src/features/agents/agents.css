@@ -1,0 +1,66 @@
+.agents-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-muted);
+  padding-bottom: 12px;
+  font-size: var(--font-size-small);
+}
+.agents-parent {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  margin-right: auto;
+}
+.agents-readonly {
+  margin: 0;
+  padding: 10px;
+  color: var(--color-text-muted);
+  text-align: center;
+  font-size: var(--font-size-small);
+}
+.agents-empty {
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.shell-agent-row {
+  padding-left: 22px;
+  font-size: var(--font-size-small);
+}
+.shell-agent-state {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+}
+.shell-agent-state--running {
+  background: var(--color-accent);
+}
+.shell-agent-state--failed {
+  background: var(--color-ember);
+}
+.shell-agent-heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 22px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--font-size-small);
+}
+.shell-agent-heading:hover {
+  color: var(--color-text-primary);
+}
+.shell-agent-chevron--expanded {
+  transform: rotate(90deg);
+}
