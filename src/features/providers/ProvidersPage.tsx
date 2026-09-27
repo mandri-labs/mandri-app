@@ -129,9 +129,6 @@ export function ProvidersPage() {
                   {t(`core.providers.kind.${provider.kind}`)}
                 </span>
               </button>
-              <span className={`providers-badge providers-badge--${provider.state}`}>
-                {t(`core.providers.state.${provider.state}`)}
-              </span>
               <span className="providers-item-actions">
                 <button
                   type="button"
@@ -203,9 +200,7 @@ export function ProvidersPage() {
                 )}
               </div>
             )}
-            {expandedName === provider.name && (
-              <ModelCatalog provider={provider} onUseModel={() => undefined} />
-            )}
+            {expandedName === provider.name && <ModelCatalog provider={provider} defaultExpanded />}
           </div>
         )}
       />

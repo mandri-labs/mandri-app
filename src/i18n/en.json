@@ -484,6 +484,15 @@
       "delete_note": "Note: harnesses still using a deleted route will receive an error on their next call."
     },
     "models": {
+      "capabilities_unknown": "Capabilities not reported",
+      "capabilities": {
+        "reasoning": "Reasoning",
+        "vision": "Image input",
+        "tools": "Tool calling",
+        "audio": "Audio input",
+        "video": "Video input",
+        "documents": "Document input"
+      },
       "manual_entry": "Enter model identifiers manually below.",
       "context_window": "Context window",
       "max_output_tokens": "Max output tokens",

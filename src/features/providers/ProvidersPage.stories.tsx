@@ -76,14 +76,17 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-const providersPayload = [providerHosted, providerDegraded, providerUnverified, providerNoCatalog].map(
-  (provider) => ({
-    name: provider.name,
-    kind: provider.kind,
-    api_base: provider.apiBase ?? null,
-    state: provider.state,
-  }),
-);
+const providersPayload = [
+  providerHosted,
+  providerDegraded,
+  providerUnverified,
+  providerNoCatalog,
+].map((provider) => ({
+  name: provider.name,
+  kind: provider.kind,
+  api_base: provider.apiBase ?? null,
+  state: provider.state,
+}));
 
 const baseStub: FetchStub = {
   match: (url) => {
@@ -170,7 +173,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const ListStates: Story = {
-  render: () => <StubbedPage providers={[providerHosted, providerDegraded, providerUnverified, providerNoCatalog]} storeRoutes={routes} />,
+  render: () => (
+    <StubbedPage
+      providers={[providerHosted, providerDegraded, providerUnverified, providerNoCatalog]}
+      storeRoutes={routes}
+    />
+  ),
 };
 
 export const Empty: Story = {
@@ -245,7 +253,7 @@ export const CatalogLoaded: Story = {
   render: () => (
     <div className="providers-page">
       <div className="providers-item">
-        <ModelCatalog defaultExpanded provider={providerHosted} onUseModel={() => undefined} />
+        <ModelCatalog defaultExpanded provider={providerHosted} />
       </div>
     </div>
   ),
@@ -255,7 +263,7 @@ export const CatalogUnavailable: Story = {
   render: () => (
     <div className="providers-page">
       <div className="providers-item">
-        <ModelCatalog defaultExpanded provider={providerNoCatalog} onUseModel={() => undefined} />
+        <ModelCatalog defaultExpanded provider={providerNoCatalog} />
       </div>
     </div>
   ),
@@ -265,11 +273,7 @@ export const CatalogLoading: Story = {
   render: () => (
     <div className="providers-page">
       <div className="providers-item">
-        <ModelCatalog
-          defaultExpanded
-          provider={{ ...providerDegraded, catalogState: "loading" }}
-          onUseModel={() => undefined}
-        />
+        <ModelCatalog defaultExpanded provider={{ ...providerDegraded, catalogState: "loading" }} />
       </div>
     </div>
   ),

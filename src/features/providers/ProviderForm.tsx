@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
+import { Plug } from "lucide-react";
+import { IntegrationSelect } from "@/features/sessions/IntegrationSelect";
+import "@/features/sessions/worktree-integration.css";
+import "@/features/transcript/composer.css";
 import { useTranslation } from "react-i18next";
 import { useOverlayFocus } from "@/app/dialogFocus";
 import { useStore } from "@/app/useStore";
@@ -46,6 +50,7 @@ export function ProviderFormDialog({ open, provider, onSaved, onClose }: Provide
     watch,
     reset,
     setError,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ProviderFormValues>({
     defaultValues: {
@@ -87,7 +92,7 @@ export function ProviderFormDialog({ open, provider, onSaved, onClose }: Provide
       if (isEdit) {
         const row = await updateProvider(provider.name, {
           api_base: values.apiBase.trim().length > 0 ? values.apiBase.trim() : null,
-          api_key: values.apiKey.length > 0 ? values.apiKey : null,
+          ...(values.apiKey.trim().length > 0 ? { api_key: values.apiKey.trim() } : {}),
         });
         providersStore.getState().upsertProvider(row);
       } else {
@@ -95,7 +100,7 @@ export function ProviderFormDialog({ open, provider, onSaved, onClose }: Provide
           name: values.name.trim(),
           kind: values.kind,
           api_base: values.apiBase.trim().length > 0 ? values.apiBase.trim() : null,
-          api_key: values.apiKey,
+          api_key: values.apiKey.trim(),
           verify: true,
         });
         providersStore.getState().upsertProvider(row);
@@ -106,9 +111,15 @@ export function ProviderFormDialog({ open, provider, onSaved, onClose }: Provide
       if (error instanceof DaemonError && error.code === "provider_exists") {
         setError("name", { type: "server", message: t("core.providers.form.name_exists") });
       } else {
+        const reason =
+          error instanceof DaemonError && error.code === "provider_verification_failed"
+            ? error.detail.reason
+            : undefined;
         setError("root", {
           type: "server",
-          message: t(daemonErrorKey(error)),
+          message: [t(daemonErrorKey(error)), typeof reason === "string" ? reason : undefined]
+            .filter(Boolean)
+            .join(" — "),
         });
       }
     }
@@ -158,16 +169,14 @@ export function ProviderFormDialog({ open, provider, onSaved, onClose }: Provide
             )}
           </label>
 
-          <label className="providers-field">
-            <span className="providers-field-label">{t("core.providers.form.kind")}</span>
-            <select className="providers-input" disabled={isEdit} {...register("kind")}>
-              {kindOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <IntegrationSelect
+            label={t("core.providers.form.kind")}
+            value={kind}
+            options={kindOptions}
+            disabled={isEdit}
+            icon={<Plug size={16} aria-hidden="true" />}
+            onChange={(value) => setValue("kind", value, { shouldDirty: true })}
+          />
 
           {(localKind || (provider?.apiBase ?? "").length > 0) && (
             <label className="providers-field">

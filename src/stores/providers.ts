@@ -9,7 +9,7 @@ type ProvidersInfoOut = components["schemas"]["ProvidersInfoOut"];
 type RouteOut = components["schemas"]["RouteOut"];
 type ModelOut = components["schemas"]["ModelOut"];
 
-export type ModelCatalogEntry = ModelOut & { display_name?: string };
+export type ModelCatalogEntry = ModelOut;
 
 export const PROVIDER_KINDS = [
   "openrouter",
@@ -29,6 +29,8 @@ export const LOCAL_PROVIDER_KINDS: readonly ProviderKind[] = ["ollama", "lm_stud
 
 export const HOSTED_PROVIDER_KINDS: readonly ProviderKind[] = [
   "openrouter",
+  "opencode",
+  "opencode_go",
   "openai",
   "anthropic",
   "gemini",
@@ -75,6 +77,7 @@ export interface ProvidersState {
   setVerification: (name: string, state: ProviderVerificationState) => void;
   setCatalog: (name: string, models: readonly ModelCatalogEntry[] | "unavailable") => void;
   setCatalogLoading: (name: string) => void;
+  resetCatalog: (name: string) => void;
   setRoutes: (rows: readonly (RouteOut | RouteView)[]) => void;
   applyGatewayEvent: (frame: ServerMessage) => void;
   swapRouteModel: (routeId: string, model: string) => void;
@@ -114,7 +117,7 @@ export const providersStore = createStore<ProvidersState>()((set) => {
       set((state) => ({
         providers: {
           ...state.providers,
-          [row.name]: providerViewOf(row, state.providers[row.name]),
+          [row.name]: providerViewOf(row),
         },
       }));
     },
@@ -156,6 +159,19 @@ export const providersStore = createStore<ProvidersState>()((set) => {
             ? { ...existing, catalogState: "unavailable", modelCatalog: undefined }
             : { ...existing, catalogState: "loaded", modelCatalog: [...models] };
         return { providers: { ...state.providers, [name]: updated } };
+      });
+    },
+
+    resetCatalog: (name) => {
+      set((state) => {
+        const provider = state.providers[name];
+        if (!provider) return state;
+        return {
+          providers: {
+            ...state.providers,
+            [name]: { ...provider, catalogState: "idle", modelCatalog: undefined },
+          },
+        };
       });
     },
 
