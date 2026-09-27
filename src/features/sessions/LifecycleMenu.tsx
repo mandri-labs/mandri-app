@@ -1,5 +1,6 @@
 import { BarChart3, MoreVertical, Pencil, Play, Trash2, LockOpen, RotateCcw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOverlayFocus } from "@/app/dialogFocus";
 import type { SessionView } from "@/stores/sessions";
@@ -39,13 +40,46 @@ export function LifecycleMenu({ session, className = "" }: LifecycleMenuProps) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useOverlayFocus(menuRef, open, () => setOpen(false));
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const anchor = rootRef.current;
+    const menu = menuRef.current;
+    if (!anchor || !menu) return;
+    const place = () => {
+      const rect = anchor.getBoundingClientRect();
+      const gap = 8;
+      const above = Math.max(0, rect.top - gap * 2);
+      const below = Math.max(0, window.innerHeight - rect.bottom - gap * 2);
+      const top = below < menu.scrollHeight && above > below;
+      menu.style.maxHeight = `${top ? above : below}px`;
+      menu.style.left = `${Math.max(gap, Math.min(rect.right - menu.offsetWidth, window.innerWidth - menu.offsetWidth - gap))}px`;
+      menu.style.top = `${Math.max(gap, top ? rect.top - menu.offsetHeight - gap : rect.bottom + gap)}px`;
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(menu);
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
     const onPointerDown = (event: MouseEvent): void => {
-      if (rootRef.current !== null && !rootRef.current.contains(event.target as Node)) {
+      if (
+        rootRef.current !== null &&
+        !rootRef.current.contains(event.target as Node) &&
+        !menuRef.current?.contains(event.target as Node)
+      ) {
         setOpen(false);
         setOverlay(null);
       }
@@ -102,8 +136,8 @@ export function LifecycleMenu({ session, className = "" }: LifecycleMenuProps) {
       >
         <MoreVertical size={14} aria-hidden="true" />
       </button>
-      {open ? (
-        <div className="lifecycle-popover" role="menu">
+      {open ? createPortal(
+        <div ref={menuRef} className="lifecycle-popover" role="menu">
           {canCreate && (
             <button
               type="button"
@@ -189,7 +223,8 @@ export function LifecycleMenu({ session, className = "" }: LifecycleMenuProps) {
               {error}
             </div>
           ) : null}
-        </div>
+        </div>,
+        document.body,
       ) : null}
       {overlay === "agent" && (
         <CreateAgentDialog

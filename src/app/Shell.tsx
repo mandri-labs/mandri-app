@@ -350,7 +350,6 @@ export function Shell({ route, children }: ShellProps) {
           route={route}
           activeSessionId={route.name === "session" ? route.id : (parentSessionId ?? null)}
         />
-        <div className="shell-spacer" />
         <EndpointMenu />
       </aside>
       <CanvasLayout sessionId={route.name === "session" ? route.id : undefined}>
