@@ -3,9 +3,10 @@ import io
 import os
 import platform
 import tarfile
-import urllib.request
 import zipfile
 from pathlib import Path
+
+from download import download
 
 VERSION = "0.11.24"
 TARGETS = {
@@ -19,7 +20,7 @@ TARGETS = {
 def main():
     archive, digest = TARGETS[(platform.system(), platform.machine())]
     url = f"https://github.com/astral-sh/uv/releases/download/{VERSION}/uv-{archive}"
-    payload = urllib.request.urlopen(url, timeout=60).read()
+    payload = download(url, timeout=60)
     if hashlib.sha256(payload).hexdigest() != digest:
         raise ValueError("uv archive checksum mismatch")
     root = Path(__file__).resolve().parents[1] / "src-tauri" / "runtime"
@@ -36,7 +37,7 @@ def main():
     target.write_bytes(data)
     target.chmod(0o755)
     for name in ["LICENSE-APACHE", "LICENSE-MIT"]:
-        content = urllib.request.urlopen(f"https://raw.githubusercontent.com/astral-sh/uv/{VERSION}/{name}", timeout=30).read()
+        content = download(f"https://raw.githubusercontent.com/astral-sh/uv/{VERSION}/{name}")
         (root / name).write_bytes(content)
     print(f"Prepared uv {VERSION} ({archive})")
 
