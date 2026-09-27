@@ -97,5 +97,8 @@ export async function verifyProvider(name: string, options?: CallOptions): Promi
 }
 
 export async function listProviderModels(name: string, options?: GetOptions): Promise<ModelOut[]> {
-  return request<ModelOut[]>(`/v1/providers/${encodeURIComponent(name)}/models`, { ...options });
+  return request<ModelOut[]>(`/v1/providers/${encodeURIComponent(name)}/models`, {
+    timeoutMs: 20_000,
+    ...options,
+  });
 }

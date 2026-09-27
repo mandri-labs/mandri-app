@@ -484,6 +484,15 @@
       "delete_note": "Remarque : les harnais utilisant encore une route supprimée recevront une erreur à leur prochain appel."
     },
     "models": {
+      "capabilities_unknown": "Capacités non renseignées",
+      "capabilities": {
+        "reasoning": "Raisonnement",
+        "vision": "Images",
+        "tools": "Appels d’outils",
+        "audio": "Audio",
+        "video": "Vidéo",
+        "documents": "Documents"
+      },
       "manual_entry": "Saisissez les identifiants de modèles manuellement ci-dessous.",
       "context_window": "Fenêtre de contexte",
       "max_output_tokens": "Tokens de sortie max",

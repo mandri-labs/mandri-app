@@ -1102,10 +1102,20 @@ export interface components {
         ModelOut: {
             /** Default Effort */
             default_effort: string | null;
+            /** Display Name */
+            display_name?: string | null;
             /** Id */
             id: string;
+            /** Image Input */
+            image_input?: boolean | null;
+            /** Input Modalities */
+            input_modalities?: string[] | null;
             /** Reasoning Efforts */
             reasoning_efforts: string[];
+            /** Reasoning Supported */
+            reasoning_supported?: boolean | null;
+            /** Tool Call */
+            tool_call?: boolean | null;
         };
         /**
          * ModelSource
