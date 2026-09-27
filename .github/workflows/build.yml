@@ -27,6 +27,7 @@ jobs:
         with:
           python-version: '3.13'
       - run: python scripts/test-release.py
+      - run: python scripts/test-download.py
       - run: python scripts/check-release.py
 
   test:
@@ -125,6 +126,8 @@ jobs:
           test "${#assets[@]}" -eq 4
           prerelease=()
           if [[ "$RELEASE_TAG" == *-* ]]; then prerelease=(--prerelease); fi
-          gh release create "$RELEASE_TAG" --verify-tag --draft "${prerelease[@]}" --title "Mandri Desktop ${RELEASE_TAG#v}" --generate-notes
-          gh release upload "$RELEASE_TAG" "${assets[@]}"
-          gh release edit "$RELEASE_TAG" --draft=false
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --verify-tag --draft "${prerelease[@]}" --title "Mandri Desktop ${RELEASE_TAG#v}" --generate-notes
+          fi
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          gh release edit "$RELEASE_TAG" --draft=false "${prerelease[@]}"

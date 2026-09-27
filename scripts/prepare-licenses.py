@@ -2,8 +2,9 @@ import json
 import shutil
 import subprocess
 import urllib.error
-import urllib.request
 from pathlib import Path
+
+from download import download
 
 ROOT = Path(__file__).resolve().parents[1]
 DESTINATION = ROOT / "src-tauri" / "runtime" / "licenses"
@@ -24,9 +25,7 @@ def copy_licenses(source, destination):
 def upstream_licenses(package, source, destination):
     if package.get("license") == "MPL-2.0":
         destination.mkdir(parents=True, exist_ok=True)
-        (destination / "LICENSE").write_bytes(urllib.request.urlopen(
-            "https://www.mozilla.org/media/MPL/2.0/index.txt", timeout=30
-        ).read())
+        (destination / "LICENSE").write_bytes(download("https://www.mozilla.org/media/MPL/2.0/index.txt"))
         return
     repository = package.get("repository") or {
         "libappindicator-sys": "https://github.com/tauri-apps/libappindicator-rs",
@@ -42,7 +41,7 @@ def upstream_licenses(package, source, destination):
         for name in ["LICENSE", "LICENSE.txt", "LICENSE.md", "LICENSE-MIT", "LICENSE-APACHE", "LICENSE_MIT", "LICENSE_APACHE-2.0", "COPYING"]:
             url = f"{repository.replace('github.com', 'raw.githubusercontent.com')}/{commit}/{name}"
             try:
-                files[name] = urllib.request.urlopen(url, timeout=30).read()
+                files[name] = download(url)
             except urllib.error.HTTPError as error:
                 if error.code != 404:
                     raise
