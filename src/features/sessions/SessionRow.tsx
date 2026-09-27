@@ -5,6 +5,7 @@ import { useStore } from "@/app/useStore";
 import { approvalsStore, selectApprovalCount } from "@/stores/approvals";
 import { sessionWorkspace, type SessionView } from "@/stores/sessions";
 import { policyChoice } from "@/daemon/protection";
+import { isSessionBusy } from "@/features/transcript/turnActivity";
 import { LifecycleMenu } from "./LifecycleMenu";
 import "./session-list.css";
 
@@ -14,8 +15,8 @@ export function lastSegment(path: string): string {
   return last ?? path;
 }
 
-export function SessionDot({ session }: { session: Pick<SessionView, "state" | "activity"> }) {
-  const live = session.activity === "active";
+export function SessionDot({ session }: { session: SessionView }) {
+  const live = isSessionBusy(session);
   return (
     <span
       className={`session-dot ${live ? "session-dot--live" : "session-dot--idle"}`}

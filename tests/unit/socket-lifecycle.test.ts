@@ -155,3 +155,27 @@ it("keeps a healthy operation pending beyond ten seconds", async () => {
   });
   await expect(result).resolves.toEqual({ state: "queued", code: null });
 });
+
+it("retains an explicit replay cursor subscribed before the connection opens", () => {
+  client.subscribe("session.s1", 0);
+  const socket = Socket.instances[0]!;
+  socket.open();
+  expect(socket.sent).toContainEqual({ op: "subscribe", topic: "session.s1", since: 0 });
+  socket.receive(event(1));
+  socket.close();
+  vi.advanceTimersByTime(250);
+  const reconnected = Socket.instances[1]!;
+  reconnected.open();
+  expect(reconnected.sent).toContainEqual({ op: "subscribe", topic: "session.s1", since: 1 });
+});
+
+it("retains the requested replay cursor until the subscription is acknowledged", () => {
+  const socket = Socket.instances[0]!;
+  socket.open();
+  client.subscribe("session.s1", 4);
+  socket.close();
+  vi.advanceTimersByTime(250);
+  const reconnected = Socket.instances[1]!;
+  reconnected.open();
+  expect(reconnected.sent).toContainEqual({ op: "subscribe", topic: "session.s1", since: 4 });
+});

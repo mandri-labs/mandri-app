@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { DaemonError } from "@/daemon/errors";
 import { SessionFeedService } from "@/daemon/ws/sessionFeed";
 import type { HistoryPage } from "@/daemon/ws/sessionFeed";
@@ -603,4 +603,102 @@ it("acknowledges persisted steering sent before the first assistant response", a
   await service.loadHistory("s1", { refresh: true });
   expect(transcriptStore.getState().transcripts.s1!.localUsers).toHaveLength(0);
   expect(service.getNodes("s1").map((node) => "text" in node ? node.text : undefined)).toEqual(["Initial prompt", "Steering"]);
+});
+
+it("restores OpenCode part identity from history before the next live delta", async () => {
+  const entries = [
+    { type: "message.updated", properties: { info: { id: "assistant", role: "assistant" } } },
+    { type: "message.part.updated", properties: { part: { id: "reasoning", messageID: "assistant", type: "reasoning", text: "Before" } } },
+    { type: "message.updated", properties: { info: { id: "user", role: "user" } } },
+    { type: "message.part.updated", properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } } },
+  ].map((raw) => JSON.stringify(raw));
+  const service = new SessionFeedService({
+    fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }),
+    getSocket: () => null,
+  });
+  service.ensureSession("s1", "opencode");
+  await service.loadHistory("s1");
+  service.ingestSessionFrame("s1", "opencode", { ...event(1, "delta"), source: "opencode", raw: {
+    type: "message.part.delta", properties: { partID: "reasoning", field: "text", delta: " after" },
+  } });
+  service.ingestSessionFrame("s1", "opencode", { ...event(2, "prompt"), source: "opencode", raw: {
+    type: "message.part.updated", properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } },
+  } });
+  expect(service.getNodes("s1")).toMatchObject([
+    { kind: "thinking", text: "Before after", key: "reasoning" },
+    { kind: "user", text: "Prompt", key: "prompt" },
+  ]);
+});
+
+it("does not let an old history response overwrite fresh external activity", async () => {
+  sessionsStore.setState({ sessions: { s1: { id: "s1", harness: "opencode", state: "discovered", title: "External", deleted: false, pendingApprovals: 0, externalBusy: false } } });
+  let resolve!: (page: HistoryPage) => void;
+  const service = new SessionFeedService({ fetchHistoryPage: () => new Promise((done) => { resolve = done; }), getSocket: () => null });
+  service.ensureSession("s1", "opencode");
+  const loading = service.loadHistory("s1");
+  sessionsStore.getState().applySessionPatch("s1", { externalBusy: true, externalModel: "current" });
+  resolve({ ...page(), external_busy: false, external_model: "previous" });
+  await loading;
+  expect(sessionsStore.getState().sessions.s1).toMatchObject({ externalBusy: true, externalModel: "current" });
+});
+
+afterEach(() => vi.useRealTimers());
+
+it.each(["delivery_unknown", "service_unavailable"] as const)("retries %s history failures while still online without a transcript error", async (code) => {
+  vi.useFakeTimers();
+  const fetch = vi.fn().mockRejectedValueOnce(new DaemonError({ code, message: "socket disconnected" })).mockResolvedValueOnce(page("recovered"));
+  const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
+  service.ensureSession("s1", "claude");
+  const loading = service.loadHistory("s1");
+  await vi.advanceTimersByTimeAsync(499);
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(service.getFlags("s1").historyUnavailable).toBe(false);
+  expect(service.getNodes("s1")).toEqual([]);
+  await vi.advanceTimersByTimeAsync(1);
+  await loading;
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "recovered" }]);
+});
+
+it("retries the same older history page before a queued reconnect refresh", async () => {
+  vi.useFakeTimers();
+  const fetch = vi.fn()
+    .mockResolvedValueOnce({ ...page("recent"), next_cursor: "older", has_more: true })
+    .mockRejectedValueOnce(new DaemonError({ code: "delivery_unknown", message: "lost history response" }))
+    .mockResolvedValueOnce(page("old"))
+    .mockResolvedValueOnce(page("recent", "new"));
+  const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
+  service.ensureSession("s1", "claude");
+  await service.loadHistory("s1");
+  const older = service.loadHistory("s1");
+  connectionStore.getState().setStatus("reconnecting");
+  await vi.advanceTimersByTimeAsync(10_000);
+  expect(fetch).toHaveBeenCalledTimes(2);
+  connectionStore.getState().setStatus("online");
+  service.ingestSessionFrame("s1", "claude", { op: "subscribed", topic: "session.s1", from_seq: 1 });
+  await older;
+  expect(fetch.mock.calls.map((args) => args[1])).toEqual([null, "older", "older", null]);
+  expect(service.getNodes("s1").map((node) => "text" in node ? node.text : null)).toEqual(["old", "recent", "new"]);
+});
+
+it("backs off consecutive online history failures and cancels retry when the buffer closes", async () => {
+  vi.useFakeTimers();
+  const fetch = vi.fn().mockRejectedValue(new DaemonError({ code: "service_unavailable", message: "try again" }));
+  const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
+  service.ensureSession("s1", "claude");
+  const loading = service.loadHistory("s1");
+  await vi.advanceTimersByTimeAsync(500);
+  expect(fetch).toHaveBeenCalledTimes(2);
+  await vi.advanceTimersByTimeAsync(999);
+  expect(fetch).toHaveBeenCalledTimes(2);
+  await vi.advanceTimersByTimeAsync(1);
+  expect(fetch).toHaveBeenCalledTimes(3);
+  service.closeSession("s1");
+  await loading;
+  await vi.advanceTimersByTimeAsync(20_000);
+  connectionStore.getState().setStatus("reconnecting");
+  connectionStore.getState().setStatus("online");
+  expect(fetch).toHaveBeenCalledTimes(3);
+  expect(vi.getTimerCount()).toBe(0);
+  expect(service.hasSession("s1")).toBe(false);
 });

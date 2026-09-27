@@ -62,3 +62,10 @@ it("stops Codex activity on a non-retryable error and preserves retries", () => 
 it.each(["failed", "blocked", "stopped"])("does not keep stale native activity spinning after %s", (executionPhase) => {
   expect(isSessionWorking({ id: "s1", harness: "codex", state: "live", title: "Test", deleted: false, pendingApprovals: 0, nativeTurnActive: true, executionPhase })).toBe(false);
 });
+
+it("keeps unknown native activity busy for external sessions until a completion is known", async () => {
+  const { isSessionBusy } = await import("@/features/transcript/turnActivity");
+  const external = { id: "s1", harness: "codex" as const, state: "discovered" as const, title: "External", deleted: false, pendingApprovals: 0, activity: "active" as const };
+  expect(isSessionBusy(external)).toBe(true);
+  expect(isSessionBusy({ ...external, nativeTurnActive: false })).toBe(false);
+});

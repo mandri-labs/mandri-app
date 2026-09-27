@@ -96,3 +96,22 @@ it("keeps the original insertion boundary when upload completes after another ev
     ...previous, { kind: "user", key }, response,
   ]);
 });
+
+it("reconciles a Windows two-image Codex echo with forward-slash attachment references", () => {
+  const files = ["one", "two"].map((name) => ({
+    reference: `C:/Dev Drive/project/mandri-attachments/${name}/capture.png`,
+    native: `c:\\Dev Drive\\project\\mandri-attachments\\${name}\\capture.png`,
+  }));
+  const text = `Voici les captures en question\n\n${files.map(({reference}) => `[capture.png](${encodeURI(reference)})`).join("\n")}`;
+  const store = transcriptStore.getState();
+  store.addPendingUser("s", text);
+  const live = parseFrame("codex", { method: "item/completed", params: {
+    turnId: "turn", item: { id: "message", type: "userMessage", content: [
+      { type: "text", text }, ...files.map(({native}) => ({ type: "localImage", path: native })),
+    ] },
+  } });
+  store.setNodes("s", live);
+  const state = transcriptStore.getState().transcripts.s!;
+  expect(state.pendingUsers).toHaveLength(0);
+  expect(withPendingUsers(state.nodes, state.pendingUsers!)).toHaveLength(1);
+});

@@ -756,6 +756,7 @@
     "session_not_resumable": "This session cannot be resumed.",
     "harness_not_installed": "The required harness is not installed. Install it before starting a session.",
     "harness_store_unavailable": "History storage is temporarily unavailable. Live updates continue, but past messages cannot be loaded.",
+    "attachment_storage_unavailable": "Attachment storage is temporarily unavailable. Your message and files have been kept.",
     "history_cursor_invalid": "The message history has changed. Reloading from the beginning.",
     "provider_not_found": "The selected provider no longer exists. Refresh the provider list.",
     "provider_exists": "A provider with this name already exists. Choose a different name.",

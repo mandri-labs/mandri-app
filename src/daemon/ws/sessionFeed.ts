@@ -26,6 +26,8 @@ import { sessionsStore, transcriptStore } from "@/stores/sessions";
 
 export const HISTORY_PAGE_LIMIT = 500;
 const HINT_LIMIT = 512;
+const HISTORY_RETRY_BASE_MS = 500;
+const HISTORY_RETRY_MAX_MS = 8_000;
 
 const log = createDebugLogger("sessionFeed");
 
@@ -83,6 +85,7 @@ interface SessionBuffer extends SessionBufferFlags {
   stopHistoryDeferral?: () => void;
   loadingHistory: boolean;
   historyRequest?: Promise<void>;
+  cancelHistoryRetry?: () => void;
   refreshPending: boolean;
   preservePending?: boolean;
   historyError?: string;
@@ -304,6 +307,7 @@ export class SessionFeedService {
         // A native branch/session switch replaces the conversation, including
         // optimistic rows and in-flight history from the previous branch.
         buffer.stopHistoryDeferral?.();
+        buffer.cancelHistoryRetry?.();
         this.buffers.delete(sessionId);
         transcriptStore.getState().removeTranscript(sessionId);
         sessionsStore.getState().applySessionPatch(sessionId, { turnWork: [], nativeTurnActive: false });
@@ -386,9 +390,14 @@ export class SessionFeedService {
     const { sessionId } = buffer;
     const refresh = options.refresh === true;
     let activityChanged = false;
+    let externalActivityChanged = false;
+    let externalModelChanged = false;
     const unsubscribeActivity = sessionsStore.subscribe((state, previous) => {
       const current = state.sessions[sessionId];
       const before = previous.sessions[sessionId];
+      externalActivityChanged ||= current?.externalBusy !== before?.externalBusy ||
+        current?.externalUnavailable !== before?.externalUnavailable;
+      externalModelChanged ||= current?.externalModel !== before?.externalModel;
       if (
         current?.nativeTurnActive !== before?.nativeTurnActive ||
         current?.sending !== before?.sending ||
@@ -406,7 +415,7 @@ export class SessionFeedService {
     });
     try {
       const cursor = refresh ? null : buffer.historyCursor;
-      const page = await this.deps.fetchHistoryPage(sessionId, cursor, HISTORY_PAGE_LIMIT);
+      const page = await this.readHistoryPage(buffer, cursor);
       if (this.buffers.get(sessionId) !== buffer) return;
       const session = sessionsStore.getState().sessions[sessionId];
       if (
@@ -419,17 +428,17 @@ export class SessionFeedService {
           .getState()
           .applySessionPatch(sessionId, { nativeTurnActive: page.turn_active });
       }
-      if (typeof page.external_busy === "boolean") {
+      if (!externalActivityChanged && typeof page.external_busy === "boolean") {
         sessionsStore.getState().applySessionPatch(sessionId, {
           externalBusy: page.external_busy,
           externalUnavailable: false,
         });
-      } else if (page.external_busy === null) {
+      } else if (!externalActivityChanged && page.external_busy === null) {
         sessionsStore
           .getState()
           .applySessionPatch(sessionId, { externalBusy: undefined, externalUnavailable: true });
       }
-      if (typeof page.external_model === "string" || page.external_model === null) {
+      if (!externalModelChanged && (typeof page.external_model === "string" || page.external_model === null)) {
         sessionsStore
           .getState()
           .applySessionPatch(sessionId, { externalModel: page.external_model ?? undefined });
@@ -450,22 +459,19 @@ export class SessionFeedService {
       const pageNodes = entries.flatMap((line) => {
         if (buffer.harness === "opencode") {
           try {
-            const raw = asRecord(JSON.parse(line));
-            const properties = asRecord(raw?.["properties"]);
-            const info = asRecord(properties?.["info"]);
-            if (
-              raw?.["type"] === "message.updated" &&
-              typeof info?.["id"] === "string" &&
-              (info["role"] === "user" || info["role"] === "assistant")
-            ) {
-              context.messageRoles.set(info["id"], info["role"]);
-            }
+            this.updateOpenCodeHints(context, JSON.parse(line));
           } catch {
             /* Invalid lines are rendered by the parser. */
           }
         }
         return parseStoredLine(buffer.harness, line, context);
       });
+      if (buffer.harness === "opencode") {
+        // A reconnect may start in the middle of a message, after its role and
+        // part type were announced. The following live deltas need those hints.
+        for (const [id, role] of context.messageRoles) setHint(buffer.messageRoles, id, role);
+        for (const [id, kind] of context.partKinds) setHint(buffer.partKinds, id, kind);
+      }
       log.info("loadHistory page fetched", {
         sessionId,
         entryCount: page.entries.length,
@@ -575,6 +581,44 @@ export class SessionFeedService {
     }
   }
 
+  private async readHistoryPage(buffer: SessionBuffer, cursor: string | null): Promise<HistoryPage> {
+    let attempt = 0;
+    for (;;) {
+      try {
+        return await this.deps.fetchHistoryPage(buffer.sessionId, cursor, HISTORY_PAGE_LIMIT);
+      } catch (error) {
+        if (!(error instanceof DaemonError) ||
+          (error.code !== "delivery_unknown" && error.code !== "service_unavailable") ||
+          this.buffers.get(buffer.sessionId) !== buffer) throw error;
+        const delayMs = Math.min(HISTORY_RETRY_MAX_MS, HISTORY_RETRY_BASE_MS * 2 ** Math.min(attempt++, 4));
+        log.debug("history read interrupted; retry scheduled", {
+          sessionId: buffer.sessionId, code: error.code, cursor, delayMs,
+        });
+        if (!await this.waitForHistoryRetry(buffer, delayMs)) throw error;
+      }
+    }
+  }
+
+  private waitForHistoryRetry(buffer: SessionBuffer, delayMs: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const finish = (retry: boolean) => {
+        clearTimeout(timer);
+        unsubscribe();
+        buffer.cancelHistoryRetry = undefined;
+        resolve(retry);
+      };
+      // A fresh connection can retry immediately. While already online, back
+      // off transient service failures without discarding the original page.
+      const unsubscribe = connectionStore.subscribe((state, previous) => {
+        if (state.status === "online" && previous.status !== "online") finish(true);
+      });
+      const timer = setTimeout(() => {
+        if (connectionStore.getState().status === "online") finish(true);
+      }, delayMs);
+      buffer.cancelHistoryRetry = () => finish(false);
+    });
+  }
+
   handleGap(sessionId: string): void {
     const buffer = this.buffers.get(sessionId);
     if (buffer === undefined) {
@@ -593,6 +637,7 @@ export class SessionFeedService {
       socket.unsubscribe(`session.${sessionId}` as WsTopic);
     }
     this.buffers.get(sessionId)?.stopHistoryDeferral?.();
+    this.buffers.get(sessionId)?.cancelHistoryRetry?.();
     this.buffers.delete(sessionId);
     this.promptOutcomes.delete(sessionId);
     if (!transcriptStore.getState().transcripts[sessionId]?.localUsers?.length) {
@@ -665,7 +710,7 @@ export class SessionFeedService {
     buffer.stopHistoryDeferral = undefined;
   }
 
-  private updateOpenCodeHints(buffer: SessionBuffer, raw: unknown): void {
+  private updateOpenCodeHints(buffer: Pick<SessionBuffer, "messageRoles" | "partKinds">, raw: unknown): void {
     const record = asRecord(raw);
     const type = record?.["type"];
     const properties = asRecord(record?.["properties"]);

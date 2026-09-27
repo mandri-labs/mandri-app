@@ -1,6 +1,7 @@
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Composer } from "@/features/transcript/Composer";
+import { SessionDot } from "@/features/sessions/SessionRow";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
 import { initI18n } from "@/i18n";
 import { DaemonError } from "@/daemon/errors";
@@ -370,4 +371,70 @@ it("shows stop failures and allows retry without leaving the composer disabled",
   await screen.findByRole("alert");
   expect((screen.getByRole("button", { name: "Stop" }) as HTMLButtonElement).disabled).toBe(false);
   expect(sessionsStore.getState().sessions.s1?.state).toBe("live");
+});
+
+it("keeps the draft and permits retry after Codex resume readiness times out", async () => {
+  sessionsStore.getState().applySessionPatch("s1", {
+    harness: "codex", state: "stopped", nativeId: "native-1", daemonOrigin: true,
+    availability: unowned, model: "native:codex/gpt-6-luna", promptError: null,
+  });
+  const resume = vi.fn()
+    .mockResolvedValueOnce(new Response(JSON.stringify({ error: {
+      code: "native_initialization_timeout", message: "The harness did not become ready in time", detail: {},
+    } }), { status: 409 }))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ id: "s1", harness: "codex", state: "live" }), { status: 200 }));
+  vi.stubGlobal("fetch", (url: unknown) => String(url).endsWith("/resume") ? resume() : Promise.resolve(new Response("[]", { status: 200 })));
+  const feed = { sendPrompt: vi.fn(async (): Promise<PromptOutcome> => ({state: "queued", code: null})), interrupt: vi.fn() };
+  render(<Composer sessionId="s1" feed={feed} />);
+  fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter" });
+  await waitFor(() => expect(sessionsStore.getState().sessions.s1?.sending).toBe(false));
+  expect(sessionsStore.getState().sessions.s1?.resumeStartedAt).toBeUndefined();
+  expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Unsent first prompt");
+  expect(transcriptStore.getState().transcripts.s1?.pendingUsers).toHaveLength(0);
+  expect(feed.sendPrompt).not.toHaveBeenCalled();
+  fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter" });
+  await waitFor(() => expect(feed.sendPrompt).toHaveBeenCalledTimes(1));
+  expect(resume).toHaveBeenCalledTimes(2);
+  expect(screen.queryByRole("alert")).toBeNull();
+  expect(sessionsStore.getState().sessions.s1?.state).toBe("live");
+});
+
+it("clears STOP after native completion despite an active metadata snapshot", () => {
+  sessionsStore.getState().setDraft("s1", "");
+  sessionsStore.getState().applySessionPatch("s1", {
+    harness: "opencode", activity: "active", nativeTurnActive: true, promptError: null,
+    sending: false, awaitingResponse: false,
+  });
+  render(<Composer sessionId="s1" />);
+  expect(screen.getByRole("button", { name: "Stop" })).toBeTruthy();
+  act(() => sessionsStore.getState().ingestFrame({
+    topic: "session.s1", seq: 1, ts: 1, source: "opencode",
+    raw: { type: "session.status", properties: { sessionID: "native", status: { type: "idle" } } },
+  }));
+  expect(sessionsStore.getState().sessions.s1?.activity).toBe("active");
+  expect(sessionsStore.getState().sessions.s1?.nativeTurnActive).toBe(false);
+  expect(screen.queryByRole("button", { name: "Stop" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Send" })).toBeTruthy();
+});
+
+it.each([
+  { sending: true }, { awaitingResponse: true }, { pendingApprovals: 1 },
+  { stopping: true }, { nativeTurnActive: undefined }, { externalBusy: true },
+])("keeps STOP and the session indicator for pending work %j", (pending) => {
+  sessionsStore.getState().setDraft("s1", "");
+  sessionsStore.getState().applySessionPatch("s1", {
+    activity: "active", nativeTurnActive: false, promptError: null, ...pending,
+  });
+  render(<><Composer sessionId="s1" /><SessionDot session={sessionsStore.getState().sessions.s1!} /></>);
+  expect(screen.getByRole("button", { name: "Stop" })).toBeTruthy();
+  expect(document.querySelector(".session-dot--live")).toBeTruthy();
+});
+
+it("shows an idle session dot for the completed real-session snapshot", () => {
+  sessionsStore.getState().applySessionPatch("s1", {
+    harness: "opencode", activity: "active", nativeTurnActive: false, promptError: null,
+    sending: false, awaitingResponse: false, externalBusy: false,
+  });
+  render(<SessionDot session={sessionsStore.getState().sessions.s1!} />);
+  expect(document.querySelector(".session-dot--idle")).toBeTruthy();
 });
