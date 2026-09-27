@@ -156,12 +156,6 @@
   justify-content: center;
 }
 
-.tr-activity-group-items {
-  max-height: 360px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-
 .tr-activity-group-items > .tr-disclosure,
 .tr-activity-group-items > .tr-tool {
   margin-block: 8px;
