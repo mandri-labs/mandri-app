@@ -6,16 +6,21 @@ import { reduceTurnEvent } from "@/features/transcript/turns/reducer";
 import type { TurnEvent, TurnWork } from "@/features/transcript/turns/types";
 import { parseStoredLine, storedLineKey } from "./storedLine";
 
+function isTurnContent(node: TranscriptNode): boolean {
+  return ["assistant", "thinking", "tool", "diff", "plan"].includes(node.kind) ||
+    (node.kind === "system" && node.level === "error");
+}
+
 export function turnNodeAnchor(nodes: readonly TranscriptNode[]): NonNullable<TurnEvent["anchor"]> {
   const user = nodes.find((node) => node.kind === "user");
-  const first = nodes.find((node) => ["assistant", "thinking", "tool", "diff", "plan"].includes(node.kind));
+  const first = nodes.find(isTurnContent);
   return { userNodeKey: user ? presentationKey(user) : undefined,
     ...(first ? { firstNodeKey: presentationKey(first), firstNodeKind: first.kind,
       firstNodeText: "text" in first ? first.text : first.kind === "tool" ? first.target ?? first.label : undefined } : {}) };
 }
 
 export function turnNodeIdentities(nodes: readonly TranscriptNode[]): string[] {
-  return nodes.filter((node) => ["user", "assistant", "thinking", "tool", "diff", "plan"].includes(node.kind))
+  return nodes.filter((node) => node.kind === "user" || isTurnContent(node))
     .map((node) => `node:${presentationKey(node)}`);
 }
 

@@ -21,6 +21,47 @@ vi.mock("@tanstack/react-virtual", () => ({
 const harnesses: HarnessKind[] = ["codex", "claude", "opencode", "agy", "pi"];
 const turns = () => sessionsStore.getState().sessions.s!.turnWork ?? [];
 beforeAll(() => initI18n("en"));
+
+it("keeps a failed Codex turn beside its error when a later turn succeeds", async () => {
+  const { feed, send, setHistory } = setup("codex");
+  send({ method: "turn/started", params: { threadId: "native", turn: { id: "failed" } } }, 1000);
+  send({ method: "error", params: { threadId: "native", turnId: "failed", willRetry: false,
+    error: { message: "Synthetic provider rejection" } } }, 2000);
+  send({ method: "turn/completed", params: { threadId: "native",
+    turn: { id: "failed", status: "failed", error: { message: "Synthetic provider rejection" } } } }, 2000);
+  const success = turnFixture("codex", "success", 10000);
+  send(success.starts, success.start);
+  for (const body of success.bodies) send(body, success.start + 500);
+  for (const finish of success.finishes) send(finish, success.end);
+  const view = render(<Transcript sessionId="s" harness="codex" feed={feed} />);
+  await act(async () => {});
+  const text = view.container.textContent!;
+  expect(text.indexOf("Failed after 1s")).toBeGreaterThanOrEqual(0);
+  expect(text.indexOf("Failed after 1s")).toBeLessThan(text.indexOf("Synthetic provider rejection"));
+  expect(text.indexOf("Failed after 1s")).toBeLessThan(text.indexOf("Same answer"));
+  const history = [
+    JSON.stringify({ timestamp: new Date(1000).toISOString(), type: "event_msg",
+      payload: { type: "task_started", turn_id: "failed" } }),
+    JSON.stringify({ timestamp: new Date(2000).toISOString(), type: "event_msg",
+      payload: { type: "task_complete", turn_id: "failed", error: { message: "Synthetic provider rejection" } } }),
+    ...success.history,
+  ];
+  setHistory(history);
+  await act(async () => { await feed.loadHistory("s", { refresh: true, preserveOlder: true }); });
+  expect(view.container.textContent!.indexOf("Failed after 1s"))
+    .toBeLessThan(view.container.textContent!.indexOf("Same answer"));
+  expect(view.container.querySelectorAll(".transcript-turn-summary")).toHaveLength(2);
+  view.unmount();
+  feed.closeSession("s");
+  sessionsStore.setState(sessionsStore.getInitialState());
+  const cold = setup("codex", history);
+  await cold.feed.loadHistory("s");
+  const reloaded = render(<Transcript sessionId="s" harness="codex" feed={cold.feed} />);
+  await act(async () => {});
+  expect(reloaded.container.querySelectorAll(".transcript-turn-summary")).toHaveLength(2);
+  expect(reloaded.container.textContent!.indexOf("Failed after 1s"))
+    .toBeLessThan(reloaded.container.textContent!.indexOf("Synthetic provider rejection"));
+});
 beforeEach(() => {
   sessionsStore.setState(sessionsStore.getInitialState());
   transcriptStore.getState().resetTranscripts();
