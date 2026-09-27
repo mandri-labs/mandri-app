@@ -151,7 +151,7 @@
   scrollbar-gutter: stable;
   padding-inline-end: 8px;
   display: flex;
-  flex: 0 1 auto;
+  flex: 1 1 0;
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
@@ -332,10 +332,6 @@
   margin: 0;
 }
 
-.shell-spacer {
-  flex: 1 1 auto;
-}
-
 .shell-connection {
   display: inline-flex;
   align-items: center;
@@ -497,7 +493,8 @@
   transition: padding-right 140ms ease-out;
 }
 .shell-session-container:hover > .shell-session-row,
-.shell-session-container:focus-within > .shell-session-row {
+.shell-session-container:focus-within > .shell-session-row,
+.shell-session-container:has(.lifecycle-trigger[aria-expanded="true"]) > .shell-session-row {
   padding-right: 34px;
 }
 .shell-session-container .shell-session-icon-slot {
