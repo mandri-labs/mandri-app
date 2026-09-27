@@ -1,6 +1,7 @@
 import { CanvasLayout } from "@/features/canvas/CanvasLayout";
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { DaemonError } from "@/daemon/errors";
 import { Composer } from "@/features/transcript/Composer";
 import { UserBubble } from "@/features/transcript/renderers/UserBubble";
 import { MarkdownText } from "@/features/transcript/renderers/MarkdownText";
@@ -326,4 +327,40 @@ it("puts the local image inside the pending bubble while upload is unresolved", 
   await act(async () => finish({ id: "image", reference: "[capture.png](/files/capture.png)" }));
   await waitFor(() => expect(feed.sendPrompt).toHaveBeenCalledWith("s1", "Describe this", ["image"]));
   expect(transcriptStore.getState().transcripts.s1!.pendingUsers![0]!.node.key).toBe(node.key);
+});
+
+it.each(["upload", "prompt"])("retains three attachments and retries once after %s storage failure", async (stage) => {
+  let failed = false;
+  vi.mocked(request).mockImplementation(async (_path, options) => {
+    const name = String(options?.query?.name);
+    if (stage === "upload" && name === "two.txt" && !failed) {
+      failed = true;
+      throw new DaemonError({ code: "attachment_storage_unavailable", message: "Session file storage is unavailable", httpStatus: 503 });
+    }
+    return { id: name, name, size: 5, media_type: "text/plain", reference: `[${name}](/files/${name})` };
+  });
+  const feed = { sendPrompt: vi.fn(async () => {
+    if (stage === "prompt" && !failed) {
+      failed = true;
+      throw new DaemonError({ code: "attachment_storage_unavailable", message: "Session file storage is unavailable" });
+    }
+    return { state: "queued" as const, code: null };
+  }), interrupt: vi.fn() };
+  render(<Composer sessionId="s1" feed={feed} />);
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Voici les captures en question" } });
+  const files = ["one.txt", "two.txt", "three.txt"].map((name) => new File(["notes"], name));
+  fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files } });
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  await screen.findByText("Attachment storage is temporarily unavailable. Your message and files have been kept.");
+  expect(screen.getAllByRole("alert")).toHaveLength(1);
+  expect(screen.queryByText("The request was malformed. Please try again.")).toBeNull();
+  expect(filesFor("s1").map((item) => item.file)).toEqual(files);
+  expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Voici les captures en question");
+  expect(transcriptStore.getState().transcripts.s1?.pendingUsers).toHaveLength(0);
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  await waitFor(() => expect(filesFor("s1")).toHaveLength(0));
+  expect(request).toHaveBeenCalledTimes(stage === "upload" ? 4 : 3);
+  expect(feed.sendPrompt).toHaveBeenLastCalledWith("s1", "Voici les captures en question", ["one.txt", "two.txt", "three.txt"]);
+  expect(feed.sendPrompt).toHaveBeenCalledTimes(stage === "upload" ? 1 : 2);
+  expect(screen.queryByRole("alert")).toBeNull();
 });

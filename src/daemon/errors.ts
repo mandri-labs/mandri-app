@@ -10,6 +10,7 @@ const DAEMON_ERROR_CODES = [
   "session_not_resumable",
   "harness_not_installed",
   "harness_store_unavailable",
+  "attachment_storage_unavailable",
   "history_cursor_invalid",
   "provider_not_found",
   "provider_exists",

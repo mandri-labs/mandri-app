@@ -555,3 +555,20 @@ it("retains the chosen permissions when resume fails", async () => {
   expect(viewOf("permission-failure").resumeMode).toBe("acceptEdits");
   expect(viewOf("permission-failure").state).toBe("stopped");
 });
+
+it("releases a hidden session after native completion despite stale metadata activity", () => {
+  seedSession({ id: "completed", harness: "opencode", nativeId: "native", nativeTurnActive: true, activity: "active" });
+  const unsubscribe = vi.fn();
+  const final = vi.fn();
+  const manager = new KeepAliveManager({ subscribe: vi.fn(), unsubscribe, onFinalRelease: final });
+  manager.acquire("completed", "pane");
+  manager.release("completed", "pane");
+  expect(unsubscribe).not.toHaveBeenCalled();
+  sessionsStore.getState().ingestFrame({
+    topic: "session.completed", seq: 1, ts: 1, source: "opencode",
+    raw: { type: "session.status", properties: { sessionID: "native", status: { type: "idle" } } },
+  });
+  expect(unsubscribe).toHaveBeenCalledWith("completed");
+  expect(final).toHaveBeenCalledWith("completed");
+  expect(manager.isHeld("completed")).toBe(false);
+});

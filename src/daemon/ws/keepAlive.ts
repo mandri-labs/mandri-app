@@ -1,6 +1,7 @@
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
 import { sessionsStore } from "@/stores/sessions";
 import { createDebugLogger } from "@/lib/debug";
+import { isSessionBusy } from "@/features/transcript/turnActivity";
 
 const log = createDebugLogger("keepAlive");
 
@@ -15,8 +16,7 @@ export interface KeepAliveDeps {
 
 function defaultIsBusy(sessionId: string): boolean {
   const session = sessionsStore.getState().sessions[sessionId];
-  return Boolean(session && (session.sending || session.awaitingResponse || session.nativeTurnActive ||
-    session.externalBusy || session.activity === "active"));
+  return isSessionBusy(session);
 }
 
 function defaultDeps(): KeepAliveDeps {

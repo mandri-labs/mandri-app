@@ -2,6 +2,9 @@ import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@
 import { createStore } from "zustand/vanilla";
 import { daemonIdentity } from "@/daemon/identity";
 import { request } from "@/daemon/rest/client";
+import { createDebugLogger } from "@/lib/debug";
+
+const log = createDebugLogger("attachments");
 
 export interface UploadedAttachment {
   id: string;
@@ -107,9 +110,11 @@ export async function uploadFiles(
   for (const item of selected) {
     if (daemonIdentity.getState().generation !== generation) throw new Error("Daemon changed");
     if (item.uploaded && item.sessionId === sessionId && item.generation === generation) {
+      log.debug("reusing uploaded attachment", { sessionId, attachmentId: item.uploaded.id });
       result.push(item.uploaded);
       continue;
     }
+    log.debug("upload started", { sessionId, name: item.file.name, size: item.file.size });
     const uploaded = await request<UploadedAttachment>(
       `/v1/sessions/${encodeURIComponent(sessionId)}/attachments`,
       {
@@ -121,6 +126,7 @@ export async function uploadFiles(
     );
     if (daemonIdentity.getState().generation !== generation) throw new Error("Daemon changed");
     Object.assign(item, { uploaded, sessionId, generation });
+    log.debug("upload completed", { sessionId, attachmentId: uploaded.id, size: uploaded.size });
     result.push(uploaded);
   }
   return result;
