@@ -1,6 +1,7 @@
 import { useCommands } from "@/features/commands/useCommands";
 import { commandTransport, type CommandTransport } from "@/features/commands/service";
 import { AsyncQuestions, pendingAsyncQuestion } from "./AsyncQuestions";
+import { isSessionBusy } from "./turnActivity";
 import { daemonIdentity } from "@/daemon/identity";
 import { AttachmentButton, AttachmentChips, useAttachmentInput } from "./AttachmentInput";
 import { draftMessage, attachmentMessage, uploadFiles, removeFiles, type DraftAttachment } from "./attachments";
@@ -161,7 +162,7 @@ export function Composer({
     !(harnessKind === "agy" && attachmentInput.files.length > 0);
   const nativeCommands = useCommands({
     sessionId, harness: harnessKind, cwd: session?.projectPath, executionBackend: session?.executionBackend, privacyMode: session?.privacyMode, text, setText, enabled: canDeliver,
-    busy: Boolean(session?.nativeTurnActive || session?.awaitingResponse || session?.pendingApprovals || session?.activity === "active"),
+    busy: isSessionBusy(session),
     transport: commands,
     execute: async (command, args, invocationId) => {
       if (!sessionId) throw new Error(t("commands.unavailable"));
@@ -173,10 +174,7 @@ export function Composer({
     },
   });
   const canSend = canDeliver && !nativeCommands.pending && (text.trim().length > 0 || attachmentInput.files.length > 0);
-  const showStop = live && text.trim().length === 0 && Boolean(
-    session?.nativeTurnActive || session?.sending || session?.awaitingResponse ||
-    session?.activity === "active" || session?.pendingApprovals || session?.stopping,
-  );
+  const showStop = live && text.trim().length === 0 && isSessionBusy(session);
   const question = useStore(transcriptStore, useCallback((state) => {
     const transcript = sessionId ? state.transcripts[sessionId] : undefined;
     return transcript?.pendingUsers?.length ? undefined : pendingAsyncQuestion(transcript?.nodes ?? []);
@@ -213,6 +211,7 @@ export function Composer({
       setText("");
       setError(null);
       const service = feed ?? sessionFeed;
+      let deliveryStage: "attachments" | "resume" | "prompt" = "attachments";
       try {
         const uploaded = selected.length ? await uploadFiles(id, selected) : [];
         if (!deliveryCurrent()) return;
@@ -220,10 +219,12 @@ export function Composer({
           transcriptStore.getState().updatePendingUser(id, pendingKey, attachmentMessage(composed, uploaded));
         }
         const identities = uploaded.map((file) => file.id);
+        deliveryStage = "resume";
         if (sessionsStore.getState().sessions[id]?.state !== "live") {
           await resumeSessionAction(id);
         }
         if (!deliveryCurrent()) return;
+        deliveryStage = "prompt";
         try {
           await (identities.length
             ? service.sendPrompt(id, composed, identities)
@@ -244,17 +245,25 @@ export function Composer({
           }
         }
         log.info("session not live, transparently resuming before prompt", { sessionId: id });
+        deliveryStage = "resume";
         await resumeSessionAction(id);
         if (!deliveryCurrent()) return;
+        deliveryStage = "prompt";
         await (identities.length
           ? service.sendPrompt(id, composed, identities)
           : service.sendPrompt(id, composed));
         removeFiles(id, selected);
       } catch (sendError) {
         if (!deliveryCurrent()) return;
-        if (selected.length)
+        const code = sendError instanceof DaemonError ? sendError.code : null;
+        const attachmentFailure = selected.length > 0 &&
+          (deliveryStage === "attachments" || code === "attachment_storage_unavailable" || code === "invalid_params");
+        log.warn("delivery failed", { sessionId: id, stage: deliveryStage, code,
+          attachmentCount: selected.length, message: sendError instanceof Error ? sendError.message : String(sendError) });
+        if (attachmentFailure)
           attachmentInput.setError(
-            sendError instanceof Error ? sendError.message : t("error.unknown"),
+            code === "attachment_storage_unavailable" ? t("error.attachment_storage_unavailable")
+              : sendError instanceof Error ? sendError.message : t("error.unknown"),
           );
         if (!(sendError instanceof DaemonError && sendError.code === "delivery_unknown")) {
           transcriptStore.getState().removePendingUser(id, pendingKey);
@@ -264,7 +273,7 @@ export function Composer({
             .setDraft(id, nextDraft ? `${composed}\n\n${nextDraft}` : composed);
         }
         sessionsStore.getState().applySessionPatch(id, { awaitingResponse: false });
-        setError(errorKeyOf(sendError));
+        setError(attachmentFailure ? null : errorKeyOf(sendError));
       } finally {
         if (deliveryCurrent())
           sessionsStore.getState().applySessionPatch(id, { sending: false });

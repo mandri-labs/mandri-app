@@ -765,6 +765,7 @@
     "session_not_resumable": "Cette session ne peut pas être reprise.",
     "harness_not_installed": "Le harnais requis n'est pas installé. Installez-le avant de démarrer une session.",
     "harness_store_unavailable": "L'historique est momentanément indisponible. Les mises à jour en direct continuent, mais les messages passés ne peuvent pas être chargés.",
+    "attachment_storage_unavailable": "Le stockage des pièces jointes est temporairement indisponible. Votre message et vos fichiers sont conservés.",
     "history_cursor_invalid": "L'historique des messages a changé. Rechargement depuis le début.",
     "provider_not_found": "Le fournisseur sélectionné n'existe plus. Actualisez la liste des fournisseurs.",
     "provider_exists": "Un fournisseur portant ce nom existe déjà. Choisissez un autre nom.",

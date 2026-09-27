@@ -7,6 +7,15 @@ export interface TranscriptImage {
   path?: string;
 }
 
+export function imageIdentity(image: TranscriptImage): string {
+  const path = image.path ?? image.source;
+  // Codex emits native Windows paths while attachment links use POSIX
+  // separators. Preserve case-sensitive path components and POSIX filenames.
+  return /^(?:[a-z]:[\\/]|\\\\)/i.test(path)
+    ? path.replace(/\\/g, "/").replace(/^([a-z]):/, (_, drive: string) => `${drive.toUpperCase()}:`)
+    : path;
+}
+
 const localTag = /<image\s+name=(?:\[[^\]]*\]|"[^"]*")\s+path="([^\n]+?)"\s*>/;
 
 export function contentImages(content: unknown): TranscriptImage[] {
@@ -55,7 +64,7 @@ export function userImages(text: string, images: readonly TranscriptImage[] = []
   const found = images.map((image) => ({ ...image }));
   const references: TranscriptImage[] = [];
   const add = (source: string, name?: string) => {
-    const existing = references.find((image) => image.source === source);
+    const existing = references.find((image) => imageIdentity(image) === imageIdentity({ source }));
     if (existing) existing.name ??= name;
     else references.push({ source, name });
   };
@@ -85,7 +94,7 @@ export function userImages(text: string, images: readonly TranscriptImage[] = []
     },
   );
   const uploaded = references.filter((image) =>
-    /\/(?:mandri-attachments\/|attachments\/[^/]+\/files\/)/.test(image.source),
+    /\/(?:mandri-attachments\/|attachments\/[^/]+\/files\/)/.test(imageIdentity(image)),
   );
   if (uploaded.length === found.length) {
     for (const [index, image] of found.entries()) {
@@ -95,7 +104,7 @@ export function userImages(text: string, images: readonly TranscriptImage[] = []
   }
   for (const reference of references) {
     const existing = found.find(
-      (image) => image.source === reference.source || image.path === reference.source,
+      (image) => imageIdentity(image) === imageIdentity(reference),
     );
     if (existing) existing.name ??= reference.name;
     else found.push(reference);

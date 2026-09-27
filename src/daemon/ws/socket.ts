@@ -50,6 +50,7 @@ export class MandriSocket {
   private readonly tracker = new TopicSeqTracker();
   private readonly handlers = new Set<FrameHandler>();
   private readonly topics = new Set<WsTopic>(CORE_TOPICS);
+  private readonly requestedSince = new Map<WsTopic, number | null>();
   private ws: WebSocket | null = null;
   private url: string | null = null;
   private attempt = 0;
@@ -77,6 +78,7 @@ export class MandriSocket {
     previous?.close();
     if (this.url !== null && this.url !== url) {
       this.tracker.resetAll();
+      this.requestedSince.clear();
     }
     this.url = url;
     this.closedByCaller = false;
@@ -104,6 +106,7 @@ export class MandriSocket {
       return;
     }
     this.topics.add(topic);
+    if (since !== undefined) this.requestedSince.set(topic, since);
     log.debug("subscribe requested", { topic, since: since ?? null, open: this.isOpen() });
     if (this.isOpen()) {
       this.sendSubscribe(topic, since);
@@ -115,6 +118,7 @@ export class MandriSocket {
       return;
     }
     this.tracker.reset(topic);
+    this.requestedSince.delete(topic);
     log.debug("unsubscribe requested", { topic, open: this.isOpen() });
     if (this.isOpen()) {
       this.send({ op: "unsubscribe", topic });
@@ -229,6 +233,7 @@ export class MandriSocket {
         if (this.tracker.getSince(frame.topic) === undefined) {
           this.tracker.record(frame.topic, Math.max(0, frame.from_seq - 1));
         }
+        this.requestedSince.delete(frame.topic);
         this.emit(frame);
         return;
       }
@@ -298,7 +303,11 @@ export class MandriSocket {
   }
 
   private sendSubscribe(topic: WsTopic, since?: number | null): void {
-    const effectiveSince = since === undefined ? this.tracker.getSince(topic) : since;
+    // Keep the caller's replay position across a connecting socket or a lost
+    // subscription acknowledgement. Once frames arrive, the tracker takes over.
+    const effectiveSince = since === undefined
+      ? this.tracker.getSince(topic) ?? this.requestedSince.get(topic)
+      : since;
     const message: SubscribeMessage =
       effectiveSince === undefined
         ? { op: "subscribe", topic }

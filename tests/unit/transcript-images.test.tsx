@@ -146,3 +146,15 @@ it("does not merge different OpenCode user messages", async () => {
   expect(first?.kind).toBe("user");
   if (first?.kind === "user") expect(userImages(first.text, first.images).images).toHaveLength(1);
 });
+
+it("renders Windows native paths and attachment references as the same two images", () => {
+  const text = "Voici les captures en question\n\n[one.png](C:/Dev%20Drive/mandri-attachments/one/one.png)\n[two.png](C:/Dev%20Drive/mandri-attachments/two/two.png)";
+  const images = [
+    { source: "c:\\Dev Drive\\mandri-attachments\\one\\one.png" },
+    { source: "C:\\Dev Drive\\mandri-attachments\\two\\two.png" },
+  ];
+  const content = userImages(text, images);
+  expect(content.text).toBe("Voici les captures en question");
+  expect(content.images).toHaveLength(2);
+  expect(content.images.map((image) => image.name)).toEqual(["one.png", "two.png"]);
+});

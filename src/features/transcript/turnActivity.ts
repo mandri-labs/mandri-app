@@ -24,6 +24,14 @@ export function isSessionWorking(session: SessionView | undefined): boolean {
     (session.nativeTurnActive ?? (session.sending || session.awaitingResponse || session.activity === "active")));
 }
 
+export function isSessionBusy(session: SessionView | undefined): boolean {
+  // A failed prompt/stop request does not prove that native work has ended.
+  // Keep controls and subscriptions available until an explicit completion.
+  return Boolean(session && (session.sending || session.awaitingResponse ||
+    session.pendingApprovals || session.stopping || session.nativeTurnActive === true ||
+    (session.nativeTurnActive === undefined && session.activity === "active") || isSessionWorking(session)));
+}
+
 export function nativeTurnNotice(harness: HarnessKind, nativeId: string | null | undefined, value: unknown): string | null | undefined {
   if (harness !== "codex") return undefined;
   const raw = record(value);
