@@ -1,4 +1,5 @@
 import { useCommands } from "@/features/commands/useCommands";
+import { useComposerAutosize } from "./useComposerAutosize";
 import { commandTransport, type CommandTransport } from "@/features/commands/service";
 import { AsyncQuestions, pendingAsyncQuestion } from "./AsyncQuestions";
 import { isSessionBusy } from "./turnActivity";
@@ -91,6 +92,7 @@ export function Composer({
     ),
   );
   const text = sessionId === undefined ? localText : draft;
+  const textareaRef = useComposerAutosize();
   const setText = useCallback(
     (value: string): void => {
       if (sessionId === undefined) setLocalText(value);
@@ -372,6 +374,7 @@ export function Composer({
       <AttachmentChips input={attachmentInput} disabled={!!session?.sending} />
       <textarea
         {...nativeCommands.inputProps}
+        ref={textareaRef}
         onPaste={attachmentInput.onPaste}
         className="composer-input"
         value={text}

@@ -1,5 +1,6 @@
 import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@/lib/composerStorage";
 import { useTranscriptViewport } from "@/features/transcript/useTranscriptViewport";
+import { useComposerAutosize } from "@/features/transcript/useComposerAutosize";
 import { useCommands } from "@/features/commands/useCommands";
 import type { CommandTransport } from "@/features/commands/service";
 import { startCommandSession } from "./startCommandSession";
@@ -123,7 +124,7 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [openMenu, setOpenMenu] = useState<MenuName | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useComposerAutosize();
   const harnessAnchorRef = useRef<HTMLDivElement>(null);
   const modelAnchorRef = useRef<HTMLDivElement>(null);
   const folderAnchorRef = useRef<HTMLDivElement>(null);
