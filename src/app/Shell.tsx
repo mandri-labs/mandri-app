@@ -1,4 +1,3 @@
-import { useSessionAvailability } from "@/features/sessions/availability";
 import { CanvasLayout } from "@/features/canvas/CanvasLayout";
 import { sidebarPreferencesStore } from "@/stores/sidebarPreferences";
 import { isTemporaryPath } from "@/lib/temporaryPath";
@@ -39,7 +38,6 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
   active: boolean;
 }) {
   const { t } = useTranslation();
-  useSessionAvailability(session.id, session.state === "discovered" || session.state === "stopped");
   const Logo = { claude: ClaudeLogo, codex: OpenAILogo, opencode: OpencodeLogo, agy: AntigravityLogo, pi: PiLogo }[session.harness];
   return (
     <div className={`shell-session-container${active ? " shell-session-container--active" : ""}`}>

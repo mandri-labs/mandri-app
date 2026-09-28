@@ -8,7 +8,7 @@ import {
   ingestAgentFrame,
 } from "@/stores/agents";
 import { daemonIdentity } from "@/daemon/identity";
-import { refreshAvailability, applyAvailability } from "@/features/sessions/availability";
+import { refreshAvailability, applyAvailability, useSessionAvailability } from "@/features/sessions/availability";
 import { getSessionAvailability, type SessionAvailability } from "@/daemon/rest/availability";
 import { sessionsStore } from "@/stores/sessions";
 import { approvalsStore, setApprovalTransport } from "@/stores/approvals";
@@ -82,7 +82,43 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  vi.useRealTimers();
   setApprovalTransport(null);
+});
+
+it("does not poll every sidebar session", async () => {
+  connectionStore.setState({ status: "online" });
+  agentsStore.setState({ loaded: true, classifiedSessionIds: ["parent"] });
+  render(<Shell route={{ name: "dashboard" }}>Dashboard</Shell>);
+  await act(async () => undefined);
+  expect(getSessionAvailability).not.toHaveBeenCalled();
+});
+
+it("backs off failed polling and shares refreshes between viewers", async () => {
+  vi.useFakeTimers();
+  connectionStore.setState({ status: "online" });
+  vi.mocked(getSessionAvailability).mockRejectedValue(new Error("Unavailable"));
+  function Viewer() {
+    useSessionAvailability("parent");
+    return null;
+  }
+  const view = render(<><Viewer /><Viewer /></>);
+  await act(async () => undefined);
+  expect(getSessionAvailability).toHaveBeenCalledTimes(1);
+  await act(async () => vi.advanceTimersByTimeAsync(5000));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(1);
+  await act(async () => vi.advanceTimersByTimeAsync(5000));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(2);
+  await act(async () => vi.advanceTimersByTimeAsync(19999));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(2);
+  vi.mocked(getSessionAvailability).mockResolvedValue(free);
+  await act(async () => vi.advanceTimersByTimeAsync(1));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(3);
+  await act(async () => vi.advanceTimersByTimeAsync(5000));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(4);
+  view.unmount();
+  await act(async () => vi.advanceTimersByTimeAsync(60000));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(4);
 });
 
 it("does not overwrite a newer live child update with an in-flight list", async () => {
