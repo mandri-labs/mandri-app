@@ -74,7 +74,8 @@ it("reconciles the first image prompt with Codex live and persisted image wrappe
   store.setNodes("s", persisted, persisted);
   const state = transcriptStore.getState().transcripts.s!;
   expect(state.localUsers).toHaveLength(0);
-  expect(withPendingUsers(state.nodes, state.pendingUsers!)).toEqual(persisted);
+  expect(withPendingUsers(state.nodes, state.pendingUsers!)).toMatchObject(persisted);
+  expect(state.nodes[0]?.kind === "user" && state.nodes[0].localPresentation?.key).toBe(key);
 });
 
 it("does not consume a prompt carrying a different image with the same caption", () => {

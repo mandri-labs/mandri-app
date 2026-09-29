@@ -20,7 +20,8 @@ import { normalizeTurnEvent } from "@/features/transcript/turns/normalize";
 import { reduceTurnEvent } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnWork } from "@/features/transcript/turns/types";
 export type { TurnWork } from "@/features/transcript/turns/types";
-import { reconcilePendingUsers } from "@/features/transcript/optimistic";
+import { preserveLocalUserPresentation, reconcilePendingUsers } from "@/features/transcript/optimistic";
+import { userImages } from "@/features/transcript/parse/images";
 import type { PendingUser } from "@/features/transcript/optimistic";
 import type { SessionAvailability } from "@/daemon/rest/availability";
 
@@ -593,7 +594,7 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
     const existing = get().transcripts[sessionId];
     const key = `local-${crypto.randomUUID()}`;
     const pending: PendingUser = {
-      node: { kind: "user", text, key, ...(images?.length ? { images } : {}) },
+      node: { kind: "user", text, key, ...(images?.length ? { images } : {}), localPresentation: { key, images } },
       baseline: existing?.nodes ?? [],
     };
     set({
@@ -616,8 +617,15 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
   updatePendingUser: (sessionId, key, text) => {
     const existing = get().transcripts[sessionId];
     if (!existing) return;
-    const localUsers = (existing.localUsers ?? existing.pendingUsers ?? []).map((entry) =>
-      entry.node.key === key ? { ...entry, node: { ...entry.node, text, images: undefined } } : entry);
+    const localUsers = (existing.localUsers ?? existing.pendingUsers ?? []).map((entry) => {
+      if (entry.node.key !== key) return entry;
+      const previews = entry.node.localPresentation?.images;
+      const references = userImages(text).images;
+      const images = previews?.length === references.length ? previews?.map((image, index) => ({
+        ...image, path: references[index]!.path ?? references[index]!.source,
+      })) : undefined;
+      return { ...entry, node: { ...entry.node, text, images: undefined, localPresentation: { key, images } } };
+    });
     set({ transcripts: { ...get().transcripts, [sessionId]: {
       ...existing, localUsers, pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
     } } });
@@ -641,9 +649,10 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
   setNodes: (sessionId, nodes, persistedNodes) => {
     const existing = get().transcripts[sessionId];
     const local = existing?.localUsers ?? existing?.pendingUsers ?? [];
+    const presented = preserveLocalUserPresentation(existing?.nodes ?? [], nodes, local);
     const localUsers = persistedNodes ? reconcilePendingUsers(local, persistedNodes) : local;
     const next: TranscriptSnapshot = {
-      nodes,
+      nodes: presented,
       localUsers,
       pendingUsers: reconcilePendingUsers(localUsers, nodes),
       gapFlag: existing?.gapFlag ?? false,

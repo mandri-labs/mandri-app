@@ -13,6 +13,11 @@ export function presentationKey(node: TranscriptNode): string {
   return id;
 }
 
+export function transcriptRowKey(node: TranscriptNode): string {
+  return node.kind === "user" && node.localPresentation
+    ? `user:${node.localPresentation.key}` : presentationKey(node);
+}
+
 export function presentTranscript(
   nodes: readonly TranscriptNode[],
   showTechnicalEvents = false,

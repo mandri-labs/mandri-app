@@ -52,7 +52,9 @@ export type TranscriptDiff = Extract<TranscriptNode, { kind: "diff" }>;
 
 export type TranscriptNode =
   | { kind: "record"; preview?: string; byteLength: number; key?: string; eventKind?: "compaction" | "command" | "file_change" }
-  | { kind: "user"; text: string; codexUser?: { turnId: string; itemId?: string }; messageId?: string; images?: import("./images").TranscriptImage[]; key?: string }
+  | { kind: "user"; text: string; codexUser?: { turnId: string; itemId?: string }; messageId?: string; images?: import("./images").TranscriptImage[]; key?: string;
+      // Keep local DOM identity and decoded previews separate from native content.
+      localPresentation?: { key: string; images?: import("./images").TranscriptImage[] } }
   | { kind: "assistant"; questions?: AsyncQuestion[]; claude?: ClaudeBlockIdentity; text: string; streaming?: boolean; delta?: boolean; key?: string }
   | { kind: "thinking"; claude?: ClaudeBlockIdentity; text: string; summary?: string; streaming?: boolean; delta?: boolean; key?: string }
   | {

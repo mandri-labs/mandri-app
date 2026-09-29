@@ -34,9 +34,10 @@ export function withPendingUsers(
 
 export function reconcilePendingUsers(
   pending: readonly PendingUser[], nodes: readonly TranscriptNode[],
+  onMatch?: (entry: PendingUser, index: number) => void,
 ): readonly PendingUser[] {
   const consumed = new Set<number>();
-  return pending.flatMap((entry) => {
+  const remaining = pending.flatMap((entry) => {
     const { node, baseline } = entry;
     const boundary = boundaryOf(baseline, nodes);
     if (baseline.length > 0 && boundary < 0) return [entry];
@@ -51,6 +52,29 @@ export function reconcilePendingUsers(
         : [{ ...entry, baseline: nodes.slice(0, Math.max(...previousMatch) + 1) }];
     }
     consumed.add(match);
+    onMatch?.(entry, match);
     return [];
+  });
+  return remaining.length === pending.length && remaining.every((entry, index) => entry === pending[index])
+    ? pending : remaining;
+}
+
+export function preserveLocalUserPresentation(
+  previous: readonly TranscriptNode[], nodes: readonly TranscriptNode[], local: readonly PendingUser[],
+): readonly TranscriptNode[] {
+  const presentations = new Map<number, PendingUser["node"]["localPresentation"]>();
+  reconcilePendingUsers(local, nodes, (entry, index) => presentations.set(index, entry.node.localPresentation));
+  const previousByKey = new Map(previous.flatMap((node) =>
+    node.kind === "user" && node.localPresentation ? [[node.key ?? node, node] as const] : []));
+  if (presentations.size === 0 && previousByKey.size === 0) return nodes;
+  return nodes.map((node, index) => {
+    if (node.kind !== "user") return node;
+    const prior = previousByKey.get(node.key ?? node);
+    const retained = prior?.localPresentation;
+    const localPresentation = presentations.get(index);
+    if (prior === node && (!localPresentation || localPresentation === retained)) return node;
+    const presentation = localPresentation ?? (retained && prior && userContentKey(prior) !== userContentKey(node)
+      ? { key: retained.key } : retained);
+    return presentation && presentation !== node.localPresentation ? { ...node, localPresentation: presentation } : node;
   });
 }

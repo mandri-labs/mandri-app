@@ -36,7 +36,7 @@ export const TranscriptNodeRenderer = memo(function TranscriptNodeRenderer({
         />
       );
     case "user":
-      return <UserBubble text={node.text} images={node.images} sessionId={sessionId} />;
+      return <UserBubble text={node.text} images={node.localPresentation?.images ?? node.images} sessionId={sessionId} />;
     case "assistant":
       return <AssistantText text={node.text} sessionId={sessionId} streaming={active && node.streaming} />;
     case "thinking":

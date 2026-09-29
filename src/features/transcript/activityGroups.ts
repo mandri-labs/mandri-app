@@ -1,5 +1,5 @@
 import type { TranscriptNode } from "./parse/types";
-import { presentationKey } from "./presentation";
+import { transcriptRowKey } from "./presentation";
 
 export type ActivityRow =
   | { kind: "node"; node: TranscriptNode; key: string; index: number }
@@ -38,7 +38,7 @@ export function groupActivities(
     if (boundary) {
       if (turnStarts.has(index) || !segmentActive) {
         flushFiles(index);
-        scope = presentationKey(node);
+        scope = transcriptRowKey(node);
       }
     }
     segmentActive ||= working && index >= activeStart;
@@ -52,7 +52,7 @@ export function groupActivities(
       files.push(node);
       hasEdits = true;
     }
-    const key = presentationKey(node);
+    const key = transcriptRowKey(node);
     if (["tool", "diff", "plan"].includes(node.kind)) {
       const previous = rows.at(-1);
       const active =

@@ -15,6 +15,7 @@ for (const name of [
   "transcript-performance",
   "claude-message-dedup",
   "codex-file-reload",
+  "user-message-stability",
   "native-activity-events",
   "codex-streaming-history",
   "pi",
