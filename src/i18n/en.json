@@ -399,7 +399,8 @@
       "state": {
         "verified": "Verified",
         "unverified": "Unverified",
-        "degraded": "Degraded"
+        "degraded": "Degraded",
+        "pending_auth": "Sign-in required"
       },
       "kind": {
         "openrouter": "OpenRouter",
@@ -410,7 +411,8 @@
         "openai": "OpenAI",
         "anthropic": "Anthropic",
         "gemini": "Gemini",
-        "custom": "Custom"
+        "custom": "Custom",
+        "chatgpt": "ChatGPT (subscription)"
       },
       "form": {
         "create_title": "Register provider",
@@ -461,6 +463,41 @@
         "xhigh": "Extra high",
         "max": "Maximum",
         "ultra": "Ultra"
+      },
+      "oauth": {
+        "intro_title": "Your ChatGPT subscription, connected",
+        "intro_body": "Sign in securely in your browser. No API key needed. Give each account its own provider name.",
+        "connect": "Connect ChatGPT",
+        "reconnect": "Reconnect account",
+        "title": "Connect your account",
+        "body": "Authorize Mandri in your browser, then come back here. We’ll detect the connection automatically.",
+        "success_title": "Your account is connected",
+        "success_body": "{{name}} is ready. Its models are now available in Mandri.",
+        "failed_title": "Connection not completed",
+        "failed": "We couldn’t complete the connection. Please start a new sign-in.",
+        "timeout": "This sign-in link has expired. Start again to get a new link.",
+        "listener_failed": "The local callback is unavailable. Close another sign-in window or process and try again.",
+        "callback_failed": "This redirect could not be verified. Paste the complete URL from this sign-in, or start again.",
+        "steps": "Connection steps",
+        "step_browser": "Open browser",
+        "step_authorize": "Authorize",
+        "step_ready": "Ready",
+        "open": "Open ChatGPT",
+        "reopen": "Reopen ChatGPT",
+        "copy": "Copy link",
+        "copied": "Copied",
+        "waiting": "Waiting for authorization…",
+        "manual_title": "Signing in from another machine?",
+        "manual_body": "After authorizing, your browser may show an unreachable localhost page. Copy its full address and paste it below to finish.",
+        "redirect_label": "Redirect URL",
+        "complete": "Complete connection",
+        "checking": "Checking…",
+        "link_label": "Authorization link",
+        "private": "Your sign-in details stay with OpenAI. Mandri stores a separate connection for this account.",
+        "done": "Done",
+        "refresh": "Refresh providers",
+        "browser_failed": "The browser could not open. Copy the link, or use the manual connection below.",
+        "copy_failed": "The link could not be copied. Select it in the manual connection below."
       }
     },
     "routes": {
@@ -836,7 +873,10 @@
     "worktree_commit_message": "Enter a commit message.",
     "worktree_conflicts": "Resolve conflicts in the worktree before integration.",
     "worktree_target_dirty": "The destination checkout has local changes. Commit or move them before retrying.",
-    "worktree_no_changes": "No changes to integrate."
+    "worktree_no_changes": "No changes to integrate.",
+    "chatgpt_auth_pending": "Reconnect this ChatGPT account.",
+    "chatgpt_unavailable": "ChatGPT sign-in is unavailable.",
+    "chatgpt_login_not_found": "This sign-in session has expired. Start again."
   },
   "worktree": {
     "fullscreen": "Expand to full screen",

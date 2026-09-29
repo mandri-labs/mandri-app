@@ -129,6 +129,11 @@ export function ProvidersPage() {
                   {t(`core.providers.kind.${provider.kind}`)}
                 </span>
               </button>
+              {provider.state === "pending_auth" && (
+                <span className="providers-auth-state">
+                  {t("core.providers.state.pending_auth")}
+                </span>
+              )}
               <span className="providers-item-actions">
                 <button
                   type="button"
@@ -138,7 +143,11 @@ export function ProvidersPage() {
                     setFormOpen(true);
                   }}
                 >
-                  {t("core.providers.edit")}
+                  {t(
+                    provider.kind === "chatgpt"
+                      ? `core.providers.oauth.${provider.state === "pending_auth" ? "connect" : "reconnect"}`
+                      : "core.providers.edit",
+                  )}
                 </button>
                 <button
                   type="button"
@@ -200,7 +209,9 @@ export function ProvidersPage() {
                 )}
               </div>
             )}
-            {expandedName === provider.name && <ModelCatalog provider={provider} defaultExpanded />}
+            {expandedName === provider.name && provider.state !== "pending_auth" && (
+              <ModelCatalog provider={provider} defaultExpanded />
+            )}
           </div>
         )}
       />
@@ -208,7 +219,10 @@ export function ProvidersPage() {
       <ProviderFormDialog
         open={formOpen}
         provider={editing}
-        onSaved={() => setFormOpen(false)}
+        onSaved={() => {
+          setFormOpen(false);
+          setRefresh((value) => value + 1);
+        }}
         onClose={() => setFormOpen(false)}
       />
     </div>

@@ -18,6 +18,7 @@ export const PROVIDER_KINDS = [
   "ollama",
   "lm_studio",
   "openai",
+  "chatgpt",
   "anthropic",
   "gemini",
   "custom",
@@ -32,6 +33,7 @@ export const HOSTED_PROVIDER_KINDS: readonly ProviderKind[] = [
   "opencode",
   "opencode_go",
   "openai",
+  "chatgpt",
   "anthropic",
   "gemini",
 ];
@@ -46,7 +48,7 @@ export function isHostedProviderKind(kind: string): boolean {
   return (HOSTED_PROVIDER_KINDS as readonly string[]).includes(kind);
 }
 
-export type ProviderVerificationState = "unverified" | "verified" | "degraded";
+export type ProviderVerificationState = "unverified" | "verified" | "degraded" | "pending_auth";
 
 export type CatalogState = "idle" | "loading" | "loaded" | "unavailable";
 
@@ -55,6 +57,8 @@ export interface ProviderView {
   kind: string;
   apiBase?: string;
   state: ProviderVerificationState;
+  authorizeUrl?: string;
+  loginId?: string;
   modelCatalog?: ModelCatalogEntry[];
   catalogState: CatalogState;
 }
@@ -93,6 +97,9 @@ export const providersStore = createStore<ProvidersState>()((set) => {
       kind: row.kind,
       apiBase: row.api_base ?? undefined,
       state: parseVerificationState(row.state),
+      authorizeUrl:
+        "authorize_url" in row ? (row.authorize_url ?? undefined) : existing?.authorizeUrl,
+      loginId: "login_id" in row ? (row.login_id ?? undefined) : existing?.loginId,
       modelCatalog: existing?.modelCatalog,
       catalogState: existing?.catalogState ?? "idle",
     };
@@ -263,7 +270,9 @@ export const providersStore = createStore<ProvidersState>()((set) => {
   };
 
   function parseVerificationState(value: string): ProviderVerificationState {
-    return value === "verified" || value === "degraded" ? value : "unverified";
+    return value === "verified" || value === "degraded" || value === "pending_auth"
+      ? value
+      : "unverified";
   }
 
   function routeViewOf(row: RouteOut | RouteView): RouteView {

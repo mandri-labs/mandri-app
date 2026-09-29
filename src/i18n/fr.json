@@ -399,7 +399,8 @@
       "state": {
         "verified": "Vérifié",
         "unverified": "Non vérifié",
-        "degraded": "Dégradé"
+        "degraded": "Dégradé",
+        "pending_auth": "Connexion requise"
       },
       "kind": {
         "openrouter": "OpenRouter",
@@ -410,7 +411,8 @@
         "openai": "OpenAI",
         "anthropic": "Anthropic",
         "gemini": "Gemini",
-        "custom": "Personnalisé"
+        "custom": "Personnalisé",
+        "chatgpt": "ChatGPT (abonnement)"
       },
       "form": {
         "create_title": "Enregistrer un fournisseur",
@@ -461,6 +463,41 @@
         "xhigh": "Très élevée",
         "max": "Maximale",
         "ultra": "Ultra"
+      },
+      "oauth": {
+        "intro_title": "Votre abonnement ChatGPT, connecté",
+        "intro_body": "Connectez-vous dans votre navigateur. Aucune clé API nécessaire. Donnez un nom de fournisseur distinct à chaque compte.",
+        "connect": "Connecter ChatGPT",
+        "reconnect": "Reconnecter le compte",
+        "title": "Connecter votre compte",
+        "body": "Autorisez Mandri dans votre navigateur, puis revenez ici. La connexion sera détectée automatiquement.",
+        "success_title": "Votre compte est connecté",
+        "success_body": "{{name}} est prêt. Ses modèles sont maintenant disponibles dans Mandri.",
+        "failed_title": "Connexion non terminée",
+        "failed": "La connexion n’a pas abouti. Relancez l’authentification pour réessayer.",
+        "timeout": "Ce lien de connexion a expiré. Recommencez pour obtenir un nouveau lien.",
+        "listener_failed": "Le retour de connexion local est indisponible. Fermez une autre procédure de connexion et réessayez.",
+        "callback_failed": "Ce retour de connexion n’a pas pu être vérifié. Collez l’adresse complète de cette connexion ou recommencez.",
+        "steps": "Étapes de connexion",
+        "step_browser": "Navigateur",
+        "step_authorize": "Autorisation",
+        "step_ready": "Prêt",
+        "open": "Ouvrir ChatGPT",
+        "reopen": "Rouvrir ChatGPT",
+        "copy": "Copier le lien",
+        "copied": "Copié",
+        "waiting": "En attente de votre autorisation…",
+        "manual_title": "Vous vous connectez depuis une autre machine ?",
+        "manual_body": "Après l’autorisation, le navigateur peut afficher une page localhost inaccessible. Copiez son adresse complète et collez-la ci-dessous pour terminer.",
+        "redirect_label": "URL de redirection",
+        "complete": "Terminer la connexion",
+        "checking": "Vérification…",
+        "link_label": "Lien d’autorisation",
+        "private": "Vos identifiants de connexion restent chez OpenAI. Mandri conserve une connexion distincte pour ce compte.",
+        "done": "Terminer",
+        "refresh": "Actualiser les fournisseurs",
+        "browser_failed": "Le navigateur n’a pas pu s’ouvrir. Copiez le lien ou utilisez la connexion manuelle ci-dessous.",
+        "copy_failed": "Le lien n’a pas pu être copié. Sélectionnez-le dans la connexion manuelle ci-dessous."
       }
     },
     "routes": {
@@ -836,7 +873,10 @@
     "worktree_commit_message": "Saisissez un message de commit.",
     "worktree_conflicts": "Résolvez les conflits dans le worktree avant l’intégration.",
     "worktree_target_dirty": "Le dossier de la branche cible contient des modifications locales. Commitez-les ou déplacez-les avant de réessayer.",
-    "worktree_no_changes": "Aucun changement à intégrer."
+    "worktree_no_changes": "Aucun changement à intégrer.",
+    "chatgpt_auth_pending": "Reconnectez ce compte ChatGPT.",
+    "chatgpt_unavailable": "La connexion à ChatGPT est indisponible.",
+    "chatgpt_login_not_found": "Cette session de connexion a expiré. Recommencez."
   },
   "worktree": {
     "fullscreen": "Passer en plein écran",

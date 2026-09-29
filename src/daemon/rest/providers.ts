@@ -12,7 +12,7 @@ let cachedProviders: { base: string; rows: ProviderOut[]; expires: number } | un
 let pendingProviders: { base: string; promise: Promise<ProviderOut[]> } | undefined;
 let providersRevision = 0;
 
-function invalidateProviders(): void {
+export function invalidateProviders(): void {
   providersRevision += 1;
   cachedProviders = undefined;
   pendingProviders = undefined;

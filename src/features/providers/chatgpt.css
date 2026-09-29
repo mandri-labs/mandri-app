@@ -1,0 +1,192 @@
+.chatgpt-connect {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+.chatgpt-connect-emblem {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-base);
+  color: var(--color-accent-bright);
+}
+.chatgpt-connect-emblem--error {
+  color: var(--color-danger);
+}
+.chatgpt-connect-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.chatgpt-connect-eyebrow {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.chatgpt-connect-heading p,
+.chatgpt-connect-manual p,
+.chatgpt-connect-intro p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-label);
+  line-height: 1.65;
+}
+.chatgpt-connect-account {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-small);
+}
+.chatgpt-connect-steps {
+  display: flex;
+  gap: 12px;
+  margin: 0;
+  padding: 16px 0;
+  list-style: none;
+  border-block: 1px solid var(--color-border-subtle);
+}
+.chatgpt-connect-steps li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.chatgpt-connect-steps li > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+.chatgpt-connect-steps li[data-active="true"] {
+  color: var(--color-text-primary);
+}
+.chatgpt-connect-steps li[data-active="true"] > span {
+  border-color: var(--color-accent);
+  color: var(--color-accent-bright);
+}
+.chatgpt-connect-browser {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chatgpt-connect-browser .providers-button {
+  height: 36px;
+  justify-content: center;
+}
+.chatgpt-connect-browser .providers-button--primary {
+  flex: 1;
+}
+.chatgpt-connect-wait {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.chatgpt-connect-wait svg {
+  animation: chatgpt-wait 1.6s linear infinite;
+}
+.chatgpt-connect-manual {
+  border-top: 1px solid var(--color-border-subtle);
+  padding-top: 14px;
+}
+.chatgpt-connect-manual summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.chatgpt-connect-manual summary:hover {
+  color: var(--color-text-primary);
+}
+.chatgpt-connect-manual p {
+  margin: 12px 0;
+}
+.chatgpt-connect-manual form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.chatgpt-connect-manual .providers-input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+.chatgpt-connect-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 4px;
+}
+.chatgpt-connect-footer > span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+}
+.chatgpt-connect-intro {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-base);
+}
+.chatgpt-connect-intro svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-accent-bright);
+}
+.chatgpt-connect-intro strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-medium);
+}
+.providers-dialog--oauth {
+  width: min(460px, calc(100vw - 32px));
+  padding: 28px;
+  box-sizing: border-box;
+}
+.providers-dialog {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+.providers-auth-state {
+  color: var(--color-ember);
+  font-size: var(--font-size-small);
+}
+@keyframes chatgpt-wait {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chatgpt-connect-wait svg {
+    animation: none;
+  }
+}
+@media (max-width: 420px) {
+  .providers-dialog--oauth {
+    padding: 20px;
+  }
+  .chatgpt-connect-steps {
+    gap: 8px;
+  }
+  .chatgpt-connect-steps li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
