@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { chromium, type WebSocketRoute } from "playwright";
 import { createServer } from "vite";
 
-const server = await createServer({ server: { host: "127.0.0.1", port: 0, hmr: false, watch: null } });
+const server = await createServer({ server: { host: "127.0.0.1", port: 0, strictPort: false, hmr: false, watch: null } });
 await server.listen();
 const address = server.httpServer?.address();
 assert(address && typeof address === "object");

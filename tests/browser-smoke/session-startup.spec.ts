@@ -6,7 +6,7 @@ import { createServer } from "vite";
 const { turnFixture } = await import(String("../unit/turn-work-fixtures.ts")) as typeof import("../unit/turn-work-fixtures");
 
 // All daemon traffic is synthetic. No harness or model is started.
-const server = await createServer({ server: { host: "127.0.0.1", port: 0, hmr: false, watch: null } });
+const server = await createServer({ server: { host: "127.0.0.1", port: 0, strictPort: false, hmr: false, watch: null } });
 await server.listen();
 const address = server.httpServer?.address();
 assert(address && typeof address === "object");
