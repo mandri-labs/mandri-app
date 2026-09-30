@@ -1,14 +1,10 @@
-import { spawn } from "node:child_process";
-import type { ChildProcess } from "node:child_process";
+import { createServer } from "vite";
 import { chromium } from "playwright";
 import type { Browser, ConsoleMessage, Page } from "playwright";
 
-const BASE_URL = "http://127.0.0.1:1420";
 const ROUTES = ["#/", "#/settings", "#/providers", "#/routes"];
 const FIRST_DWELL_MS = 10_000;
 const ROUTE_DWELL_MS = 5_000;
-const SERVER_TIMEOUT_MS = 60_000;
-const SERVER_POLL_MS = 500;
 
 const FORBIDDEN_PATTERNS: readonly RegExp[] = [
   /Maximum update depth/i,
@@ -39,50 +35,12 @@ function isTolerated(text: string): boolean {
   return TOLERATED_PATTERNS.some((pattern) => pattern.test(text));
 }
 
-async function isServerUp(): Promise<boolean> {
-  try {
-    const response = await fetch(BASE_URL, { signal: AbortSignal.timeout(2_000) });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-async function waitForServer(deadline: number): Promise<void> {
-  while (Date.now() < deadline) {
-    if (await isServerUp()) {
-      return;
-    }
-    await new Promise((resolve) => setTimeout(resolve, SERVER_POLL_MS));
-  }
-  throw new Error(`dev server did not become ready at ${BASE_URL}`);
-}
-
-function startDevServer(): ChildProcess {
-  const child = spawn(
-    process.execPath,
-    ["node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "1420", "--strictPort"],
-    {
-      cwd: process.cwd(),
-      stdio: ["ignore", "pipe", "pipe"],
-      windowsHide: true,
-    },
-  );
-  child.stdout?.on("data", () => undefined);
-  child.stderr?.on("data", (chunk: Buffer) => {
-    process.stderr.write(`[vite] ${chunk.toString()}`);
-  });
-  return child;
-}
-
-function stopDevServer(child: ChildProcess | null): void {
-  if (child === null || child.exitCode !== null) {
-    return;
-  }
-  child.kill();
-}
-
-async function collectForRoute(page: Page, route: string, dwellMs: number): Promise<Finding[]> {
+async function collectForRoute(
+  page: Page,
+  baseUrl: string,
+  route: string,
+  dwellMs: number,
+): Promise<Finding[]> {
   const findings: Finding[] = [];
   const onConsole = (message: ConsoleMessage): void => {
     if (message.type() !== "error") {
@@ -101,7 +59,7 @@ async function collectForRoute(page: Page, route: string, dwellMs: number): Prom
   page.on("console", onConsole);
   page.on("pageerror", onPageError);
   try {
-    await page.goto(`${BASE_URL}/${route}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`${baseUrl}/${route}`, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(dwellMs);
   } finally {
     page.off("console", onConsole);
@@ -111,18 +69,16 @@ async function collectForRoute(page: Page, route: string, dwellMs: number): Prom
 }
 
 async function main(): Promise<void> {
-  let server: ChildProcess | null = null;
-  if (await isServerUp()) {
-    console.log(`[smoke] reusing dev server already running at ${BASE_URL}`);
-  } else {
-    console.log(`[smoke] starting dev server at ${BASE_URL}`);
-    server = startDevServer();
-    await waitForServer(Date.now() + SERVER_TIMEOUT_MS);
-  }
-
+  const server = await createServer({
+    server: { host: "127.0.0.1", port: 0, strictPort: false, hmr: false, watch: null },
+  });
   let browser: Browser | null = null;
   const findings: Finding[] = [];
   try {
+    await server.listen();
+    const address = server.httpServer?.address();
+    if (!address || typeof address === "string") throw new Error("missing server address");
+    const baseUrl = `http://127.0.0.1:${address.port}`;
     browser = await chromium.launch({ headless: true });
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -164,14 +120,11 @@ async function main(): Promise<void> {
     for (const [index, route] of ROUTES.entries()) {
       const dwell = index === 0 ? FIRST_DWELL_MS : ROUTE_DWELL_MS;
       console.log(`[smoke] checking ${route} (dwelling ${dwell}ms)`);
-      findings.push(...(await collectForRoute(page, route, dwell)));
+      findings.push(...(await collectForRoute(page, baseUrl, route, dwell)));
     }
   } finally {
     await browser?.close();
-    stopDevServer(server);
-    if (server !== null) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
+    await server.close();
   }
 
   const blocking = findings.filter(

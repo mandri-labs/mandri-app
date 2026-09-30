@@ -82,9 +82,9 @@ try {
   session.state = "discovered";
   await page.goto(`http://127.0.0.1:${address.port}/#/`);
   await page.reload();
+  await page.getByRole("button", { name: session.title, exact: true }).click();
   await page.locator('[aria-label="Open in another application"]').waitFor();
   assert.equal(await page.locator(".shell-session-icon-slot svg").count(), 1);
-  await page.getByRole("button", { name: session.title, exact: true }).click();
   await page.locator(".composer-external").waitFor();
   assert.match(await page.locator(".composer-external").innerText(), /Pi/);
   assert.equal(await page.locator('[aria-label="Open in another application"]').count(), 1);
