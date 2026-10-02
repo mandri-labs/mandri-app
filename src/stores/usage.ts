@@ -66,6 +66,7 @@ export function createUsageStore(api = usageApi) {
     let refresh: AbortController | null = null;
     let wantedRevision = -1;
     let reloadPending = false;
+    let invalidationTimer: ReturnType<typeof setTimeout> | undefined;
     const snapshot = () =>
       tab === "consumption" ? store.getState().overview : store.getState().accounts;
     const visible = () =>
@@ -74,6 +75,8 @@ export function createUsageStore(api = usageApi) {
       store.setState({ refreshing: false });
     };
     const cancel = () => {
+      clearTimeout(invalidationTimer);
+      invalidationTimer = undefined;
       serial++;
       read?.abort();
       read = null;
@@ -85,6 +88,8 @@ export function createUsageStore(api = usageApi) {
         reloadPending = true;
         return;
       }
+      clearTimeout(invalidationTimer);
+      invalidationTimer = undefined;
       const ticket = ++serial;
       const requestedRevision = wantedRevision;
       const generation = daemonIdentity.getState().generation;
@@ -114,9 +119,16 @@ export function createUsageStore(api = usageApi) {
             reloadPending ||
             wantedRevision > Math.max(requestedRevision, snapshot()?.revision ?? -1);
           reloadPending = false;
-          if (again) void load();
+          if (again) scheduleInvalidation();
         }
       }
+    };
+    const scheduleInvalidation = () => {
+      if (disposed || !visible() || read || invalidationTimer !== undefined) return;
+      invalidationTimer = setTimeout(() => {
+        invalidationTimer = undefined;
+        void load();
+      }, 2000);
     };
     const capabilities = () => {
       if (!visible()) return;
@@ -185,7 +197,7 @@ export function createUsageStore(api = usageApi) {
       )
         return;
       wantedRevision = revision;
-      if (!read) void load();
+      scheduleInvalidation();
     };
     enqueue = async () => {
       if (disposed || !visible() || refresh) return;

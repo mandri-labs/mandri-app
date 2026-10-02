@@ -88,6 +88,7 @@ it("deduplicates revisions and coalesces in-flight updates without clearing the 
   const pending = deferred<UsageOverview>();
   mock.overview.mockReturnValueOnce(pending.promise);
   controller.invalidate(revision + 1);
+  await vi.advanceTimersByTimeAsync(2000);
   expect(controller.store.getState().loading).toBe(false);
   expect(controller.store.getState().changingInclusion).toBe(false);
   expect(controller.store.getState().overview?.revision).toBe(revision);
@@ -96,6 +97,8 @@ it("deduplicates revisions and coalesces in-flight updates without clearing the 
   expect(mock.overview.mock.calls[1]?.[1].aborted).toBe(false);
   mock.overview.mockResolvedValue(overview({ revision: revision + 3 }));
   pending.resolve(overview({ revision: revision + 1 })); await flush();
+  expect(mock.overview).toHaveBeenCalledTimes(2);
+  await vi.advanceTimersByTimeAsync(2000);
   expect(mock.overview).toHaveBeenCalledTimes(3);
   expect(controller.store.getState().overview?.revision).toBe(revision + 3);
   controller.invalidate(revision + 3); await vi.advanceTimersByTimeAsync(60000);
@@ -217,4 +220,46 @@ it("only masks metrics for the deleted-session toggle, not other filters or manu
   mock.overview.mockReturnValueOnce(deferred<UsageOverview>().promise);
   void controller.refresh(); await flush();
   expect(controller.store.getState()).toMatchObject({ updating: true, changingInclusion: false });
+});
+
+it("bounds reads during continuous history rebuilds and eventually loads the latest revision", async () => {
+  const mock = api();
+  let revision = 1;
+  mock.overview.mockImplementation(async () => overview({ revision }));
+  const controller = createUsageStore(mock);
+  stop = controller.mount(usageQuery, "consumption");
+  await flush();
+  for (let index = 0; index < 300; index++) {
+    controller.invalidate(++revision);
+    await vi.advanceTimersByTimeAsync(100);
+  }
+  expect(mock.overview.mock.calls.length).toBeLessThanOrEqual(16);
+  await vi.advanceTimersByTimeAsync(2000);
+  expect(controller.store.getState().overview?.revision).toBe(revision);
+});
+
+it("cancels queued invalidations on hide and disposal, and keeps manual reads immediate", async () => {
+  const mock = api();
+  const controller = createUsageStore(mock);
+  stop = controller.mount(usageQuery, "consumption");
+  await flush();
+  controller.invalidate(100);
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+  document.dispatchEvent(new Event("visibilitychange"));
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(mock.overview).toHaveBeenCalledTimes(1);
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+  document.dispatchEvent(new Event("visibilitychange"));
+  await flush();
+  controller.invalidate(101);
+  controller.reload();
+  await flush();
+  expect(mock.overview).toHaveBeenCalledTimes(3);
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(mock.overview).toHaveBeenCalledTimes(3);
+  controller.invalidate(102);
+  stop();
+  stop = undefined;
+  await vi.advanceTimersByTimeAsync(3000);
+  expect(mock.overview).toHaveBeenCalledTimes(3);
 });
