@@ -4,6 +4,7 @@ import { parseStoredLine } from "./storedLine";
 import { historyTurnEvents, historyTurnWork, mergeHistoryTurnEvents, turnNodeAnchor, turnNodeIdentities } from "./historyWork";
 import { mergeTurnWork } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnEvent } from "@/features/transcript/turns/types";
+import { stoppedNodes } from "@/features/transcript/stoppedNodes";
 import { mergeAgyHistory } from "./agyHistory";
 import { DaemonError } from "@/daemon/errors";
 import { TopicSeqTracker } from "@/daemon/ws/protocol";
@@ -389,6 +390,7 @@ export class SessionFeedService {
   ): Promise<void> {
     const { sessionId } = buffer;
     const refresh = options.refresh === true;
+    const lifecycle = sessionsStore.getState().sessions[sessionId];
     let activityChanged = false;
     let externalActivityChanged = false;
     let externalModelChanged = false;
@@ -421,6 +423,10 @@ export class SessionFeedService {
       if (
         typeof page.turn_active === "boolean" &&
         !activityChanged &&
+        session?.stopRevision === lifecycle?.stopRevision &&
+        session?.state === lifecycle?.state &&
+        !session?.stopping &&
+        (page.turn_active === false || session?.state !== "stopped" || page.external_busy === true) &&
         !session?.sending &&
         !session?.awaitingResponse
       ) {
@@ -456,7 +462,7 @@ export class SessionFeedService {
         partKinds: new Map(buffer.partKinds),
         ...(buffer.harness === "agy" ? createAgyHistoryContext(entries) : {}),
       };
-      const pageNodes = entries.flatMap((line) => {
+      let pageNodes: TranscriptNode[] = entries.flatMap((line) => {
         if (buffer.harness === "opencode") {
           try {
             this.updateOpenCodeHints(context, JSON.parse(line));
@@ -466,6 +472,8 @@ export class SessionFeedService {
         }
         return parseStoredLine(buffer.harness, line, context);
       });
+      const currentSession = sessionsStore.getState().sessions[sessionId];
+      if (currentSession?.state === "stopped" && currentSession.externalBusy !== true) pageNodes = stoppedNodes(pageNodes);
       if (buffer.harness === "opencode") {
         // A reconnect may start in the middle of a message, after its role and
         // part type were announced. The following live deltas need those hints.
@@ -522,8 +530,10 @@ export class SessionFeedService {
         historyTurnEvents(buffer.harness, entries, context, observed?.nativeId), refresh,
       );
       if (observed) {
+        const turns = mergeTurnWork(observed.turnWork ?? [], historyTurnWork(buffer.turnHistory));
         sessionsStore.getState().applySessionPatch(sessionId, {
-          turnWork: mergeTurnWork(observed.turnWork ?? [], historyTurnWork(buffer.turnHistory)),
+          turnWork: observed.state === "stopped" && observed.externalBusy !== true
+            ? turns.map((turn) => turnCompleted(turn) ? turn : { ...turn, outcome: "stopped" }) : turns,
         });
       }
       if (
@@ -740,6 +750,8 @@ export class SessionFeedService {
     if (nodes.length === 0) {
       return;
     }
+    const currentSession = sessionsStore.getState().sessions[buffer.sessionId];
+    if (currentSession?.state === "stopped" && currentSession.externalBusy !== true) nodes = stoppedNodes(nodes);
     const previous = this.getNodes(buffer.sessionId);
     const merged = appendTranscriptNodes(previous, nodes);
     const turnNodes = merged.slice(previous.length);

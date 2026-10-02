@@ -97,7 +97,7 @@ it.each([
 it("preserves separate model scopes and does not infer a period from primary or secondary", () => {
   expect(
     accountWindowLabel({ bucket_id: "sonnet", window_duration_minutes: 10080 }, 0, i18n.t),
-  ).toBe("sonnet · Quota hebdomadaire");
+  ).toBe("sonnet (Quota hebdomadaire)");
   expect(accountWindowLabel({ bucket_id: "codex", window: "primary" }, 0, i18n.t)).toBe("Quota 1");
   expect(accountWindowLabel({ bucket_id: "five_hour" }, 0, i18n.t)).toBe("Quota sur 5 h");
 });
@@ -129,12 +129,12 @@ it("shows the AGY subscription and separates five-hour and weekly group allowanc
   expect(screen.getByRole("heading", { name: "Google AI Ultra" })).toBeTruthy();
   expect(
     screen
-      .getByRole("progressbar", { name: "Gemini Models · Quota sur 5 h" })
+      .getByRole("progressbar", { name: "Gemini Models (Quota sur 5 h)" })
       .getAttribute("value"),
   ).toBe("0");
   expect(
     screen
-      .getByRole("progressbar", { name: "Gemini Models · Quota hebdomadaire" })
+      .getByRole("progressbar", { name: "Gemini Models (Quota hebdomadaire)" })
       .getAttribute("value"),
   ).toBe("100");
 });

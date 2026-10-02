@@ -3,11 +3,13 @@ import { createPortal } from "react-dom";
 import { GitMerge, GitBranch, Maximize2, Minimize2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useOverlayFocus } from "@/app/dialogFocus";
+import { useStore } from "@/app/useStore";
 import { navigate } from "@/app/useHashRoute";
 import { requestFocusComposer } from "@/app/keyboard";
+import { daemonIdentity } from "@/daemon/identity";
 import { sessionsStore, type SessionView } from "@/stores/sessions";
 import { getSession } from "@/daemon/rest/sessions";
-import { DaemonError } from "@/daemon/errors";
+import { DaemonError, DAEMON_ERROR_I18N_KEYS } from "@/daemon/errors";
 import {
   previewIntegration,
   integrateWorktree,
@@ -16,7 +18,8 @@ import {
   type IntegrationPreview,
   type IntegrationStrategy,
 } from "@/daemon/rest/worktrees";
-import { errorKey } from "./lifecycle";
+import { errorKey, stopSessionAction } from "./lifecycle";
+import { refreshAvailability } from "./availability";
 import { IntegrationSelect } from "./IntegrationSelect";
 import { WorktreeDiff } from "./WorktreeDiffView";
 import "./lifecycle.css";
@@ -26,10 +29,26 @@ function integrationBlocked(session: SessionView): boolean {
   return Boolean(
     session.stopping ||
     session.resumeStartedAt !== undefined ||
+    session.availabilityStatus !== "ready" ||
+    !session.availability ||
+    session.availability.owner === "unknown" ||
     session.availability?.owner === "mandri" ||
     session.availability?.owner === "external" ||
     (session.state === "live" && session.availability?.owner !== "unowned"),
   );
+}
+
+function integrationReason(session: SessionView): string {
+  if (session.stopping || session.resumeStartedAt !== undefined) return "worktree.transition";
+  if (session.availabilityStatus === "checking") return "worktree.checking_owner";
+  if (
+    session.availabilityStatus !== "ready" ||
+    !session.availability ||
+    session.availability.owner === "unknown"
+  )
+    return "worktree.unknown_owner";
+  if (session.availability.owner === "external") return "worktree.external_owner";
+  return "worktree.wait";
 }
 
 export function WorktreeIntegration({ session }: { session: SessionView }) {
@@ -46,7 +65,9 @@ export function WorktreeIntegration({ session }: { session: SessionView }) {
         <span title={worktree.id}>{worktree.id}</span>
         {closed ? <span>{t("worktree.closed")}</span> : null}
       </div>
-      {resolved ? <p role="status">{t("worktree.resolution_ready")}</p> : null}
+      {resolved ? (
+        <p role="status">{t("worktree.resolution_ready", { path: worktree.path })}</p>
+      ) : null}
       {closed ? (
         <button
           className="composer-chip"
@@ -87,7 +108,7 @@ export function WorktreeIntegration({ session }: { session: SessionView }) {
 }
 
 function IntegrationDialog({
-  session,
+  session: initialSession,
   onClose,
   onResolved,
 }: {
@@ -96,40 +117,48 @@ function IntegrationDialog({
   onResolved: () => void;
 }) {
   const { t } = useTranslation();
+  const session =
+    useStore(sessionsStore, (state) => state.sessions[initialSession.id]) ?? initialSession;
   const panel = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [review, setReview] = useState<IntegrationPreview>();
-  const [target, setTarget] = useState("");
+  const [target, setTarget] = useState(session.worktree?.integrated_target ?? "");
   const [strategy, setStrategy] = useState<IntegrationStrategy>("squash");
   const [message, setMessage] = useState(session.title);
   const [busy, setBusy] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [integrated, setIntegrated] = useState<{ target: string; commit: string }>();
   const [hasIgnoredFiles, setHasIgnoredFiles] = useState(false);
   const [discardIgnored, setDiscardIgnored] = useState(false);
   const operation = useRef(false);
-  const initialReviewRequested = useRef(false);
+  const mounted = useRef(true);
+  const previewRevision = useRef(0);
+  const requestedSettings = useRef<string | undefined>(undefined);
+  const waitingForOwner = useRef(false);
   const blocked = integrationBlocked(session);
-  const unavailable = busy || blocked;
+  const unavailable = busy || previewLoading || blocked;
   const close = () => {
     if (!operation.current) onClose();
   };
   useOverlayFocus(panel, true, close);
   const run = useCallback(
-    async (action: () => Promise<void>) => {
+    async (action: () => Promise<void>, failureKey?: (caught: unknown) => string) => {
       if (operation.current) return;
-      const latest = sessionsStore.getState().sessions[session.id] ?? session;
-      if (integrationBlocked(latest)) {
-        setError(t("worktree.wait"));
-        return;
-      }
       operation.current = true;
       setBusy(true);
       setError(undefined);
       try {
+        await refreshAvailability(session.id);
+        const latest = sessionsStore.getState().sessions[session.id] ?? session;
+        if (integrationBlocked(latest)) {
+          waitingForOwner.current = true;
+          setReview((current) => (current ? { ...current, token: null } : current));
+          return;
+        }
         await action();
       } catch (caught) {
-        setError(t(errorKey(caught)));
+        setError(t(failureKey?.(caught) ?? errorKey(caught)));
       } finally {
         operation.current = false;
         setBusy(false);
@@ -137,47 +166,82 @@ function IntegrationDialog({
     },
     [session, t],
   );
-  const refresh = useCallback(
-    () =>
-      run(async () => {
-        setReview(undefined);
-        const next = await previewIntegration(
-          session.id,
-          target || session.worktree?.integrated_target || undefined,
-          strategy,
-        ).catch((caught) => {
-          setTarget("");
+  const refresh = useCallback(async () => {
+    const revision = ++previewRevision.current;
+    const generation = daemonIdentity.getState().generation;
+    const current = () =>
+      mounted.current &&
+      revision === previewRevision.current &&
+      generation === daemonIdentity.getState().generation;
+    setPreviewLoading(true);
+    setError(undefined);
+    setReview((value) => (value ? { ...value, token: null } : value));
+    waitingForOwner.current = false;
+    try {
+      await refreshAvailability(session.id);
+      if (!current()) return;
+      const latest = sessionsStore.getState().sessions[session.id] ?? session;
+      if (integrationBlocked(latest)) {
+        waitingForOwner.current = true;
+        return;
+      }
+      const next = await previewIntegration(
+        session.id,
+        target || session.worktree?.integrated_target || undefined,
+        strategy,
+      );
+      if (!current()) return;
+      setReview(next);
+      requestedSettings.current = `${next.target ?? ""}:${strategy}`;
+      setTarget(next.target ?? "");
+      if (
+        session.worktree?.integrated_commit &&
+        session.worktree.integrated_target === next.target &&
+        !next.files?.length &&
+        next.target
+      ) {
+        setIntegrated({ target: next.target, commit: session.worktree.integrated_commit });
+      } else {
+        setIntegrated(undefined);
+      }
+    } catch (caught) {
+      if (current()) setError(t(errorKey(caught)));
+    } finally {
+      if (current()) setPreviewLoading(false);
+    }
+  }, [session, strategy, target, t]);
+  const settings = `${target}:${strategy}`;
+  useEffect(() => {
+    if (requestedSettings.current === settings) return;
+    requestedSettings.current = settings;
+    void refresh();
+  }, [settings, refresh]);
+  useEffect(() => {
+    if (waitingForOwner.current && !blocked && !previewLoading && !busy) void refresh();
+  }, [blocked, previewLoading, busy, refresh]);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+  const finish = () =>
+    run(
+      async () => {
+        const row = await finishWorktree(session.id, discardIgnored).catch((caught) => {
+          if (caught instanceof DaemonError && caught.code === "worktree_ignored_files") {
+            setHasIgnoredFiles(true);
+          }
           throw caught;
         });
-        setReview(next);
-        setTarget(next.target ?? "");
-        if (
-          session.worktree?.integrated_commit &&
-          session.worktree.integrated_target === next.target &&
-          !next.files?.length &&
-          next.target
-        ) {
-          setIntegrated({ target: next.target, commit: session.worktree.integrated_commit });
-        }
-      }),
-    [run, session.id, session.worktree, strategy, target],
-  );
-  useEffect(() => {
-    if (blocked || initialReviewRequested.current) return;
-    initialReviewRequested.current = true;
-    void refresh();
-  }, [blocked, refresh]);
-  const finish = () =>
-    run(async () => {
-      const row = await finishWorktree(session.id, discardIgnored).catch((caught) => {
-        if (caught instanceof DaemonError && caught.code === "worktree_ignored_files") {
-          setHasIgnoredFiles(true);
-        }
-        throw caught;
-      });
-      sessionsStore.getState().upsertFromRest([row]);
-      onClose();
-    });
+        sessionsStore.getState().upsertFromRest([row]);
+        onClose();
+      },
+      (caught) =>
+        caught instanceof DaemonError && caught.code === "worktree_has_changes"
+          ? "worktree.cleanup_changed"
+          : errorKey(caught),
+    );
   const merge = () =>
     run(async () => {
       if (!review) return;
@@ -191,7 +255,7 @@ function IntegrationDialog({
           });
         }
       } catch (caught) {
-        setReview(undefined);
+        setReview((current) => (current ? { ...current, token: null } : current));
         const row = await getSession(session.id).catch(() => undefined);
         if (row) sessionsStore.getState().upsertFromRest([row]);
         throw caught;
@@ -205,6 +269,8 @@ function IntegrationDialog({
       }
     });
   const conflicts = review?.conflicts ?? [];
+  const targetConflicts = Array.isArray(review?.target_conflicts) ? review.target_conflicts : [];
+  const legacyDirtyTarget = review?.target_dirty && !Array.isArray(review.target_conflicts);
   return (
     <div className="lifecycle-overlay" role="presentation" onClick={close}>
       <div
@@ -252,7 +318,6 @@ function IntegrationDialog({
                   commit: integrated.commit.slice(0, 8),
                 })}
               </p>
-              <p className="lifecycle-panel-body">{t("worktree.finish_hint")}</p>
               {hasIgnoredFiles ? (
                 <label className="lifecycle-checkbox">
                   <input
@@ -268,23 +333,22 @@ function IntegrationDialog({
           ) : (
             <>
               <div className="worktree-integration-controls">
-                <p className="lifecycle-panel-body">{t("worktree.description")}</p>
-                {busy && !review ? <p role="status">{t("worktree.loading_review")}</p> : null}
+                {previewLoading ? <p role="status">{t("worktree.loading_review")}</p> : null}
                 {review ? (
                   <div className="worktree-integration-fields">
                     <IntegrationSelect
                       label={t("worktree.target")}
                       value={target}
                       placeholder={t("worktree.choose_branch")}
-                      disabled={unavailable}
+                      disabled={busy || blocked}
                       icon={<GitBranch size={15} aria-hidden="true" />}
                       options={review.branches.map((branch) => ({
                         value: branch,
                         label: branch,
-                        description:
-                          branch === review.default_branch ? t("worktree.default") : undefined,
                       }))}
                       onChange={(value) => {
+                        if (value === target) return;
+                        previewRevision.current += 1;
                         setTarget(value);
                         setReview((current) => (current ? { ...current, token: null } : current));
                       }}
@@ -292,23 +356,22 @@ function IntegrationDialog({
                     <IntegrationSelect<IntegrationStrategy>
                       label={t("worktree.method")}
                       value={strategy}
-                      disabled={unavailable}
+                      disabled={busy || blocked}
                       icon={<GitMerge size={15} aria-hidden="true" />}
                       options={[
                         { value: "squash", label: t("worktree.squash") },
                         { value: "merge", label: t("worktree.merge") },
                       ]}
                       onChange={(value) => {
+                        if (value === strategy) return;
+                        previewRevision.current += 1;
                         setStrategy(value);
                         setReview((current) => (current ? { ...current, token: null } : current));
                       }}
                     />
                   </div>
                 ) : null}
-                {review && !review.default_branch ? (
-                  <p className="lifecycle-panel-body">{t("worktree.no_default")}</p>
-                ) : null}
-                {review?.token ? (
+                {review?.target ? (
                   <>
                     <label className="worktree-message">
                       {t("worktree.message")}
@@ -320,16 +383,51 @@ function IntegrationDialog({
                       />
                     </label>
                     <div className="worktree-review-summary">
-                      <span>{t("worktree.files", { count: review.files?.length ?? 0 })}</span>
+                      {review.files?.length ? (
+                        <span>{t("worktree.files", { count: review.files.length })}</span>
+                      ) : null}
                       <span className="worktree-review-branches">
                         <GitBranch size={14} aria-hidden="true" />
                         {session.worktree?.id} → {review.target}
                       </span>
                     </div>
-                    {review.target_dirty ? (
+                    {legacyDirtyTarget ? (
                       <p role="alert" className="lifecycle-error">
-                        {t("error.worktree_target_dirty")}
+                        {t("worktree.restart_daemon")}
                       </p>
+                    ) : null}
+                    {review.target_dirty &&
+                    !targetConflicts.length &&
+                    !legacyDirtyTarget &&
+                    !review.target_error ? (
+                      <p className="lifecycle-panel-body">
+                        {t("worktree.target_dirty", { branch: review.target })}
+                      </p>
+                    ) : null}
+                    {review.target_error ? (
+                      <div role="alert" className="worktree-conflicts">
+                        <p>{t(DAEMON_ERROR_I18N_KEYS[review.target_error] ?? "error.unknown")}</p>
+                        {review.target_path ? (
+                          <p className="lifecycle-panel-body">{review.target_path}</p>
+                        ) : null}
+                      </div>
+                    ) : null}
+                    {targetConflicts.length ? (
+                      <div role="alert" className="worktree-conflicts">
+                        <p>
+                          {t("worktree.target_conflicts", {
+                            path: review.target_path ?? review.target,
+                          })}
+                        </p>
+                        <ul>
+                          {targetConflicts.map((file) => (
+                            <li key={file}>{file}</li>
+                          ))}
+                        </ul>
+                        <p className="lifecycle-panel-body">
+                          {t("worktree.target_conflicts_hint")}
+                        </p>
+                      </div>
                     ) : null}
                     {conflicts.length ? (
                       <div className="worktree-conflicts">
@@ -339,13 +437,18 @@ function IntegrationDialog({
                             <li key={file}>{file}</li>
                           ))}
                         </ul>
-                        <p className="lifecycle-panel-body">{t("worktree.resolve_hint")}</p>
+                        <p className="lifecycle-panel-body">
+                          {t("worktree.resolve_hint", {
+                            path: session.worktree?.path,
+                            branch: review.target,
+                          })}
+                        </p>
                       </div>
                     ) : null}
                   </>
                 ) : null}
               </div>
-              {review?.token ? (
+              {review?.target ? (
                 <WorktreeDiff
                   diff={review.diff ?? ""}
                   paths={review.files ?? []}
@@ -356,15 +459,46 @@ function IntegrationDialog({
           )}
         </div>
         <footer className="worktree-integration-footer">
-          {blocked ? <p role="status">{t("worktree.wait")}</p> : null}
+          {blocked ? <p role="status">{t(integrationReason(session))}</p> : null}
           {error ? (
             <p role="alert" className="lifecycle-error">
               {error}
             </p>
           ) : null}
           <div className="lifecycle-panel-actions">
+            {blocked &&
+            session.availabilityStatus === "ready" &&
+            session.availability?.owner === "mandri" ? (
+              <button
+                className="lifecycle-button"
+                disabled={busy || session.stopping || session.resumeStartedAt !== undefined}
+                onClick={() => {
+                  void stopSessionAction(session.id).catch((caught) =>
+                    setError(t(errorKey(caught))),
+                  );
+                }}
+              >
+                {t("worktree.stop_process")}
+              </button>
+            ) : null}
+            {blocked ? (
+              <button
+                className="lifecycle-button"
+                disabled={busy || session.stopping || session.resumeStartedAt !== undefined}
+                onClick={() => void refresh()}
+              >
+                {t("worktree.recheck")}
+              </button>
+            ) : null}
             {integrated ? (
               <>
+                <button
+                  className="lifecycle-button"
+                  disabled={unavailable}
+                  onClick={() => void refresh()}
+                >
+                  {t("worktree.refresh")}
+                </button>
                 <button className="lifecycle-button" disabled={busy} onClick={close}>
                   {t("worktree.continue")}
                 </button>
@@ -383,12 +517,18 @@ function IntegrationDialog({
                   disabled={unavailable}
                   onClick={() => void refresh()}
                 >
-                  {t(busy ? "worktree.working" : review ? "worktree.refresh" : "worktree.prepare")}
+                  {t(
+                    previewLoading || busy
+                      ? "worktree.working"
+                      : review
+                        ? "worktree.refresh"
+                        : "worktree.prepare",
+                  )}
                 </button>
                 {conflicts.length > 0 && review?.token ? (
                   <button
                     className="lifecycle-button lifecycle-button--primary"
-                    disabled={unavailable}
+                    disabled={unavailable || Boolean(review.target_error)}
                     onClick={() => void resolve()}
                   >
                     {t("worktree.resolve")}
@@ -400,7 +540,9 @@ function IntegrationDialog({
                       unavailable ||
                       !review.token ||
                       !review.files?.length ||
-                      review.target_dirty ||
+                      targetConflicts.length > 0 ||
+                      Boolean(review.target_error) ||
+                      legacyDirtyTarget ||
                       !message.trim()
                     }
                     onClick={() => void merge()}

@@ -95,7 +95,7 @@ export function RawNode({ payload, summary }: RawNodeProps) {
     type === "session_context"
       ? t("core.transcript.context")
       : (summary ??
-        `${t("core.transcript.diagnostics")}${Array.isArray(payload) ? ` (${payload.length})` : type ? ` · ${type}` : ""}`);
+        `${t("core.transcript.diagnostics")}${Array.isArray(payload) ? ` (${payload.length})` : type ? ` (${type})` : ""}`);
   return (
     <Disclosure className="tr-diagnostics" title={title}>
       {Array.isArray(payload) ? (

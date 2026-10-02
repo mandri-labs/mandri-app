@@ -592,7 +592,7 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
                   {(modelEntry
                     ? supportedModelEffort(modelEntry, effectiveEffort)
                     : effectiveEffort) !== null ? (
-                    <span className="composer-chip-suffix">{` · ${effectiveEffort}`}</span>
+                    <span className="composer-chip-suffix">{` (${effectiveEffort})`}</span>
                   ) : null}
                 </>
               ) : (

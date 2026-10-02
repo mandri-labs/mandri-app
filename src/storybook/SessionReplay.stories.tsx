@@ -176,9 +176,9 @@ function RecordedSession({ fixture }: { fixture: FixtureFile }) {
           Next event
         </button>
         <span>
-          {(player.elapsed / 1000).toFixed(1)} / {(player.duration / 1000).toFixed(1)} s · 1× ·{" "}
-          {player.delivered}/{player.frames.length} frames
-          {player.finished ? " · Recording ended" : ""}
+          {(player.elapsed / 1000).toFixed(1)} / {(player.duration / 1000).toFixed(1)} s (1×,{" "}
+          {player.delivered}/{player.frames.length} frames)
+          {player.finished ? ". Recording ended" : ""}
         </span>
         <details>
           <summary>Capture details</summary>

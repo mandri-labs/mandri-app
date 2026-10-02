@@ -593,7 +593,7 @@ it("shows the selected protection without claiming the agent is ready", () => {
   );
   expect(screen.queryByText(/Ready/)).toBeNull();
   const trigger = screen.getByRole("button", { name: "Session protection" });
-  expect(trigger.textContent).toContain("Docker · Pseudonymization");
+  expect(trigger.textContent).toContain("Docker with pseudonymization");
   expect(trigger.getAttribute("aria-expanded")).toBe("false");
   fireEvent.click(trigger);
   expect(screen.getByRole("dialog").textContent).toContain("Stop the session");

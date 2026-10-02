@@ -21,11 +21,11 @@ import {
   stopSession as stopSessionRest,
 } from "@/daemon/rest/runtime";
 import { panesStore } from "@/stores/panes";
-import { sessionsStore, transcriptStore } from "@/stores/sessions";
+import { sessionsStore, stoppedPatch, transcriptStore } from "@/stores/sessions";
 import type { SessionView } from "@/stores/sessions";
 import { createDebugLogger } from "@/lib/debug";
 import { restoreNativeModel } from "@/daemon/rest/availability";
-import { applyAvailability } from "./availability";
+import { applyAvailability, invalidateAvailability, refreshAvailability } from "./availability";
 import { queueSessionModelChange } from "@/features/providers/sessionModelQueue";
 import { daemonIdentity } from "@/daemon/identity";
 import { invalidateSessionMetadata } from "@/app/sessionSync";
@@ -202,16 +202,20 @@ export async function stopSessionAction(sessionId: string): Promise<void> {
     stopping: true,
     stopRevision: (session?.stopRevision ?? 0) + 1,
   });
+  invalidateAvailability(sessionId);
   try {
     await stopSessionRest(sessionId);
     if (generation !== daemonIdentity.getState().generation) return;
     sessionsStore.getState().applySessionPatch(sessionId, {
+      ...(sessionsStore.getState().sessions[sessionId]
+        ? stoppedPatch(sessionsStore.getState().sessions[sessionId]!, Date.now()) : {}),
       state: "stopped",
       activity: "idle",
       nativeTurnActive: false,
       awaitingResponse: false,
       sending: false,
     });
+    void refreshAvailability(sessionId);
   } finally {
     if (generation === daemonIdentity.getState().generation)
       sessionsStore.getState().applySessionPatch(sessionId, { stopping: false, sending: false });
@@ -246,6 +250,7 @@ export function resumeSessionAction(sessionId: string): Promise<void> {
   if (existing !== undefined) return existing;
   sessionsStore.getState().applySessionPatch(sessionId, {
     resumeStartedAt: Date.now(),
+    lastStoppedAt: undefined,
     nativeTurnActive: undefined,
     nativeTurnNotice: undefined,
     promptError: undefined,
@@ -281,6 +286,7 @@ async function resumeSession(sessionId: string): Promise<void> {
       ? { executionPhase: undefined, executionReason: undefined, effectiveBinding: false }
       : {}),
     state: "live",
+    lastStoppedAt: undefined,
     needsAttention: false,
     activity: "idle",
     gatewayRouteId: result.gateway_route_id ?? undefined,

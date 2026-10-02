@@ -57,7 +57,7 @@ function ManagedSessionProtection({ session }: { session: SessionView }) {
           <Box size={14} aria-hidden="true" />
           <span className="composer-chip-label">
             {session.worktree
-              ? `${session.worktree.id}${session.privacyMode === "surrogate" ? " · " + t("core.protection.surrogate") : ""}`
+              ? `${session.worktree.id}${session.privacyMode === "surrogate" ? ` (${t("core.protection.surrogate")})` : ""}`
               : t(`core.protection.${choice}`)}
           </span>
           <ChevronDown size={12} aria-hidden="true" />

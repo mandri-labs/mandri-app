@@ -27,7 +27,7 @@ export function EndpointMenu() {
       <button
         type="button"
         className="shell-connection"
-        title={`${endpoint.url} · ${t(`core.connection.${status}`)}`}
+        title={`${endpoint.url} (${t(`core.connection.${status}`)})`}
         aria-label={`${t("core.settings.nav.connection")}: ${endpoint.name}`}
         aria-haspopup="dialog"
         aria-expanded={open}

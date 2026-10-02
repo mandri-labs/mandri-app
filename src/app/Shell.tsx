@@ -10,6 +10,7 @@ import { lastSegment, SessionDot } from "@/features/sessions/SessionRow";
 import { AntigravityLogo, ClaudeLogo, OpenAILogo, OpencodeLogo, PiLogo } from "@/design/logos";
 import { selectByProject, sessionWorkspace, sessionsStore, UNGROUPED_PROJECT } from "@/stores/sessions";
 import type { SessionView } from "@/stores/sessions";
+import { isSessionBusy } from "@/features/transcript/turnActivity";
 import { navigate, routeTitleKey, routeToHash, withPaneWorkspace } from "./useHashRoute";
 import type { Route } from "./useHashRoute";
 import { NEW_SESSION_EVENT, requestFocusComposer, toggleCommandPalette } from "./keyboard";
@@ -41,6 +42,8 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
 }) {
   const { t } = useTranslation();
   const Logo = { claude: ClaudeLogo, codex: OpenAILogo, opencode: OpencodeLogo, agy: AntigravityLogo, pi: PiLogo }[session.harness];
+  const integratedWorktree = Boolean(session.worktree?.integrated_commit);
+  const worktreeLabel = t(integratedWorktree ? "worktree.integrated" : "core.protection.worktree");
   return (
     <div className={`shell-session-container${active ? " shell-session-container--active" : ""}`}>
       <button
@@ -48,7 +51,7 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
         className={`shell-session-row${active ? " shell-session-row--active" : ""}`}
         title={session.title}
         aria-current={active ? "page" : undefined}
-        aria-label={`${session.title}${session.activity === "active" ? ` — ${t("core.transcript.agent_active")}` : ""}${session.pendingApprovals > 0 ? ` — ${t("core.sessions.approvals_badge", { count: session.pendingApprovals })}` : ""}`}
+        aria-label={`${session.title}${isSessionBusy(session) ? ` — ${t("core.transcript.agent_active")}` : ""}${session.pendingApprovals > 0 ? ` — ${t("core.sessions.approvals_badge", { count: session.pendingApprovals })}` : ""}${integratedWorktree ? `, ${worktreeLabel}` : ""}`}
         onClick={() => navigate({ name: "session", id: session.id })}
       >
         <span className="shell-session-icon-slot" aria-hidden="true">
@@ -57,8 +60,11 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
         <span className="shell-session-title">{session.title}</span>
         <span className="shell-session-status-slot">
           {session.worktree ? (
-            <span title={session.worktree.id}>
-              <GitBranch size={12} aria-label={t("core.protection.worktree")} />
+            <span
+              className={`shell-worktree-icon${integratedWorktree ? " shell-worktree-icon--integrated" : ""}`}
+              title={integratedWorktree ? `${session.worktree.id} (${worktreeLabel})` : session.worktree.id}
+            >
+              <GitBranch size={12} aria-label={worktreeLabel} />
             </span>
           ) : null}
           {session.availability?.owner === "external" ? <LockKeyhole size={12} aria-label={t("core.sessions.external_locked")} /> : null}

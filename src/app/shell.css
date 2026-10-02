@@ -311,6 +311,10 @@
   display: block;
 }
 
+.shell-worktree-icon--integrated {
+  color: var(--color-success);
+}
+
 .shell-session-row:hover {
   background: var(--color-raised-hover);
 }

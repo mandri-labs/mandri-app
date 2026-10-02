@@ -72,7 +72,7 @@ export function MetricsTable({
                     })
                       .filter(([, count]) => count > 0)
                       .map(([key, count]) => t(`usage.quality_counts.${key}`, { count }))
-                      .join(" · ")}
+                      .join(", ")}
                   </span>
                 )}
               </th>

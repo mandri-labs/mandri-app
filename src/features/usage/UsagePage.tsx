@@ -324,7 +324,7 @@ export function UsagePage({
           <summary>{t("usage.diagnostics")}</summary>
           <p className="usage-note">{t("usage.collection_note")}</p>
           <p className="usage-note">
-            {endpoint} · {sessionId ?? projectPath ?? t("usage.global")}
+            {endpoint} ({sessionId ?? projectPath ?? t("usage.global")})
           </p>
           <p className="usage-note">
             {t("usage.revision")}:{" "}

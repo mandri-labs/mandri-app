@@ -28,7 +28,7 @@ it("keeps mixed valuations distinct and price sources in their own info panel", 
   expect(screen.getByRole("heading", { name: "Known USD equivalent" })).toBeTruthy();
   expect(screen.queryByRole("heading", { name: "Current API equivalent" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "About this amount" }));
-  expect(screen.getByText("Current API prices · Historical tariff")).toBeTruthy();
+  expect(screen.getByText("Current API prices, Historical tariff")).toBeTruthy();
   fireEvent.keyDown(document, { key: "Escape" });
   expect(screen.queryByText("Price-source freshness unavailable.")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "Price sources" }));
@@ -101,7 +101,7 @@ it("uses each source's last successful review, keeps stale sources visible, and 
   expect(
     models.getByText(`Last successful price sync: ${new Date(reviewed + 3600000).toLocaleString("en")}`),
   ).toBeTruthy();
-  expect(screen.getByText("Stale prices · last update failed")).toBeTruthy();
+  expect(screen.getByText("Last update failed. Prices are stale.")).toBeTruthy();
   expect(screen.getByText("No successful price sync recorded")).toBeTruthy();
   expect(screen.getByText("Unavailable")).toBeTruthy();
   expect(screen.queryByText("TimeoutError")).toBeNull();

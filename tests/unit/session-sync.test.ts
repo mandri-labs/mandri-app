@@ -39,3 +39,10 @@ it("loads resumability metadata without overwriting a newer lifecycle event", as
   await loading;
   expect(sessionsStore.getState().sessions.s1).toMatchObject({ state: "stopped", nativeId: "updated-native" });
 });
+
+it("repairs stale lifecycle metadata when no lifecycle transition occurs during the lookup", async () => {
+  sessionsStore.getState().upsertFromRest([{ ...row, activity: "active" } as Awaited<ReturnType<typeof listSessions>>[number]]);
+  vi.mocked(listSessions).mockResolvedValue([{ ...row, state: "stopped" } as Awaited<ReturnType<typeof listSessions>>[number]]);
+  await refreshSessionMetadata();
+  expect(sessionsStore.getState().sessions.s1).toMatchObject({ state: "stopped", activity: "idle", nativeTurnActive: false });
+});

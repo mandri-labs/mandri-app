@@ -79,7 +79,7 @@ export function codexToolTitle(tool: string, input: unknown): string {
     if (typeof first?.question === "string") return first.question;
   }
   for (const field of ["task_name", "target", "agent_id"]) {
-    if (typeof record?.[field] === "string") return `${tool} · ${record[field]}`;
+    if (typeof record?.[field] === "string") return `${tool} (${record[field]})`;
   }
   // Only extract literal JSON strings; never execute or guess dynamic JavaScript.
   if (typeof input === "string" && /(?:^|\.)exec$/.test(tool)) {
@@ -92,7 +92,7 @@ export function codexToolTitle(tool: string, input: unknown): string {
         }
       },
     );
-    if (commands.length) return commands.join(" · ");
+    if (commands.length) return commands.join("; ");
   }
   return tool;
 }

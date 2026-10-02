@@ -33,7 +33,7 @@ export function UsageSources({ data }: { data: UsageOverview }) {
                   amount == null
                     ? t("usage.missing_hint")
                     : `${formatUsageUsdDetail(amount, i18n.language)}${
-                        metrics?.unpriced_fact_count ? ` · ${t("usage.known_subtotal")}` : ""
+                        metrics?.unpriced_fact_count ? ` (${t("usage.known_subtotal")})` : ""
                       }`
                 }
               >

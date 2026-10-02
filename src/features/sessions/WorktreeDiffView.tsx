@@ -1,9 +1,9 @@
-import { Fragment, useId, useMemo, useRef, useState } from "react";
+import { Fragment, memo, useId, useMemo, useRef, useState } from "react";
 import { ChevronDown, FileCode2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { parseWorktreeDiff } from "./worktreeDiff";
 
-export function WorktreeDiff({
+export const WorktreeDiff = memo(function WorktreeDiff({
   diff,
   paths,
   fullscreen,
@@ -153,4 +153,4 @@ export function WorktreeDiff({
       </div>
     </div>
   );
-}
+});

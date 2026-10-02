@@ -83,5 +83,7 @@ export function accountWindowLabel(
     (["", "codex", "default", "all", "five_hour", "seven_day"].includes(bucket)
       ? ""
       : bucket.replace(/[_-]+/g, " "));
-  return [scope, period].filter(Boolean).join(" · ") || t("usage.window", { count: index + 1 });
+  return scope && period
+    ? `${scope} (${period})`
+    : scope || period || t("usage.window", { count: index + 1 });
 }

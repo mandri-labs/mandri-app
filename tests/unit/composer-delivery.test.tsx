@@ -354,7 +354,8 @@ it("does not stop on empty Enter or resume from a late prompt error after STOP",
   await act(async () => {
     rejectPrompt(new DaemonError({ code: "session_not_running", message: "stopped" }));
   });
-  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(fetchMock).toHaveBeenCalledTimes(2);
+  expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/availability$/), expect.objectContaining({ method: "GET" }));
   expect(feed.sendPrompt).toHaveBeenCalledTimes(1);
   expect(screen.queryByRole("alert")).toBeNull();
   expect(transcriptStore.getState().transcripts.s1?.pendingUsers).toHaveLength(0);

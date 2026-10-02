@@ -100,6 +100,24 @@ it("does not poll every sidebar session", async () => {
   expect(getSessionAvailability).not.toHaveBeenCalled();
 });
 
+it("checks a newly hydrated session immediately instead of sharing a pre-snapshot ownership lookup", async () => {
+  const parent = sessionsStore.getState().sessions.parent!;
+  sessionsStore.setState({ sessions: {}, order: [] });
+  connectionStore.setState({ status: "online" });
+  let finish!: (value: SessionAvailability) => void;
+  vi.mocked(getSessionAvailability).mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  function Viewer() { useSessionAvailability("parent"); return null; }
+  const view = render(<Viewer />);
+  await act(async () => undefined);
+  expect(getSessionAvailability).not.toHaveBeenCalled();
+  await act(async () => sessionsStore.setState({ sessions: { parent }, order: ["parent"] }));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(1);
+  expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("checking");
+  await act(async () => finish(free));
+  expect(sessionsStore.getState().sessions.parent).toMatchObject({ availabilityStatus: "ready", availability: free });
+  view.unmount();
+});
+
 it("backs off failed polling and shares refreshes between viewers", async () => {
   vi.useFakeTimers();
   connectionStore.setState({ status: "online" });
@@ -130,6 +148,28 @@ it("backs off failed polling and shares refreshes between viewers", async () => 
   view.unmount();
   await act(async () => vi.advanceTimersByTimeAsync(60000));
   expect(getSessionAvailability).toHaveBeenCalledTimes(4);
+});
+
+it("checks ownership immediately when a hidden viewer becomes visible, including during retry backoff", async () => {
+  connectionStore.setState({ status: "online" });
+  const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
+  function Viewer() { useSessionAvailability("parent"); return null; }
+  const view = render(<Viewer />);
+  await act(async () => undefined);
+  expect(getSessionAvailability).not.toHaveBeenCalled();
+  vi.mocked(getSessionAvailability).mockRejectedValueOnce(new Error("Unavailable"));
+  visibility.mockReturnValue("visible");
+  await act(async () => document.dispatchEvent(new Event("visibilitychange")));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(1);
+  expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("stale");
+  visibility.mockReturnValue("hidden");
+  await act(async () => document.dispatchEvent(new Event("visibilitychange")));
+  visibility.mockReturnValue("visible");
+  await act(async () => document.dispatchEvent(new Event("visibilitychange")));
+  expect(getSessionAvailability).toHaveBeenCalledTimes(2);
+  expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("ready");
+  view.unmount();
+  visibility.mockRestore();
 });
 
 it("does not overwrite a newer live child update with an in-flight list", async () => {
@@ -311,10 +351,12 @@ it.each([undefined, "mandri", "external", "unowned"] as const)(
     );
     const loading = refreshAvailability("parent");
     expect(refreshAvailability("parent")).toBe(loading);
-    expect(sessionsStore.getState().sessions.parent).toBe(session);
+    expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("checking");
+    expect(sessionsStore.getState().sessions.parent?.availability).toBe(session?.availability);
     fail(new Error("Registry unavailable"));
     await loading;
-    expect(sessionsStore.getState().sessions.parent).toBe(session);
+    expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("stale");
+    expect(sessionsStore.getState().sessions.parent?.availability).toBe(session?.availability);
 
     vi.mocked(getSessionAvailability).mockResolvedValueOnce({
       ...free,
@@ -324,11 +366,11 @@ it.each([undefined, "mandri", "external", "unowned"] as const)(
       reason: "writer_status_unavailable",
     });
     await refreshAvailability("parent");
-    expect(sessionsStore.getState().sessions.parent).toBe(session);
+    expect(sessionsStore.getState().sessions.parent?.availability).toBe(session?.availability);
 
     vi.mocked(getSessionAvailability).mockResolvedValueOnce(null as unknown as SessionAvailability);
     await refreshAvailability("parent");
-    expect(sessionsStore.getState().sessions.parent).toBe(session);
+    expect(sessionsStore.getState().sessions.parent?.availability).toBe(session?.availability);
 
     let finish!: (result: SessionAvailability) => void;
     vi.mocked(getSessionAvailability).mockImplementationOnce(
@@ -338,7 +380,7 @@ it.each([undefined, "mandri", "external", "unowned"] as const)(
         }),
     );
     const retry = refreshAvailability("parent");
-    expect(sessionsStore.getState().sessions.parent).toBe(session);
+    expect(sessionsStore.getState().sessions.parent?.availability).toBe(session?.availability);
     finish(free);
     await retry;
     expect(sessionsStore.getState().sessions.parent?.availability).toBe(free);

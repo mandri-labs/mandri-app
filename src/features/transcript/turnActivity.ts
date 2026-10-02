@@ -13,12 +13,13 @@ export function nativeTurnActivity(harness: HarnessKind, nativeId: string | null
 
 export function isSessionWorking(session: SessionView | undefined): boolean {
   if (session?.externalBusy === true && !session.externalUnavailable) return true;
+  if (session?.resumeStartedAt !== undefined) return true;
+  if (session?.state === "stopped") return false;
   const terminalPhase = ["failed", "blocked", "stopped"].includes(session?.executionPhase ?? "");
   const newerNativeWork = session?.nativeTurnStartedAt !== undefined &&
     (session.executionPhaseUpdatedAt === undefined || session.nativeTurnStartedAt > session.executionPhaseUpdatedAt);
-  if (session?.nativeTurnActive === true && !session.promptError && !session.needsAttention &&
+  if (session?.nativeTurnActive === true &&
     (!terminalPhase || newerNativeWork)) return true;
-  if (session?.resumeStartedAt !== undefined) return true;
   return Boolean(session && session.state === "live" && !session.promptError && !session.needsAttention &&
     !["failed", "blocked", "stopped"].includes(session.executionPhase ?? "") &&
     (session.nativeTurnActive ?? (session.sending || session.awaitingResponse || session.activity === "active")));
@@ -27,9 +28,12 @@ export function isSessionWorking(session: SessionView | undefined): boolean {
 export function isSessionBusy(session: SessionView | undefined): boolean {
   // A failed prompt/stop request does not prove that native work has ended.
   // Keep controls and subscriptions available until an explicit completion.
-  return Boolean(session && (session.sending || session.awaitingResponse ||
-    session.pendingApprovals || session.stopping || session.nativeTurnActive === true ||
-    (session.nativeTurnActive === undefined && session.activity === "active") || isSessionWorking(session)));
+  if (!session) return false;
+  if (session.stopping || session.resumeStartedAt !== undefined || isSessionWorking(session)) return true;
+  if (session.state === "stopped") return false;
+  return Boolean(session.sending || session.awaitingResponse || session.pendingApprovals ||
+    (session.nativeTurnActive === undefined && session.activity === "active" &&
+      !["failed", "blocked", "stopped"].includes(session.executionPhase ?? "")));
 }
 
 export function nativeTurnNotice(harness: HarnessKind, nativeId: string | null | undefined, value: unknown): string | null | undefined {

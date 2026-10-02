@@ -29,7 +29,7 @@ it("adds the source card directly after the API equivalent, independently of tab
   expect(cards).toHaveLength(4);
   expect(cards[1]?.getAttribute("aria-labelledby")).toBe("usage-sources-title");
   const card = within(screen.getByRole("article", { name: "By source" }));
-  expect(card.getByText("API · Gateway").nextElementSibling?.textContent).toBe("$12.34");
+  expect(card.getByText("Gateway API").nextElementSibling?.textContent).toBe("$12.34");
   expect(card.getByText("Codex").nextElementSibling?.textContent).toBe("$50.00");
   expect(card.getByText("Claude").nextElementSibling?.textContent).toBe("$0.00");
   expect(card.getByText("Antigravity").nextElementSibling?.textContent).toBe("—");
@@ -57,8 +57,8 @@ it("shows unallocated origins and marks partial known amounts", () => {
   );
   const card = within(screen.getByRole("article", { name: "By source" }));
   expect(card.getByLabelText("Known subtotal only")).toBeTruthy();
-  expect(card.getByText("API · Gateway").nextElementSibling?.getAttribute("title")).toBe(
-    "$0.000123 · Known subtotal only",
+  expect(card.getByText("Gateway API").nextElementSibling?.getAttribute("title")).toBe(
+    "$0.000123 (Known subtotal only)",
   );
   expect(card.getByText("Other").nextElementSibling?.textContent).toBe("$2.50");
 });

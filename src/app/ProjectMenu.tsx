@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { selectByProject, sessionsStore } from "@/stores/sessions";
 import { lastSegment } from "@/features/sessions/SessionRow";
+import { isSessionBusy } from "@/features/transcript/turnActivity";
 import { useStore } from "./useStore";
 import { routeToHash } from "./useHashRoute";
 import "./project-menu.css";
@@ -44,7 +45,7 @@ export function ProjectMenu({ path }: { path: string }) {
     {open && <div id={id} className="project-menu-panel" role="region" aria-label={lastSegment(path)}>
       <div className="project-menu-line"><Folder size={16} aria-hidden="true" /><strong>{lastSegment(path)}</strong></div>
       <div className="project-menu-line project-menu-counts"><MessageCircle size={16} aria-hidden="true" /><span>
-        {t("core.shell.project_tasks", { count: members.length })} · {t("core.shell.project_active", { count: members.filter((session) => session.activity === "active").length })}
+        {t("core.shell.project_tasks", { count: members.length })} ({t("core.shell.project_active", { count: members.filter(isSessionBusy).length })})
       </span></div>
       <div className="project-menu-line project-menu-path"><Folder size={16} aria-hidden="true" /><span>{path}</span></div>
       <a className="project-menu-line" href={routeToHash({ name: "usage", projectPath: path })} onClick={() => setOpen(false)}>{t("usage.project_usage")}</a>

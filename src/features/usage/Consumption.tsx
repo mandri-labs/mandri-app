@@ -59,7 +59,7 @@ export function Consumption({
                         defaultValue: basis.replaceAll("_", " "),
                       }),
                     )
-                    .join(" · ")}
+                    .join(", ")}
                 </p>
               )}
             </UsageInfo>

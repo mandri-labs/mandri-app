@@ -61,7 +61,7 @@ it.each(harnesses)("%s removes a rejected local prompt from retention", (harness
 it.each([undefined, "history"] as const)("process snapshots cannot interrupt observed work (source=%s)", (source) => {
   sessionsStore.setState({ sessions: { s: {
     id: "s", harness: "codex", state: "live", title: "External", deleted: false, pendingApprovals: 0,
-    nativeTurnActive: true, nativeTurnStartedAt: 1000,
+    nativeTurnActive: true, nativeTurnStartedAt: 1000, externalBusy: true,
     turnWork: [{ id: "turn", source, startedAt: 1000 }],
   } } });
   const store = sessionsStore.getState();

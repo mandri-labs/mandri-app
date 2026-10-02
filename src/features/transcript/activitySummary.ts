@@ -44,9 +44,9 @@ export function activityToolTitle(node: ToolNode, t: TFunction): string {
           return node.codex
             ? codexToolTitle(node.tool, node.codex.input)
             : node.target
-              ? `${node.label} · ${node.target}`
+              ? `${node.label}: ${node.target}`
               : node.label;
-        const target = [action.query, action.target ?? node.target].filter(Boolean).join(" · ");
+        const target = [action.query, action.target ?? node.target].filter(Boolean).join(", ");
         return target
           ? t(`core.transcript.action_${action.kind}`, { target })
           : t(`core.transcript.action_${action.kind}_generic`);

@@ -15,9 +15,9 @@ it("counts all sidebar tasks, updates activity and dismisses the panel", () => {
   render(<ProjectMenu path={"D:\\Dev\\example-project"} />);
   const button = screen.getByRole("button", { name: "Informations du projet example-project" });
   fireEvent.click(button);
-  expect(screen.getByText("15 tâches · 1 actif")).toBeTruthy();
+  expect(screen.getByText("15 tâches (1 actif)")).toBeTruthy();
   act(() => sessionsStore.setState({ sessions: { ...sessionsStore.getState().sessions, "1": { ...sessions[1]!, activity: "active" } } }));
-  expect(screen.getByText("15 tâches · 2 actifs")).toBeTruthy();
+  expect(screen.getByText("15 tâches (2 actifs)")).toBeTruthy();
   fireEvent.keyDown(document, { key: "Escape" });
   expect(button.getAttribute("aria-expanded")).toBe("false");
   fireEvent.click(button);

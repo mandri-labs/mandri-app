@@ -375,13 +375,13 @@ describe("WelcomeComposer", () => {
     await screen.findByTitle("openai/gpt-5");
     fireEvent.keyDown(input, { key: "Enter" });
     await waitFor(() => {
-      expect(screen.getByText("· low")).toBeTruthy();
+      expect(screen.getByText("(low)")).toBeTruthy();
     });
     fireEvent.click(screen.getByLabelText("Model"));
     const slider = await screen.findByRole("slider");
     fireEvent.change(slider, { target: { value: "1" } });
     fireEvent.pointerUp(slider);
-    expect(screen.getByText("· high")).toBeTruthy();
+    expect(screen.getByText("(high)")).toBeTruthy();
     await submitPrompt("Ship the release");
     await waitFor(() => {
       expect(startSessionMock).toHaveBeenCalledWith({
@@ -405,7 +405,7 @@ describe("WelcomeComposer", () => {
     });
     render(<WelcomeComposer />);
     await screen.findByText("Claude Code");
-    expect(screen.getByText("· high")).toBeTruthy();
+    expect(screen.getByText("(high)")).toBeTruthy();
     await pickFolder();
     await submitPrompt("Inspect the project");
     await waitFor(() =>

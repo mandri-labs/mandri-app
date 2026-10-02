@@ -212,7 +212,7 @@ export const AgyHelp = resultStory("help", {
   items: [
     { title: "model", description: "Set a model, or run a single prompt on another model" },
     { title: "skills", description: "List available skills" },
-    { title: "usage", description: "View model quota usage · Aliases: /quota" },
+    { title: "usage", description: "View model quota usage (alias: /quota)" },
   ],
 });
 export const AgyAgents = resultStory("agents", {
@@ -228,7 +228,7 @@ export const AgySkills = resultStory("skills", {
     {
       title: "workspace-guide",
       description:
-        "A synthetic workspace skill for this preview. · Location: skills/workspace-guide/SKILL.md · Workspace or installed skill · Model can invoke",
+        "A synthetic workspace skill for this preview, located at skills/workspace-guide/SKILL.md. Available from the workspace or installation. The model can invoke it.",
     },
   ],
 });
@@ -259,7 +259,7 @@ export const AgyConfig = resultStory("config", {
     { label: "Model", value: "example-model" },
     { label: "Tool permission", value: "request-review" },
     { label: "Notifications", value: false },
-    { label: "Custom model · example", value: "example-route" },
+    { label: "Custom model example", value: "example-route" },
     { label: "Gcp", value: null },
   ],
 });

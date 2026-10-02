@@ -89,7 +89,7 @@ it.each(["fab", "FAB"])(
 
     fireEvent.change(screen.getByRole("combobox"), { target: { value: query } });
 
-    expect(screen.getByText("Native models · Pi")).toBeTruthy();
+    expect(screen.getByText("Native models for Pi")).toBeTruthy();
     expect(screen.getByText("gateway")).toBeTruthy();
     const rows = screen.getAllByRole("option").filter((row) => row.hasAttribute("title"));
     expect(rows.map((row) => row.getAttribute("title"))).toEqual([
@@ -141,7 +141,7 @@ it("finds a native model by its technical ID without replacing its friendly labe
   expect(rows).toHaveLength(1);
   expect(rows[0]?.getAttribute("title")).toBe("native:pi/opencode/model-510");
   expect(rows[0]?.textContent).toContain("Claude Fable 5.1");
-  expect(screen.getByText("Native models · Pi")).toBeTruthy();
+  expect(screen.getByText("Native models for Pi")).toBeTruthy();
   fireEvent.keyDown(search, { key: "Enter" });
   expect(select).toHaveBeenCalledWith("native:pi/opencode/model-510");
 });
@@ -276,10 +276,10 @@ it("does not infer native support from a known harness name or remove gateway pr
   vi.mocked(request).mockImplementation(() => new Promise((done) => { resolve = done; }));
   render(<ModelMenu harness="pi" onSelect={vi.fn()} />);
   expect(screen.getByTitle("gateway/fab")).toBeTruthy();
-  expect(screen.queryByText("Native models · Pi")).toBeNull();
+  expect(screen.queryByText("Native models for Pi")).toBeNull();
   resolve([{ harness: "pi", capabilities: { model_sources: ["gateway"] } }]);
   await waitFor(() => expect(runtimeCapabilitiesStore.getState().entries.pi?.modelSources).toEqual(["gateway"]));
-  expect(screen.queryByText("Native models · Pi")).toBeNull();
+  expect(screen.queryByText("Native models for Pi")).toBeNull();
   expect(screen.getByTitle("gateway/fab")).toBeTruthy();
   expect(request).toHaveBeenCalledTimes(1);
 });

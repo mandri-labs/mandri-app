@@ -1130,16 +1130,22 @@ export interface components {
             strategy?: "squash" | "merge";
             /** Target */
             target?: string | null;
+            /** Target Conflicts */
+            target_conflicts?: string[];
             /**
              * Target Dirty
              * @default false
              */
             target_dirty?: boolean;
+            /** Target Error */
+            target_error?: string | null;
             /**
              * Target Head
              * @default
              */
             target_head?: string;
+            /** Target Path */
+            target_path?: string | null;
             /** Token */
             token?: string | null;
         };

@@ -16,6 +16,7 @@ import type {
 import type { components } from "@/daemon/types/rest.gen";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
 import { nativeTurnNotice } from "@/features/transcript/turnActivity";
+import { stoppedNodes } from "@/features/transcript/stoppedNodes";
 import { normalizeTurnEvent } from "@/features/transcript/turns/normalize";
 import { reduceTurnEvent } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnWork } from "@/features/transcript/turns/types";
@@ -67,6 +68,9 @@ export interface SessionView extends SessionPolicy {
   sending?: boolean;
   stopping?: boolean;
   stopRevision?: number;
+  lastStoppedAt?: number;
+  availabilityStatus?: "checking" | "ready" | "stale";
+  availabilityUpdatedAt?: number;
   awaitingResponse?: boolean;
   nativeTurnActive?: boolean;
   nativeTurnNotice?: string | null;
@@ -264,11 +268,32 @@ export function selectSessionById(state: SessionsSnapshot, id: string): SessionV
   return state.sessions[id];
 }
 
+export function stoppedPatch(session: SessionView, stoppedAt: number, cause?: SessionStopCause): Partial<SessionView> {
+  const external = session.externalBusy === true;
+  return {
+    activity: "idle",
+    stopRevision: (session.stopRevision ?? 0) + 1,
+    lastStoppedAt: stoppedAt,
+    nativeTurnActive: external ? session.nativeTurnActive : false,
+    awaitingResponse: false,
+    sending: false,
+    nativeTurnNotice: null,
+    availabilityStatus: "stale",
+    availabilityUpdatedAt: undefined,
+    turnWork: external ? session.turnWork : session.turnWork?.map((turn) => !turnCompleted(turn)
+      ? { ...turn, endedAt: Math.max(turn.startedAt ?? stoppedAt, stoppedAt), outcome: cause === "crash" ? "failed" : "stopped" }
+      : turn),
+  };
+}
+
 export const sessionsStore = createStore<SessionsState>()((set, get) => {
   const turnEventCursors = new WeakMap<SessionView, { seq: number; ts: number }>();
+  const lifecycleEventTimes = new WeakMap<SessionView, number>();
   function inheritTurnCursor(existing: SessionView | undefined, next: SessionView): void {
     const cursor = existing && turnEventCursors.get(existing);
     if (cursor) turnEventCursors.set(next, cursor);
+    const lifecycleTime = existing && lifecycleEventTimes.get(existing);
+    if (lifecycleTime !== undefined) lifecycleEventTimes.set(next, lifecycleTime);
   }
 
   function upsertView(view: SessionView): void {
@@ -312,6 +337,10 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
   }
 
   function applyLifecycle(lifecycle: LifecycleRaw, ts: number): void {
+    const previous = get().sessions[lifecycle.sessionId];
+    const previousTime = previous && lifecycleEventTimes.get(previous);
+    if (previousTime !== undefined && ts < previousTime) return;
+    if (previous) lifecycleEventTimes.set(previous, ts);
     switch (lifecycle.type) {
       case "session_started": {
         if (lifecycle.harness === undefined) {
@@ -330,11 +359,14 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           ),
           harness: lifecycle.harness,
           state: lifecycle.state ?? "live",
+          lastStoppedAt: undefined,
           deleted: false,
           title: existing?.title ?? fallbackTitle(lifecycle.harness, lifecycle.sessionId),
           pendingApprovals: existing?.pendingApprovals ?? 0,
           needsAttention: false,
         });
+        const started = get().sessions[lifecycle.sessionId];
+        if (started) lifecycleEventTimes.set(started, ts);
         return;
       }
       case "session_state": {
@@ -344,7 +376,9 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         const cleared = lifecycle.state === "live";
         patchSession(lifecycle.sessionId, (existing) => ({
           ...existing,
+          ...(lifecycle.state === "stopped" ? stoppedPatch(existing, ts) : {}),
           state: lifecycle.state as SessionState,
+          ...(lifecycle.state === "live" ? { lastStoppedAt: undefined } : {}),
           needsAttention: cleared ? false : existing.needsAttention,
         }));
         return;
@@ -352,7 +386,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
       case "activity": {
         patchSession(lifecycle.sessionId, (existing) => ({
           ...existing,
-          activity: lifecycle.activity,
+          activity: existing.state === "stopped" ? "idle" : lifecycle.activity,
           awaitingResponse:
             lifecycle.activity === "active" || !existing.sending
               ? false
@@ -364,15 +398,9 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
       case "session_stopped": {
         patchSession(lifecycle.sessionId, (existing) => ({
           ...existing,
+          ...stoppedPatch(existing, ts, lifecycle.cause),
           state: "stopped",
-          activity: "idle",
-          nativeTurnActive: existing.externalBusy || existing.turnWork?.at(-1)?.source === "history"
-            ? existing.nativeTurnActive : false,
-          awaitingResponse: existing.sending ? existing.awaitingResponse : false,
           lastStopCause: lifecycle.cause ?? existing.lastStopCause,
-          turnWork: existing.turnWork?.map((turn) => !turnCompleted(turn) && !existing.externalBusy && turn.source !== "history"
-            ? { ...turn, endedAt: Math.max(turn.startedAt ?? ts, ts), outcome: lifecycle.cause === "crash" ? "failed" : "stopped" }
-            : turn),
           lastActivityAt: lifecycle.lastActivityAt ?? ts,
         }));
         return;
@@ -404,6 +432,10 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           needsAttention: false,
         }),
         ...parsed,
+        ...(parsed.state === "live" ? { lastStoppedAt: undefined } : {}),
+        ...(parsed.state === "stopped" && existing && (existing.state !== "stopped" || existing.sending || existing.awaitingResponse ||
+          (existing.nativeTurnActive === true && !existing.externalBusy))
+          ? stoppedPatch(existing, Date.now()) : {}),
         ...policyFromWire(entry, existing),
         deleted: existing?.deleted ?? false,
         pendingApprovals: existing?.pendingApprovals ?? 0,
@@ -472,6 +504,8 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           const id = event.topic.slice("session.".length);
           const session = get().sessions[id];
           if (session && event.source === session.harness) {
+            if (session.state === "stopped" && session.externalBusy !== true) return;
+            if (session.lastStoppedAt !== undefined && event.ts <= session.lastStoppedAt) return;
             const cursor = turnEventCursors.get(session);
             if (cursor && (event.ts < cursor.ts || (event.ts === cursor.ts && event.seq <= cursor.seq))) return;
             turnEventCursors.set(session, { seq: event.seq, ts: event.ts });
@@ -482,7 +516,8 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
             patchSession(id, (existing) => {
               const turns = turnEvent ? reduceTurnEvent(existing.turnWork ?? [], turnEvent) : existing.turnWork;
               const current = turns?.at(-1);
-              const active = turnEvent?.active === true && turnEvent.phase !== "finish" && current && turnCompleted(current)
+              const active = turnEvent?.active === true && turnEvent.phase !== "finish" &&
+                ((existing.state === "stopped" && !existing.externalBusy) || (current && turnCompleted(current)))
                 ? existing.nativeTurnActive : turnEvent?.active;
               return {
                 ...existing,
@@ -518,6 +553,10 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           id: row.id,
           harness,
           state: parseState(row.state) ?? "discovered",
+          ...(row.state === "live" ? { lastStoppedAt: undefined } : {}),
+          ...(row.state === "stopped" && existing && (existing.state !== "stopped" || existing.sending || existing.awaitingResponse ||
+            (existing.nativeTurnActive === true && !existing.externalBusy))
+            ? stoppedPatch(existing, Date.now()) : {}),
           deleted: existing?.deleted ?? false,
           title: row.title,
           projectPath: row.project_path.length > 0 ? row.project_path : existing?.projectPath,
@@ -526,7 +565,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           interactionMode: row.interaction_mode?.mode ?? existing?.interactionMode,
           resumeMode: existing?.resumeMode,
           reasoningEffort: rowEffort === undefined ? existing?.reasoningEffort : rowEffort,
-          activity: parseActivity(row.activity) ?? existing?.activity,
+          activity: row.state === "stopped" ? "idle" : parseActivity(row.activity) ?? existing?.activity,
           lastActivityAt: row.last_activity_at ?? existing?.lastActivityAt,
           lastStopCause: existing?.lastStopCause,
           pendingApprovals: existing?.pendingApprovals ?? 0,
@@ -701,5 +740,16 @@ export function selectTranscript(
 ): TranscriptSnapshot | undefined {
   return state.transcripts[sessionId];
 }
+
+sessionsStore.subscribe((state, previous) => {
+  for (const [id, session] of Object.entries(state.sessions)) {
+    if (session.state !== "stopped" || session.externalBusy === true ||
+      (previous.sessions[id]?.state === "stopped" && previous.sessions[id]?.externalBusy !== true)) continue;
+    const nodes = transcriptStore.getState().transcripts[id]?.nodes;
+    if (!nodes) continue;
+    const settled = stoppedNodes(nodes);
+    if (settled.some((node, index) => node !== nodes[index])) transcriptStore.getState().setNodes(id, settled);
+  }
+});
 
 daemonIdentity.subscribe(() => sessionsStore.setState({ drafts: readSessionDrafts() }));

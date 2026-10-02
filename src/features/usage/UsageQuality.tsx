@@ -42,11 +42,11 @@ export function UsageQuality({ data }: { data: UsageOverview }) {
           {t(metrics.fact_count === 0 ? "usage.empty" : "usage.quality_summary")}
           {metrics.fact_count > 0 && positive(counts).length > 0 && (
             <span className="usage-quality-counts">
-              {" "}
-              ·{" "}
+              {" ("}
               {positive(counts)
                 .map(([key, count]) => t(`usage.quality_counts.${key}`, { count }))
-                .join(" · ")}
+                .join(", ")}
+              {")"}
             </span>
           )}
         </span>
