@@ -34,6 +34,13 @@ const message: TranscriptNode = { kind: "assistant", text: "Progress", key: "mes
 afterEach(cleanup);
 
 describe("activity groups", () => {
+  it("keeps diagnostic rows from hiding the foreground tool activity", () => {
+    const rows = groupActivities([
+      { ...command, status: "running" },
+      { kind: "raw", harness: "claude", payload: {} },
+    ], true, 0);
+    expect(rows[0]).toMatchObject({ kind: "group", active: true });
+  });
   it("keeps mixed activities in order and separates assistant messages", () => {
     const rows = groupActivities([command, edit, message, secondEdit], true, 0);
     expect(rows.map((row) => row.kind)).toEqual(["group", "node", "group"]);

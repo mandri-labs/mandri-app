@@ -7,12 +7,13 @@ import "./shimmer.css";
 export function WorkingIndicator({ turn, running = true }: { turn?: TurnWork; running?: boolean }) {
   const { t } = useTranslation();
   const [now, setNow] = useState(Date.now);
+  const complete = turn !== undefined && turnCompleted(turn);
+  const startedAt = turn?.startedAt;
   useEffect(() => {
-    if (!turn || !running || turnCompleted(turn) || turn.startedAt === undefined) return;
+    if (!running || complete || startedAt === undefined) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, [turn, running]);
-  const complete = turn !== undefined && turnCompleted(turn);
+  }, [startedAt, complete, running]);
   const timed = turn?.startedAt !== undefined && Number.isFinite(turn.startedAt) &&
     (!complete || (turn.endedAt !== undefined && Number.isFinite(turn.endedAt) && turn.endedAt > turn.startedAt));
   const seconds = Math.max(0, Math.floor(((turn?.endedAt ?? now) - (turn?.startedAt ?? now)) / 1000));

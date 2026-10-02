@@ -1,4 +1,5 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import { cleanup, render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { parseCodexEvent, parseCodexHistoryLine } from "@/features/transcript/parse/codex";
 import { parseClaudeHistoryLine } from "@/features/transcript/parse/claude";
@@ -7,7 +8,21 @@ import { appendTranscriptNodes } from "@/daemon/ws/transcriptMerge";
 import { presentTranscript } from "@/features/transcript/presentation";
 import { MarkdownText } from "@/features/transcript/renderers/MarkdownText";
 
+afterEach(cleanup);
+
 describe("conversation presentation regressions", () => {
+  it("retains completed Markdown elements when text streams below them", () => {
+    const text = "# Heading\n\n```js\nconst value = 1;\n```\n\n| A | B |\n| - | - |\n| one | two |\n\n[Reference](https://example.com)";
+    const view = render(<MarkdownText text={text} />);
+    const elements = ["h1", "pre", "table", "a"].map((selector) => view.container.querySelector(selector));
+    expect(elements.every(Boolean)).toBe(true);
+    for (let i = 1; i <= 3; i++) {
+      view.rerender(<MarkdownText text={text + "\n\nMore text.".repeat(i)} />);
+      ["h1", "pre", "table", "a"].forEach((selector, index) => {
+        expect(view.container.querySelector(selector)).toBe(elements[index]);
+      });
+    }
+  });
   it("joins Claude history across pages without losing the result or failed state", () => {
     const call = parseClaudeHistoryLine(
       JSON.stringify({

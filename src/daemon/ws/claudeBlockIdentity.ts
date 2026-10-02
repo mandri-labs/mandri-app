@@ -22,7 +22,35 @@ export function mergeClaudeBlock(existing: TextNode, incoming: TextNode): TextNo
   const canonical = incoming.claude?.blockId ? incoming : existing.claude?.blockId ? existing : incoming;
   const content = existing.claude?.blockId && !incoming.claude?.blockId && existing.text.startsWith(incoming.text)
     ? existing : incoming;
-  return { ...content, key: existing.key ?? incoming.key, claude: { ...existing.claude!, ...incoming.claude!,
+  return { ...content, key: existing.key ?? incoming.key,
+    ...(incoming.streaming === false ? { streaming: false, delta: false } : {}),
+    claude: { ...existing.claude!, ...incoming.claude!,
     ...(canonical.claude?.blockId ? { blockId: canonical.claude.blockId } : {}),
   } };
+}
+
+export function alignClaudeHistory(
+  history: readonly TranscriptNode[],
+  live: readonly TranscriptNode[],
+): TranscriptNode[] {
+  const candidates = new Map<string, TextNode[]>();
+  for (const node of live) {
+    if (!isClaudeText(node)) continue;
+    const key = `${node.kind}:${node.claude!.messageId}`;
+    const group = candidates.get(key) ?? [];
+    group.push(node);
+    candidates.set(key, group);
+  }
+  const claimed = new Set<TextNode>();
+  return history.map((stored) => {
+    if (!isClaudeText(stored)) return stored;
+    const matches = (candidates.get(`${stored.kind}:${stored.claude!.messageId}`) ?? [])
+      .filter((node) => !claimed.has(node) && sameClaudeBlock(stored, node));
+    const match = matches.find((node) => node.key === stored.key ||
+      (stored.claude!.blockId !== undefined && stored.claude!.blockId === node.claude!.blockId))
+      ?? (matches.length === 1 ? matches[0] : undefined);
+    if (!match) return stored;
+    claimed.add(match);
+    return { ...stored, key: match.key ?? stored.key, claude: { ...match.claude!, ...stored.claude! } };
+  });
 }

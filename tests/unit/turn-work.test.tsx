@@ -1,5 +1,6 @@
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
-import { act, cleanup, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
+import { Profiler } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { EventMessage, HarnessKind } from "@/daemon/types/ws";
 import { SessionFeedService } from "@/daemon/ws/sessionFeed";
@@ -306,4 +307,105 @@ it.each(harnesses)("%s keeps Thinking visible between prompt delivery and native
   const rows = view.container.querySelectorAll(".transcript-item");
   expect(rows[1]?.querySelector(".transcript-turn-summary")).not.toBeNull();
   expect(view.container.querySelectorAll(".transcript-turn-summary")).toHaveLength(1);
+});
+
+it("preserves an expanded Claude block and its pending followup across history refreshes", async () => {
+  const { feed, send, setHistory } = setup("claude");
+  const user = { type: "user", uuid: "user", message: { content: "Start" } };
+  const fragment = { type: "assistant", uuid: "fragment", message: { id: "message", content: [{ type: "thinking", thinking: "Detailed reasoning" }] } };
+  send(user, 1000);
+  send({ type: "stream_event", event: { type: "message_start", message: { id: "message" } } }, 2000);
+  send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "Detailed reasoning" } } }, 2001);
+  send(fragment, 2002);
+  send({ type: "stream_event", event: { type: "message_stop" } }, 2003);
+  const view = render(<Transcript sessionId="s" harness="claude" feed={feed} />);
+  await act(async () => {});
+  act(() => { transcriptStore.getState().addPendingUser("s", "Continue after reasoning"); });
+  const disclosure = view.container.querySelector(".tr-thinking")!;
+  fireEvent.click(disclosure.querySelector("button")!);
+  const keys = feed.getNodes("s").map((node) => node.key);
+  setHistory([user, fragment].map((entry) => JSON.stringify(entry)));
+  for (let i = 0; i < 3; i++) {
+    await act(async () => { await feed.loadHistory("s", { refresh: true, preserveOlder: true }); });
+    expect(feed.getNodes("s").map((node) => node.key)).toEqual(keys);
+    expect(view.container.querySelector(".tr-thinking")).toBe(disclosure);
+    expect(disclosure.querySelector("button")?.getAttribute("aria-expanded")).toBe("true");
+    const text = view.container.textContent!;
+    expect(text.indexOf("Detailed reasoning")).toBeLessThan(text.indexOf("Continue after reasoning"));
+  }
+});
+
+it("moves foreground activity past a followup and ignores a previous running tool", async () => {
+  const { feed, send } = setup("claude");
+  send({ type: "user", uuid: "user", message: { content: "Start" } }, 1000);
+  send({ type: "stream_event", event: { type: "message_start", message: { id: "message" } } }, 2000);
+  send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "text", text: "Earlier response" } } }, 2001);
+  const view = render(<Transcript sessionId="s" harness="claude" feed={feed} />);
+  await act(async () => {});
+  expect(view.container.querySelector(".tr-caret")).not.toBeNull();
+  act(() => { transcriptStore.getState().addPendingUser("s", "Continue"); });
+  expect(view.container.querySelector(".tr-caret")).toBeNull();
+  expect(view.getByRole("status").textContent).toBe("Thinking");
+  act(() => send({ type: "assistant", message: { content: [{ type: "tool_use", id: "tool", name: "Bash", input: { command: "pwd" } }] } }, 2002));
+  act(() => send({ type: "stream_event", event: { type: "message_start", message: { id: "next" } } }, 2003));
+  act(() => send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "Next reasoning" } } }, 2004));
+  expect(view.container.querySelector(".tr-activity-group .tr-shimmer")).toBeNull();
+  expect(view.container.querySelector(".tr-thinking .tr-shimmer")?.textContent).toBe("Thinking");
+  expect(view.container.querySelector(".tr-caret")).toBeNull();
+});
+
+it("does not render the transcript for Claude events without a visible update", async () => {
+  const { feed, send } = setup("claude");
+  send({ type: "user", uuid: "user", message: { content: "Start" } }, 1000);
+  send({ type: "assistant", message: { content: [{ type: "tool_use", id: "tool", name: "Bash", input: { command: "pwd" } }] } }, 1001);
+  const onRender = vi.fn();
+  render(<Profiler id="transcript" onRender={onRender}><Transcript sessionId="s" harness="claude" feed={feed} /></Profiler>);
+  await act(async () => {});
+  onRender.mockClear();
+  const session = sessionsStore.getState().sessions.s;
+  for (let i = 0; i < 20; i++) {
+    act(() => send({ type: "stream_event", event: { type: "message_delta", delta: { stop_reason: null } } }, 2000 + i));
+  }
+  expect(sessionsStore.getState().sessions.s).toBe(session);
+  expect(onRender).not.toHaveBeenCalled();
+});
+
+it("keeps turn metadata stable across deltas of the same Claude block", () => {
+  const { send } = setup("claude");
+  send({ type: "user", uuid: "user", message: { content: "Start" } }, 1000);
+  send({ type: "stream_event", event: { type: "message_start", message: { id: "message" } } }, 2000);
+  send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "Reasoning" } } }, 2001);
+  const before = turns();
+  send({ type: "stream_event", event: { type: "content_block_delta", index: 0, delta: { type: "thinking_delta", thinking: " more" } } }, 2002);
+  expect(turns()).toBe(before);
+});
+
+it("does not anchor a new turn to an unfinished block from the previous turn", () => {
+  const { send } = setup("claude");
+  send({ type: "user", uuid: "user", message: { content: "Start" } }, 1000);
+  send({ type: "stream_event", event: { type: "message_start", message: { id: "old" } } }, 2000);
+  send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "text", text: "Previous answer" } } }, 2001);
+  send({ type: "result" }, 2002);
+  transcriptStore.getState().addPendingUser("s", "Continue");
+  send({ type: "stream_event", event: { type: "message_start", message: { id: "next" } } }, 3000);
+  expect(turns()).toHaveLength(2);
+  expect(turns().at(-1)?.firstNodeKey).toBeUndefined();
+  send({ type: "stream_event", event: { type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "Next reasoning" } } }, 3001);
+  expect(turns().at(-1)?.firstNodeKey).toBe("thinking:next:thinking:0");
+});
+
+it("keeps elapsed time advancing while turn metadata is updated", () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(10000);
+  try {
+    const turn = { id: "turn", startedAt: 10000 };
+    const view = render(<WorkingIndicator turn={turn} />);
+    act(() => { vi.advanceTimersByTime(600); });
+    view.rerender(<WorkingIndicator turn={{ ...turn, identities: ["new-block"] }} />);
+    act(() => { vi.advanceTimersByTime(600); });
+    expect(view.container.textContent).toContain("1s");
+    view.unmount();
+  } finally {
+    vi.useRealTimers();
+  }
 });

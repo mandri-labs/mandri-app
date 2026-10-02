@@ -740,10 +740,11 @@ export class SessionFeedService {
     if (nodes.length === 0) {
       return;
     }
-    const merged = appendTranscriptNodes(this.getNodes(buffer.sessionId), nodes);
-    const updated = new Set(nodes.map((node) => node.key));
-    for (const node of merged) {
-      if (node.key !== undefined && updated.has(node.key)) {
+    const previous = this.getNodes(buffer.sessionId);
+    const merged = appendTranscriptNodes(previous, nodes);
+    const turnNodes = merged.slice(previous.length);
+    for (const [index, node] of merged.entries()) {
+      if (node.key !== undefined && node !== previous[index]) {
         buffer.liveNodes.set(node.key, node.kind === "assistant" || node.kind === "thinking" ? { ...node, delta: false } : node);
       }
     }
@@ -751,11 +752,15 @@ export class SessionFeedService {
     const session = sessionsStore.getState().sessions[buffer.sessionId];
     const current = session?.turnWork?.at(-1);
     if (current) {
-      const anchor = turnNodeAnchor(nodes);
+      const anchor = turnNodeAnchor(turnNodes);
+      const identities = turnNodeIdentities(turnNodes);
+      if (identities.every((id) => current.identities?.includes(id)) &&
+        (current.userNodeKey || !anchor.userNodeKey) &&
+        (current.firstNodeKey || !anchor.firstNodeKey)) return;
       sessionsStore.getState().applySessionPatch(buffer.sessionId, {
         turnWork: session!.turnWork!.map((turn) => turn === current ? {
           ...turn,
-          identities: [...new Set([...(turn.identities ?? []), ...turnNodeIdentities(nodes)])],
+          identities: [...new Set([...(turn.identities ?? []), ...identities])],
           userNodeKey: turn.userNodeKey ?? anchor.userNodeKey,
           firstNodeKey: turn.firstNodeKey ?? anchor.firstNodeKey,
           firstNodeKind: turn.firstNodeKind ?? anchor.firstNodeKind,

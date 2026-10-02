@@ -12,6 +12,21 @@ const log = createDebugLogger("pipeline");
 export type FrameIngest = (message: ServerMessage) => void;
 
 const ingests = new Set<FrameIngest>();
+let approvalSyncStarted = false;
+
+function ensureApprovalSync(): void {
+  if (approvalSyncStarted) return;
+  approvalSyncStarted = true;
+  approvalsStore.subscribe((state, previous) => {
+    if (state.pending === previous.pending) return;
+    const pending = Object.values(state.pending);
+    const sessionIds = new Set([...pending, ...Object.values(previous.pending)].map((approval) => approval.sessionId));
+    for (const sessionId of sessionIds) {
+      sessionsStore.getState().setPendingApprovals(sessionId,
+        pending.filter((approval) => approval.sessionId === sessionId).length);
+    }
+  });
+}
 
 const SESSION_TOPIC_PREFIX = "session.";
 
@@ -106,15 +121,9 @@ export function registerIngest(ingest: FrameIngest): () => void {
 }
 
 export function dispatchFrame(message: ServerMessage): void {
+  ensureApprovalSync();
   approvalsStore.getState().ingestFrame(message);
-  if ("type" in message && (message.type === "approval.pending" || message.type === "approval.resolved")) {
-    const sessionId = sessionTopicId(message.topic);
-    if (sessionId !== undefined) {
-      const count = Object.values(approvalsStore.getState().pending)
-        .filter((approval) => approval.sessionId === sessionId).length;
-      sessionsStore.getState().setPendingApprovals(sessionId, count);
-    }
-  } else {
+  if (!("type" in message && (message.type === "approval.pending" || message.type === "approval.resolved"))) {
     sessionsStore.getState().ingestFrame(message);
   }
   if (

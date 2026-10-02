@@ -10,6 +10,14 @@ export function createClaudeStreamState(): ClaudeStreamState {
   return new Map();
 }
 
+function finishMessage(message: StreamMessage | undefined): TranscriptNode[] {
+  return [...(message?.blocks.values() ?? [])].flatMap(({ node }) =>
+    (node.kind === "assistant" || node.kind === "thinking") && node.streaming
+      ? [{ ...node, streaming: false, delta: false }]
+      : [],
+  );
+}
+
 export function parseClaudeStreamEvent(
   raw: Record<string, unknown>,
   state?: ClaudeStreamState,
@@ -20,18 +28,16 @@ export function parseClaudeStreamEvent(
   const type = stringAt(event, "type");
   if (type === "message_start") {
     const id = stringAt(asRecord(event.message), "id");
-    if (id) state.set(streamKey, { id, blocks: new Map() });
-    return [];
+    if (!id || state.get(streamKey)?.id === id) return [];
+    const finished = finishMessage(state.get(streamKey));
+    state.set(streamKey, { id, blocks: new Map() });
+    return finished;
   }
   const message = state.get(streamKey);
   if (!message) return [];
   if (type === "message_stop") {
     state.delete(streamKey);
-    return [...message.blocks.values()].flatMap(({ node }) =>
-      node.kind === "assistant" || node.kind === "thinking"
-        ? [{ ...node, streaming: false, delta: false }]
-        : [],
-    );
+    return finishMessage(message);
   }
   const index = numberAt(event, "index");
   if (index === undefined) return [];

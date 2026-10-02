@@ -1,13 +1,10 @@
-import { Circle, CircleCheck, LoaderCircle } from "lucide-react";
+import { Circle, CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 import type { ReactElement } from "react";
+import type { TranscriptPlanStep, TranscriptPlanStepStatus } from "../parse/types";
 import "./renderers.css";
 
-export type PlanStepStatus = "done" | "running" | "waiting";
-
-export interface PlanStep {
-  text: string;
-  status: PlanStepStatus;
-}
+export type PlanStepStatus = TranscriptPlanStepStatus;
+export type PlanStep = TranscriptPlanStep;
 
 export interface PlanStepsProps {
   steps: PlanStep[];
@@ -21,6 +18,8 @@ function stepIcon(status: PlanStepStatus): ReactElement {
       return <LoaderCircle size={14} className="tr-spin" aria-hidden="true" />;
     case "waiting":
       return <Circle size={14} aria-hidden="true" />;
+    case "cancelled":
+      return <CircleX size={14} aria-hidden="true" />;
   }
 }
 

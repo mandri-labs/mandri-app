@@ -28,8 +28,12 @@ it("renders Claude text and thinking deltas before the full assistant message wi
   const streamKeys = nodes.map((node) => node.key);
   nodes = appendTranscriptNodes(nodes, parseFrame("claude", final, context));
   expect(nodes.map((node) => node.key)).toEqual(streamKeys);
-  expect(mergeHistoryAndLive(parseHistoryLine("claude", JSON.stringify(final)), nodes))
-    .toMatchObject(parseHistoryLine("claude", JSON.stringify(final)));
+  const merged = mergeHistoryAndLive(parseHistoryLine("claude", JSON.stringify(final)), nodes);
+  expect(merged.map((node) => node.key)).toEqual(streamKeys);
+  expect(merged).toMatchObject([
+    { kind: "thinking", text: "Let me think", claude: { blockId: "envelope-1:0" } },
+    { kind: "assistant", text: "Hello world", claude: { blockId: "envelope-1:1" } },
+  ]);
   expect(nodes).toHaveLength(2);
 });
 
@@ -93,9 +97,10 @@ it("merges Claude SDK fragments with native stream indices and history in either
       send({ type: "content_block_stop", index });
     }
     send({ type: "message_stop" });
+    const visibleKeys = nodes.map((node) => node.key);
     nodes = mergeHistoryAndLive(history, nodes);
     expect(nodes).toHaveLength(2);
-    expect(nodes.map((node) => node.key)).toEqual(history.map((node) => node.key));
+    expect(nodes.map((node) => node.key)).toEqual(visibleKeys);
     expect(nodes.filter((node) => node.kind === "assistant")).toMatchObject([{ text: "The image shows a browser logo." }]);
     expect(nodes.filter((node) => node.kind === "thinking")).toMatchObject([{ text: "Considering the image." }]);
   }
@@ -121,4 +126,23 @@ it("preserves distinct Claude fragments even when they repeat exactly the same t
   expect(nodes).toHaveLength(2);
   nodes = appendTranscriptNodes(nodes, parseFrame("claude", fragment("third", "text", "Repeated text", "other-message"), context));
   expect(nodes).toHaveLength(3);
+});
+
+it("retires unfinished blocks when another message starts without stopping a child stream", () => {
+  const context = { claudeStream: createClaudeStreamState() };
+  let nodes: TranscriptNode[] = [];
+  const send = (event: unknown, parent_tool_use_id: string | null = null) => {
+    nodes = appendTranscriptNodes(nodes, parseFrame("claude", { type: "stream_event", event, parent_tool_use_id }, context));
+  };
+  send({ type: "message_start", message: { id: "parent" } });
+  send({ type: "content_block_start", index: 0, content_block: { type: "text", text: "Unfinished reply" } });
+  send({ type: "message_start", message: { id: "child" } }, "task");
+  send({ type: "content_block_start", index: 0, content_block: { type: "text", text: "Child reply" } }, "task");
+  send({ type: "message_start", message: { id: "replacement" } });
+  expect(nodes).toMatchObject([
+    { text: "Unfinished reply", streaming: false },
+    { text: "Child reply", streaming: true },
+  ]);
+  send({ type: "content_block_start", index: 0, content_block: { type: "thinking", thinking: "Next thought" } });
+  expect(nodes.at(-1)).toMatchObject({ text: "Next thought", streaming: true });
 });

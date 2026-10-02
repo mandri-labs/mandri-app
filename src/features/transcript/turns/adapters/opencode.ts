@@ -1,7 +1,7 @@
 import type { TurnEvent } from "../types";
 import { belongsTo, identity, record, timestamp } from "./shared";
 
-export function opencodeTurn(raw: Record<string, unknown>, nativeId?: string | null, history = false): Partial<TurnEvent> | undefined {
+export function opencodeTurn(raw: Record<string, unknown>, nativeId?: string | null): Partial<TurnEvent> | undefined {
   const properties = record(raw.properties);
   const info = record(properties?.info);
   const part = record(properties?.part);
@@ -19,13 +19,13 @@ export function opencodeTurn(raw: Record<string, unknown>, nativeId?: string | n
     if (info.role === "user") return { key: messageId, phase: "start", identity: messageId, startedAt: timestamp(time?.created), active: true };
     if (info.role === "assistant") {
       const completed = timestamp(time?.completed);
-      const finished = info.error !== undefined || (completed !== undefined &&
+      const finished = info.error != null || (completed !== undefined && !info.summary &&
         typeof info.finish === "string" && !["tool-calls", "unknown"].includes(info.finish));
       const error = record(info.error);
-      return { key: messageId, phase: finished && history ? "finish" : "activity", identity: identity("opencode:message", info.parentID),
+      return { key: messageId, phase: finished ? "finish" : "activity", identity: identity("opencode:message", info.parentID),
         aliases: messageId ? [messageId] : [],
-        endedAt: finished && history ? completed : undefined, active: history && finished ? false : undefined,
-        outcome: finished && history ? error?.name === "MessageAbortedError" ? "stopped" : info.error ? "failed" : "worked" : undefined };
+        endedAt: finished ? completed : undefined, active: finished ? false : undefined,
+        outcome: finished ? error?.name === "MessageAbortedError" ? "stopped" : info.error ? "failed" : "worked" : undefined };
     }
   }
   const messageId = identity("opencode:message", part?.messageID ?? properties?.messageID);

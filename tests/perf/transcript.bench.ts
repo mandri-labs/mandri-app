@@ -8,7 +8,7 @@ import type {
   TranscriptPlanStep,
 } from "@/features/transcript/parse/types";
 import { Transcript } from "@/features/transcript/Transcript";
-import { transcriptStore } from "@/stores/sessions";
+import { sessionsStore, transcriptStore } from "@/stores/sessions";
 
 const SESSION_ID = "bench-session";
 const INITIAL_COUNT = 12000;
@@ -21,6 +21,7 @@ const ASSISTANT_CHARS_PER_ROW = 48;
 const ASSISTANT_BASE_PX = 20;
 const ASSISTANT_MIN_PX = 20;
 const ASSISTANT_MAX_PX = 400;
+const feed = { ensureSession: () => {}, loadHistory: async () => {} };
 
 const originalRect = Element.prototype.getBoundingClientRect;
 const originalScrollHeight = Object.getOwnPropertyDescriptor(Element.prototype, "scrollHeight");
@@ -205,7 +206,7 @@ function makeAppendBatch(batch: number): TranscriptNode[] {
 
 function renderTranscript(): HTMLElement {
   const { container } = render(
-    createElement(Transcript, { sessionId: SESSION_ID, harness: "claude" }),
+    createElement(Transcript, { sessionId: SESSION_ID, harness: "claude", feed }),
   );
   const viewport = container.querySelector<HTMLElement>(".transcript-viewport");
   if (viewport === null) {
@@ -248,10 +249,21 @@ describe("transcript virtualization benchmark", () => {
   afterEach(() => {
     cleanup();
     transcriptStore.getState().resetTranscripts();
+    sessionsStore.setState(sessionsStore.getInitialState());
   });
 
   it("keeps streaming appends under budget and anchored to the end", async () => {
     transcriptStore.getState().setNodes(SESSION_ID, makeNodes(INITIAL_COUNT));
+    transcriptStore.getState().setFlags(SESSION_ID, { historyExhausted: true });
+    sessionsStore.setState({ sessions: { [SESSION_ID]: {
+      id: SESSION_ID, harness: "claude", state: "live", title: "Benchmark", deleted: false,
+      pendingApprovals: 0, nativeTurnActive: true,
+      turnWork: Array.from({ length: INITIAL_COUNT / 20 }, (_, index) => ({
+        id: `turn-${index}`, startedAt: index * 1000,
+        ...(index < INITIAL_COUNT / 20 - 1 ? { endedAt: index * 1000 + 500, outcome: "worked" as const } : {}),
+        userNodeKey: `user:bench-${index * 20}`, firstNodeKey: `assistant:bench-${index * 20 + 1}`,
+      })),
+    } } });
     const viewport = renderTranscript();
     await act(async () => {
       await Promise.resolve();

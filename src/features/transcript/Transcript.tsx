@@ -8,6 +8,7 @@ import { ArrowDown, LoaderCircle } from "lucide-react";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/app/useStore";
+import { useShallow } from "zustand/react/shallow";
 import type { HarnessKind } from "@/daemon/types/ws";
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
@@ -28,6 +29,7 @@ import { isSessionWorking } from "./turnActivity";
 import { WorkingIndicator, ActivityIndicator } from "./WorkingIndicator";
 import { approvalsStore } from "@/stores/approvals";
 import { turnCompleted, type TurnWork } from "./turns/types";
+import { turnAnchors as findTurnAnchors } from "./turns/anchors";
 
 type TranscriptRow = ActivityRow
   | { kind: "commands"; key: string }
@@ -147,45 +149,45 @@ function SessionTranscript({
       [sessionId],
     ),
   );
-  const session = useStore(sessionsStore, useCallback((state) => state.sessions[sessionId], [sessionId]));
+  const session = useStore(sessionsStore, useShallow((state) => {
+    const current = state.sessions[sessionId];
+    return {
+      turnWork: current?.turnWork ?? EMPTY_TURNS,
+      working: isSessionWorking(current),
+      fileSummaryAllowed: canShowFileSummary(current),
+      nativeTurnActive: current?.nativeTurnActive,
+      externalBusy: current?.externalBusy,
+      executionPhase: current?.executionPhase,
+      executionBackend: current?.executionBackend,
+      pendingApprovals: current?.pendingApprovals ?? 0,
+      awaitingResponse: current?.awaitingResponse,
+      nativeTurnNotice: current?.nativeTurnNotice,
+    };
+  }));
   const awaitingInput = useStore(approvalsStore, useCallback((state) => Object.values(state.pending)
     .some((approval) => approval.sessionId === sessionId && approval.kind === "user_input"), [sessionId]));
   const turns = session?.turnWork ?? EMPTY_TURNS;
   const currentTurn = turns.at(-1);
-  const fileSummaryAllowed = canShowFileSummary(session);
-  const working = (session?.nativeTurnActive === true || session?.externalBusy === true) && isSessionWorking(session) &&
+  const fileSummaryAllowed = session.fileSummaryAllowed;
+  const working = (session.nativeTurnActive === true || session.externalBusy === true) && session.working &&
     (session?.externalBusy === true || currentTurn === undefined || !turnCompleted(currentTurn));
   const phase = session?.executionPhase;
   const preparing = session?.executionBackend === "docker" && phase !== undefined && ["checking", "preparing_image", "preparing_state", "starting"].includes(phase);
   const waiting = working && (awaitingInput || (session?.pendingApprovals ?? 0) > 0);
-  const turnAnchors = useMemo(() => {
-    const anchors = new Map<string, number>();
-    let previous = -1;
-    for (const turn of turns) {
-      let index = presentedNodes.findIndex((node) => presentationKey(node) === turn.firstNodeKey);
-      if (index < 0 && turn.firstNodeText) {
-        // Unkeyed history nodes are recreated on navigation. Match their stored
-        // content prefix in turn order rather than relying on object identity.
-        index = presentedNodes.findIndex((node, position) => position > previous && node.kind === turn.firstNodeKind &&
-          ("text" in node ? node.text : node.kind === "tool" ? (node.target ?? node.label) : "").startsWith(turn.firstNodeText!));
-      }
-      if (index < 0 && turn.userNodeKey) {
-        const userIndex = presentedNodes.findIndex((node) => presentationKey(node) === turn.userNodeKey);
-        if (userIndex >= 0) index = userIndex + 1;
-      }
-      if (index >= 0) { anchors.set(turn.id, index); previous = index; }
-    }
-    return anchors;
-  }, [presentedNodes, turns]);
+  const turnAnchors = useMemo(() => findTurnAnchors(presentedNodes, turns), [presentedNodes, turns]);
   // A reconnect can confirm an active turn without supplying its start time.
   // Scope activity to the latest user message without inventing a duration.
   const latestUserIndex = presentedNodes.reduce((last, node, index) => node.kind === "user" ? index : last, -1);
-  const currentStart = currentTurn && !(working && turnCompleted(currentTurn))
+  const turnStart = currentTurn && !(working && turnCompleted(currentTurn))
     ? (turnAnchors.get(currentTurn.id) ?? (currentTurn.firstNodeKey ? latestUserIndex + 1 : presentedNodes.length))
     : latestUserIndex + 1;
+  const currentStart = Math.max(turnStart, latestUserIndex + 1);
   const activeNodes = currentStart < 0 ? [] : presentedNodes.slice(currentStart);
-  const runningTool = working && activeNodes.some((node) => node.kind === "tool" && node.status === "running");
   const latestContent = [...activeNodes].reverse().find((node) => ["tool", "thinking", "assistant"].includes(node.kind));
+  const runningTool = working && latestContent?.kind === "tool" &&
+    activeNodes.some((node) => node.kind === "tool" && ["running", "pending", "waiting"].includes(node.status));
+  const streamingKey = working && !waiting && latestContent?.kind === "assistant" && latestContent.streaming
+    ? presentationKey(latestContent) : undefined;
   const thinkingKey = working && !waiting && !runningTool && latestContent?.kind === "thinking"
     ? presentationKey(latestContent) : undefined;
   let activityLabel: string | undefined;
@@ -203,17 +205,23 @@ function SessionTranscript({
   const nodes = useMemo<TranscriptRow[]>(() => {
     const rows: TranscriptRow[] = [];
     const anchored = new Set<string>();
+    const turnsAt = new Map<number, TurnWork[]>();
+    for (const turn of turns) {
+      const index = turnAnchors.get(turn.id);
+      if (index === undefined) continue;
+      const at = turnsAt.get(index) ?? [];
+      at.push(turn);
+      turnsAt.set(index, at);
+    }
     const unknownStart = working && (!currentTurn || turnCompleted(currentTurn) ||
       (currentTurn.firstNodeKey !== undefined && !turnAnchors.has(currentTurn.id)));
     const grouped = groupActivities(presentedNodes, working, currentStart, new Set(turnAnchors.values()), fileSummaryAllowed);
     for (const row of grouped) {
       if (row.kind !== "files") {
         if (unknownStart && row.index === latestUserIndex + 1) rows.push({ kind: "unknown-work", key: "unknown-work" });
-        for (const turn of turns) {
-          if (turnAnchors.get(turn.id) === row.index) {
-            rows.push({ kind: "turn", turn, key: `turn:${turn.id}` });
-            anchored.add(turn.id);
-          }
+        for (const turn of turnsAt.get(row.index) ?? []) {
+          rows.push({ kind: "turn", turn, key: `turn:${turn.id}` });
+          anchored.add(turn.id);
         }
       }
       rows.push(row);
@@ -228,7 +236,6 @@ function SessionTranscript({
     if (hasCommandHistory) rows.push({ kind: "commands", key: "native-command-history" });
     return rows;
   }, [hasCommandHistory, presentedNodes, turns, turnAnchors, activityLabel, working, currentTurn, latestUserIndex, currentStart, fileSummaryAllowed]);
-  const activeNodeKeys = new Set(activeNodes.map(presentationKey));
 
   const [viewportSize, setViewportSize] = useState(0);
   useLayoutEffect(() => {
@@ -263,6 +270,7 @@ function SessionTranscript({
       [nodes],
     ),
     overscan: OVERSCAN,
+    useFlushSync: false,
     paddingStart: 24,
     paddingEnd: endSpace,
     // Anchor at response time, including user movement while a page was loading.
@@ -465,7 +473,7 @@ function SessionTranscript({
                     : node.kind === "commands" ? <CommandHistory sessionId={sessionId} transport={commands} placement="transcript" sync={false} />
                     : <DisclosureKeyContext.Provider value={node.key}>
                       <TranscriptNodeRenderer node={node.node} sessionId={sessionId}
-                        active={working && !waiting && activeNodeKeys.has(node.key)}
+                        active={node.key === streamingKey}
                         thinkingActive={node.key === thinkingKey} />
                     </DisclosureKeyContext.Provider>}
                 </div>

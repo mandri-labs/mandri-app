@@ -73,7 +73,6 @@ export interface SessionView extends SessionPolicy {
   nativeTurnStartedAt?: number;
   executionPhaseUpdatedAt?: number;
   turnWork?: readonly TurnWork[];
-  turnEventCursor?: { seq: number; ts: number };
   resumeStartedAt?: number;
   availability?: SessionAvailability;
 }
@@ -266,10 +265,17 @@ export function selectSessionById(state: SessionsSnapshot, id: string): SessionV
 }
 
 export const sessionsStore = createStore<SessionsState>()((set, get) => {
+  const turnEventCursors = new WeakMap<SessionView, { seq: number; ts: number }>();
+  function inheritTurnCursor(existing: SessionView | undefined, next: SessionView): void {
+    const cursor = existing && turnEventCursors.get(existing);
+    if (cursor) turnEventCursors.set(next, cursor);
+  }
+
   function upsertView(view: SessionView): void {
     set((state) => {
       const existing = state.sessions[view.id];
       const merged: SessionView = existing === undefined ? view : { ...existing, ...view };
+      inheritTurnCursor(existing, merged);
       if (
         existing !== undefined &&
         Object.keys(view).every((key) =>
@@ -300,6 +306,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         )
       )
         return state;
+      inheritTurnCursor(existing, next);
       return { sessions: { ...state.sessions, [sessionId]: next } };
     });
   }
@@ -404,6 +411,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         daemonOrigin: existing?.daemonOrigin ?? false,
         needsAttention: existing?.needsAttention ?? false,
       };
+      inheritTurnCursor(existing, sessions[parsed.id]!);
       order.push(parsed.id);
     }
     set({ sessions, order });
@@ -464,8 +472,9 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           const id = event.topic.slice("session.".length);
           const session = get().sessions[id];
           if (session && event.source === session.harness) {
-            const cursor = session.turnEventCursor;
+            const cursor = turnEventCursors.get(session);
             if (cursor && (event.ts < cursor.ts || (event.ts === cursor.ts && event.seq <= cursor.seq))) return;
+            turnEventCursors.set(session, { seq: event.seq, ts: event.ts });
             const turnEvent = normalizeTurnEvent(session.harness, event.raw, {
               key: `${event.topic}:${event.ts}:${event.seq}`, nativeId: session.nativeId, timestamp: event.ts,
             });
@@ -477,7 +486,6 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
                 ? existing.nativeTurnActive : turnEvent?.active;
               return {
                 ...existing,
-                turnEventCursor: { seq: event.seq, ts: event.ts },
                 ...(notice !== undefined ? { nativeTurnNotice: notice } : {}),
                 ...(active !== undefined ? {
                   nativeTurnActive: active,

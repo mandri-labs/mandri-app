@@ -1,4 +1,5 @@
 import { activityIcons } from "./activityIcons";
+import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import type { TranscriptNode } from "../parse/types";
 import { activityKinds, activityKind, activityToolTitle } from "../activitySummary";
@@ -7,7 +8,7 @@ import { Disclosure, DisclosureKeyContext } from "./Disclosure";
 import { TranscriptNodeRenderer } from "./TranscriptNodeRenderer";
 import "../shimmer.css";
 
-export function ActivityGroup({
+export const ActivityGroup = memo(function ActivityGroup({
   nodes,
   sessionId,
   active,
@@ -100,4 +101,6 @@ export function ActivityGroup({
       </div>
     </Disclosure>
   );
-}
+}, (previous, next) => previous.sessionId === next.sessionId && previous.active === next.active &&
+  previous.label === next.label && previous.completedSummary === next.completedSummary &&
+  previous.nodes.length === next.nodes.length && previous.nodes.every((node, index) => node === next.nodes[index]));

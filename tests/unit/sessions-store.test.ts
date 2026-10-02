@@ -87,6 +87,22 @@ beforeEach(() => {
   sessionsStore.setState({ sessions: {}, order: [], filters: {}, syncState: "idle" });
 });
 
+it("rejects stale turn events after metadata updates and a reconnect snapshot", () => {
+  const store = sessionsStore.getState();
+  const session = seed("s", "claude", "live", "Session");
+  const start: EventMessage = { topic: "session.s", source: "claude", seq: 5, ts: 100,
+    raw: { type: "assistant", message: { id: "message" } } };
+  store.ingestFrame(snapshotFrame([session]));
+  store.ingestFrame(start);
+  store.renameLocal("s", "Renamed");
+  store.ingestFrame({ ...start, seq: 4, ts: 90, raw: { type: "result" } });
+  expect(viewOf("s").nativeTurnActive).toBe(true);
+  store.ingestFrame({ ...start, seq: 6, ts: 110, raw: { type: "result" } });
+  store.ingestFrame(snapshotFrame([session]));
+  store.ingestFrame(start);
+  expect(viewOf("s").nativeTurnActive).toBe(false);
+});
+
 describe("fixture replay into sessions store", () => {
   it("registers each harness fixture session via a synthetic snapshot then replays its frames", async () => {
     for (const harness of ["claude", "codex", "opencode", "agy"] as const) {

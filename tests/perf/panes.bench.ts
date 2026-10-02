@@ -10,6 +10,7 @@ import type {
 } from "@/features/transcript/parse/types";
 import { panesStore } from "@/stores/panes";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
+import { sessionFeed } from "@/daemon/ws/sessionFeed";
 
 const PANE_COUNT = 4;
 const SEED_COUNT = 2000;
@@ -222,6 +223,7 @@ function seedSessionsAndPanes(): void {
     })),
   );
   for (const [index, id] of SESSION_IDS.entries()) {
+    sessionFeed.ensureSession(id, "claude", { newSession: true });
     transcriptStore.getState().setNodes(id, makeSeedNodes(index, SEED_COUNT));
     const opened = panesStore.getState().openPane(id);
     if (!opened) {
@@ -309,6 +311,7 @@ describe("4-pane streaming benchmark", () => {
     sessionsStore.getState().setFilters({});
     transcriptStore.getState().resetTranscripts();
     for (const id of SESSION_IDS) {
+      sessionFeed.closeSession(id);
       sessionsStore.getState().markDeleted(id);
     }
   });
@@ -410,7 +413,7 @@ describe("4-pane streaming benchmark", () => {
   );
 
   it(
-    "renders reduced density when gap flag set on one pane",
+    "marks only the affected pane as compact when a history gap is detected",
     async () => {
       seedSessionsAndPanes();
       const container = renderPaneGrid();
@@ -423,7 +426,7 @@ describe("4-pane streaming benchmark", () => {
 
       const gapSession = sessionIdAt(1);
       const before = viewportAt(viewportsOf(container), 1).textContent ?? "";
-      expect(before).toContain("diff_1995_11");
+      expect(before.length).toBeGreaterThan(0);
 
       act(() => {
         transcriptStore.getState().setFlags(gapSession, { gapFlag: true });
@@ -432,8 +435,9 @@ describe("4-pane streaming benchmark", () => {
       const viewports = viewportsOf(container);
       expect(viewports.length).toBe(PANE_COUNT);
       const after = viewportAt(viewports, 1).textContent ?? "";
-      expect(after).toContain("diff_1995_0");
-      expect(after).not.toContain("diff_1995_11");
+      expect(after).toBe(before);
+      expect(container.querySelectorAll(".transcript--compact")).toHaveLength(1);
+      expect(viewportAt(viewports, 1).closest(".transcript")?.classList.contains("transcript--compact")).toBe(true);
       for (const viewport of viewports) {
         expect((viewport.textContent ?? "").length).toBeGreaterThan(0);
       }

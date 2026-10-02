@@ -78,8 +78,11 @@ export function groupActivities(
       nodes: [sessionSnapshot],
       index: nodes.length,
     });
+  const foreground = [...rows].reverse().find((row) => row.kind === "group" ||
+    (row.kind === "node" && ["user", "assistant", "thinking"].includes(row.node.kind)));
   for (const row of rows) {
     if (row.kind !== "group") continue;
+    row.active &&= row === foreground;
     const calls = row.nodes.filter((node) => node.kind === "tool");
     const summary = [...summaries]
       .reverse()

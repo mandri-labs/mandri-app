@@ -1,4 +1,5 @@
 import { nativeToolActions } from "./nativeTools";
+import { opencodeTodos } from "./opencodeTodos";
 import { contentImages } from "./images";
 import type { HarnessKind } from "@/daemon/types/ws";
 import type { ParseContext, TranscriptNode } from "./types";
@@ -26,6 +27,7 @@ const SILENT_EVENT_TYPES: readonly string[] = [
   "catalog.updated",
   "reference.updated",
   "integration.updated",
+  "todo.updated",
 ];
 
 function parseTextPart(
@@ -55,6 +57,8 @@ function parseReasoningPart(part: Record<string, unknown>): TranscriptNode[] {
 }
 
 function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
+  const todos = opencodeTodos(part);
+  if (todos) return [todos];
   const state = asRecord(part["state"]);
   const tool = stringAt(part, "tool") ?? "tool";
   const input = asRecord(state?.["input"]);

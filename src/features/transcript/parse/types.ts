@@ -9,7 +9,7 @@ export interface TranscriptDiffLine {
   newNo?: number;
 }
 
-export type TranscriptPlanStepStatus = "done" | "running" | "waiting";
+export type TranscriptPlanStepStatus = "done" | "running" | "waiting" | "cancelled";
 
 export interface TranscriptPlanStep {
   text: string;

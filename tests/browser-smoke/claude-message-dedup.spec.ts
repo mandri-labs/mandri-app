@@ -11,6 +11,9 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error" && message.text().includes("flushSync")) errors.push(message.text());
+  });
   let socket: WebSocketRoute | undefined;
   let historyRequests = 0;
   let seq = 0;
@@ -80,9 +83,21 @@ try {
   assert.equal(await page.getByText(answer, { exact: true }).count(), 1);
   assert.equal(await page.locator(".tr-thinking").count(), 1);
   assert.equal(await page.locator(".tr-thinking > button").getAttribute("aria-expanded"), "true");
+  await page.evaluate(async (id) => {
+    const { transcriptStore } = await import(String("/src/stores/sessions.ts"));
+    transcriptStore.getState().addPendingUser(id, "Followup after answer");
+  }, session.id);
+  await page.getByText("Followup after answer", { exact: true }).waitFor();
+  const followupBefore = await page.getByText("Followup after answer", { exact: true }).boundingBox();
+  const thinking = await page.locator(".tr-thinking").elementHandle();
   emit({ type: "history_changed" }, "mandri");
   await page.waitForTimeout(250);
   assert.equal(await page.getByText(answer, { exact: true }).count(), 1);
+  assert.equal(await page.locator(".tr-thinking > button").getAttribute("aria-expanded"), "true", "History refresh collapsed the streamed reasoning block");
+  assert(await thinking!.evaluate((node) => node === document.querySelector(".tr-thinking")), "History refresh remounted the thinking row");
+  const followupAfter = await page.getByText("Followup after answer", { exact: true }).boundingBox();
+  assert(Math.abs(followupAfter!.y - followupBefore!.y) < 2, "History refresh moved the pending followup");
+  assert((await page.getByText(answer, { exact: true }).boundingBox())!.y < followupAfter!.y, "History refresh reordered the answer and followup");
   await page.reload();
   await page.getByText(answer, { exact: true }).waitFor();
   assert.equal(await page.getByText(answer, { exact: true }).count(), 1);

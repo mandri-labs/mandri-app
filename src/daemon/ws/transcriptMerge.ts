@@ -1,5 +1,5 @@
 import { alignCodexUsers } from "./codexUserIdentity";
-import { isClaudeText, sameClaudeBlock, mergeClaudeBlock } from "./claudeBlockIdentity";
+import { isClaudeText, sameClaudeBlock, mergeClaudeBlock, alignClaudeHistory } from "./claudeBlockIdentity";
 import type { TranscriptNode } from "@/features/transcript/parse";
 
 function keyOf(node: TranscriptNode): string | undefined {
@@ -148,7 +148,7 @@ export function mergeHistoryAndLive(
   storedHistory: readonly TranscriptNode[],
   live: readonly TranscriptNode[],
 ): TranscriptNode[] {
-  const history = alignStoredText(alignCodexUsers(storedHistory, live), live);
+  const history = alignStoredText(alignClaudeHistory(alignCodexUsers(storedHistory, live), live), live);
   let overlap = Math.min(history.length, live.length);
   while (overlap > 0) {
     if (live.slice(0, overlap).every((node, index) => {
