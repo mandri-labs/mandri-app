@@ -1,7 +1,8 @@
 import { beforeAll, beforeEach, afterEach, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { fileTarget } from "@/features/canvas/targets";
-import { canvasStore, openCanvas } from "@/features/canvas/store";
+import { canvasStore, openCanvas, updateCanvas } from "@/features/canvas/store";
+import { ShellHeaderActionsContext } from "@/app/ShellHeaderActions";
 import { CanvasLayout } from "@/features/canvas/CanvasLayout";
 import { request } from "@/daemon/rest/client";
 import { initI18n } from "@/i18n";
@@ -12,6 +13,29 @@ beforeEach(() => {
   vi.mocked(request).mockReset();
 });
 afterEach(cleanup);
+it("places the closed canvas command alongside shared header actions", () => {
+  const header = document.createElement("header");
+  document.body.append(header);
+  try {
+    openCanvas("one", fileTarget("/workspace/guide.md"));
+    updateCanvas("one", (state) => ({ ...state, open: false }));
+    render(
+      <ShellHeaderActionsContext.Provider value={header}>
+        <CanvasLayout sessionId="one">Chat</CanvasLayout>
+      </ShellHeaderActionsContext.Provider>,
+    );
+    const reopen = screen.getByRole("button", { name: "Open in canvas" });
+    expect(header.contains(reopen)).toBe(true);
+    expect(document.querySelector(".canvas-layout .canvas-reopen")).toBeNull();
+    fireEvent.click(reopen);
+    expect(screen.getByRole("complementary")).toBeTruthy();
+    expect(header.querySelector("button")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Close canvas" }));
+    expect(header.contains(screen.getByRole("button", { name: "Open in canvas" }))).toBe(true);
+  } finally {
+    header.remove();
+  }
+});
 it("resolves document-relative native and Docker paths while retaining positions", () => {
   expect(fileTarget("../src/main.ts#L2-L5", "/workspace/docs/guide.md")).toMatchObject({
     path: "/workspace/src/main.ts",

@@ -2,24 +2,17 @@ import { useTranslation } from "react-i18next";
 import type { AgentView } from "@/daemon/types/agents";
 import { navigate } from "@/app/useHashRoute";
 import "./agents.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
+import { flattenAgentTree } from "./agentTree";
 
 export function AgentSidebar({ agents, activeId }: { agents: AgentView[]; activeId?: string }) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(true);
-  const ids = new Set(agents.map((agent) => agent.id));
-  const visited = new Set<string>();
-  const rows: { agent: AgentView; depth: number }[] = [];
-  const visit = (agent: AgentView, depth: number) => {
-    if (visited.has(agent.id)) return;
-    visited.add(agent.id);
-    rows.push({ agent, depth });
-    for (const child of agents) if (child.parent_agent_id === agent.id) visit(child, depth + 1);
-  };
-  for (const agent of agents)
-    if (!agent.parent_agent_id || !ids.has(agent.parent_agent_id)) visit(agent, 0);
-  for (const agent of agents) visit(agent, 0);
+  useEffect(() => {
+    if (activeId) setExpanded(true);
+  }, [activeId]);
+  const rows = flattenAgentTree(agents);
   if (agents.length === 0) return null;
   return (
     <div className="shell-agent-group">
@@ -52,6 +45,9 @@ export function AgentSidebar({ agents, activeId }: { agents: AgentView[]; active
               aria-hidden="true"
             />
             <span className="shell-session-title">{agent.title}</span>
+            <span className={`shell-agent-label shell-agent-label--${agent.state}`}>
+              {t(`core.agents.state.${agent.state}`)}
+            </span>
           </button>
         ))}
     </div>

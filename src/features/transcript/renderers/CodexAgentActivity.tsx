@@ -33,7 +33,8 @@ export function CodexAgentActivity({
   const agents = useStore(agentsStore, (state) => state.agents);
   const input = asRecord(node.codex?.input);
   const all = Object.values(agents).filter((agent) => agent.harness === "codex");
-  const current = all.find((agent) => agent.session_id === sessionId || agent.id === sessionId);
+  const agentId = sessionId?.startsWith("agent:") ? sessionId.slice("agent:".length) : sessionId;
+  const current = all.find((agent) => agent.session_id === sessionId || agent.id === agentId);
   const family = all.filter(
     (agent) => agent.parent_session_id === (current?.parent_session_id ?? sessionId),
   );
@@ -63,16 +64,14 @@ export function CodexAgentActivity({
         ? "running"
         : actions[node.tool.split(".").at(-1)!];
   const text = `${names} : ${t(`core.transcript.agent_activity.${action}`)}`;
-  const Icon =
-    node.status === "failed" ? CircleAlert : Bot;
+  const Icon = node.status === "failed" ? CircleAlert : Bot;
   return (
     <div className={`tr-agent-activity tr-agent-activity--${node.status}`}>
-      <Icon
-        size={16}
-        aria-hidden="true"
-
-      />
-      <span className={`tr-tool-summary${active && node.status === "running" ? " tr-shimmer" : ""}`} title={text}>
+      <Icon size={16} aria-hidden="true" />
+      <span
+        className={`tr-tool-summary${active && node.status === "running" ? " tr-shimmer" : ""}`}
+        title={text}
+      >
         {text}
       </span>
     </div>

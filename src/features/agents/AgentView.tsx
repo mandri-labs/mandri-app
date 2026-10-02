@@ -4,7 +4,7 @@ import { ArrowUp, Square } from "lucide-react";
 import { useStore } from "@/app/useStore";
 import { getDaemonSocket } from "@/app/connection";
 import { daemonErrorKey, DaemonError } from "@/daemon/errors";
-import { SessionFeedService } from "@/daemon/ws/sessionFeed";
+import { acquireAgentFeed, releaseAgentFeed, getAgentFeed } from "./agentFeed";
 import { agentsStore, refreshAgents, upsertAgent, setAgentDraft } from "@/stores/agents";
 import { transcriptStore } from "@/stores/sessions";
 import { Transcript } from "@/features/transcript/Transcript";
@@ -13,21 +13,14 @@ import { SessionApprovals } from "@/features/approvals/SessionApprovals";
 import { daemonIdentity } from "@/daemon/identity";
 import "./agents.css";
 
-const agentFeed = new SessionFeedService({
-  getSocket: () => null,
-  fetchHistoryPage: async (viewId, cursor, limit) => {
-    const socket = getDaemonSocket();
-    if (!socket)
-      throw new DaemonError({ code: "service_unavailable", message: "Socket unavailable" });
-    return socket.request("agent.history", {
-      agent_id: viewId.slice("agent:".length),
-      cursor,
-      limit,
-    });
-  },
-});
-
-export function AgentView({ agentId }: { agentId: string }) {
+export function AgentView({
+  agentId,
+  feedReason = "view",
+}: {
+  agentId: string;
+  feedReason?: "view" | "pane";
+}) {
+  const agentFeed = getAgentFeed();
   const { t } = useTranslation();
   const agent = useStore(agentsStore, (state) => state.agents[agentId]);
   const loadingError = useStore(agentsStore, (state) => state.error);
@@ -46,23 +39,12 @@ export function AgentView({ agentId }: { agentId: string }) {
       setError((current) => (current === "error.delivery_unknown" ? null : current));
   }, [pendingCount]);
   const harness = agent?.harness;
+  const generation = useStore(daemonIdentity, (state) => state.generation);
   useEffect(() => {
     if (!harness) return;
-    agentFeed.ensureSession(viewId, harness);
-    const socket = getDaemonSocket();
-    const topic = `agent.${agentId}` as const;
-    const unsubscribe = socket?.onFrame((frame) => {
-      if ("topic" in frame && frame.topic === topic) {
-        agentFeed.ingestSessionFrame(viewId, harness, { ...frame, topic: `session.${viewId}` });
-      }
-    });
-    socket?.subscribe(topic);
-    return () => {
-      unsubscribe?.();
-      socket?.unsubscribe(topic);
-      agentFeed.closeSession(viewId);
-    };
-  }, [agentId, harness, viewId]);
+    acquireAgentFeed(agentId, harness, feedReason);
+    return () => releaseAgentFeed(agentId, feedReason);
+  }, [agentId, harness, feedReason, generation]);
 
   if (!agent)
     return (
@@ -123,10 +105,12 @@ export function AgentView({ agentId }: { agentId: string }) {
     <div className="session-view">
       <div className="session-view-column">
         <div className="agents-toolbar">
-          <span>{t(`core.agents.state.${agent.state}`)}</span>
+          <span className={`agent-status agent-status--${agent.state}`}>
+            {t(`core.agents.state.${agent.state}`)}
+          </span>
           {agent.capabilities.stop && (
             <button
-              className="providers-button"
+              className="agents-stop"
               disabled={busy || status !== "online"}
               onClick={() => void stop()}
             >
@@ -156,6 +140,7 @@ export function AgentView({ agentId }: { agentId: string }) {
                 aria-label={t("core.agents.message")}
                 placeholder={t("core.agents.message")}
                 value={draft}
+                rows={2}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && !event.shiftKey) {

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/app/useStore";
 import { keepAlive } from "@/daemon/ws/keepAlive";
+import type { KeepAliveReason } from "@/daemon/ws/keepAlive";
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
 import { NeedsAttentionBadge } from "@/features/sessions/LifecycleMenu";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
@@ -16,6 +17,8 @@ const log = createDebugLogger("sessionView");
 
 export interface SessionViewProps {
   sessionId: string;
+  feedReason?: KeepAliveReason;
+  excludeAgentApprovals?: readonly string[];
 }
 
 export function SessionStatusRow({ sessionId }: { sessionId: string }) {
@@ -34,7 +37,11 @@ export function SessionStatusRow({ sessionId }: { sessionId: string }) {
   );
 }
 
-export function SessionView({ sessionId }: SessionViewProps) {
+export function SessionView({
+  sessionId,
+  feedReason = "session",
+  excludeAgentApprovals,
+}: SessionViewProps) {
   useSessionAvailability(sessionId);
   const session = useStore(
     sessionsStore,
@@ -54,15 +61,15 @@ export function SessionView({ sessionId }: SessionViewProps) {
       return;
     }
     sessionFeed.ensureSession(sessionId, harness);
-    keepAlive.acquire(sessionId, "session");
+    keepAlive.acquire(sessionId, feedReason);
     return () => {
       log.debug("SessionView unmount", { sessionId });
-      keepAlive.release(sessionId, "session");
+      keepAlive.release(sessionId, feedReason);
       if (!keepAlive.isHeld(sessionId)) {
         sessionFeed.closeSession(sessionId);
       }
     };
-  }, [sessionId, harness]);
+  }, [sessionId, harness, feedReason]);
 
   return (
     <div className="session-view">
@@ -71,7 +78,7 @@ export function SessionView({ sessionId }: SessionViewProps) {
         {harness === undefined ? null : (
           <>
             <Transcript sessionId={sessionId} harness={harness} reduced={reduced} />
-            <SessionApprovals sessionId={sessionId} />
+            <SessionApprovals sessionId={sessionId} excludeAgentIds={excludeAgentApprovals} />
             <SessionComposer sessionId={sessionId} />
           </>
         )}

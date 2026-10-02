@@ -6,12 +6,21 @@ import { agentsStore } from "@/stores/agents";
 import { navigate } from "@/app/useHashRoute";
 import { useTranslation } from "react-i18next";
 
-export function SessionApprovals({ sessionId, agentId }: { sessionId: string; agentId?: string }) {
+export function SessionApprovals({
+  sessionId,
+  agentId,
+  excludeAgentIds = [],
+}: {
+  sessionId: string;
+  agentId?: string;
+  excludeAgentIds?: readonly string[];
+}) {
   const { t } = useTranslation();
   const agents = useStore(agentsStore, (state) => state.agents);
   const pending = useStore(approvalsStore, (state) => state.pending);
   const requests = Object.values(pending)
     .filter((request) => (agentId ? request.agentId === agentId : request.sessionId === sessionId))
+    .filter((request) => !request.agentId || !excludeAgentIds.includes(request.agentId))
     .sort((a, b) => a.deadline - b.deadline);
   if (requests.length === 0) return null;
   return (

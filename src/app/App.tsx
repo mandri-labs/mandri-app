@@ -49,12 +49,10 @@ export function App() {
   const content =
     route.name === "dashboard" ? (
       <DashboardPage key={`${route.cwd ?? ""}:${route.worktree}:${route.surrogate}`} initialCwd={route.cwd} initialProtection={route.worktree ? (route.surrogate ? "worktree_surrogate" : "worktree") : undefined} />
-    ) : route.name === "session" ? (
-      <PaneManager deepLinkId={route.id}>
-        <SessionView sessionId={route.id} />
+    ) : route.name === "session" || route.name === "agent" ? (
+      <PaneManager target={{ kind: route.name, id: route.id }} workspace={route.workspace ?? null} onActivate={(target) => navigate({ name: target.kind, id: target.id })}>
+        {route.name === "session" ? <SessionView sessionId={route.id} /> : <AgentView key={route.id} agentId={route.id} />}
       </PaneManager>
-    ) : route.name === "agent" ? (
-      <AgentView key={route.id} agentId={route.id} />
     ) : route.name === "providers" ? (
       <ProvidersPage />
     ) : route.name === "usage" ? (

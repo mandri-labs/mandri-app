@@ -1,8 +1,10 @@
 import { ReadingPane } from "./ReadingPane";
 import { useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Maximize2, Minimize2, PanelRightOpen } from "lucide-react";
+import { X, Maximize2, Minimize2 } from "lucide-react";
+import { CanvasReopenButton } from "./CanvasReopenButton";
 import { useStore } from "@/app/useStore";
+import { ShellHeaderActions } from "@/app/ShellHeaderActions";
 import { canvasStore, emptyCanvas, updateCanvas, closeCanvasTab } from "./store";
 import { FileView } from "./FileView";
 import "./canvas.css";
@@ -10,9 +12,11 @@ import "./canvas.css";
 export function CanvasLayout({
   sessionId: selectedSessionId,
   children,
+  showReopen = true,
 }: {
   sessionId?: string;
   children: ReactNode;
+  showReopen?: boolean;
 }) {
   const sessionId = selectedSessionId ?? "";
   const { t } = useTranslation();
@@ -29,15 +33,10 @@ export function CanvasLayout({
       className={`canvas-layout ${state.open ? "canvas-is-open" : ""} ${state.open && state.expanded ? "canvas-is-expanded" : ""}`}
     >
       <div className="canvas-chat">{children}</div>
-      {!state.open && state.tabs.length > 0 && (
-        <button
-          className="canvas-reopen"
-          aria-label={t("core.canvas.open")}
-          title={t("core.canvas.open")}
-          onClick={() => updateCanvas(sessionId, (current) => ({ ...current, open: true }))}
-        >
-          <PanelRightOpen size={18} />
-        </button>
+      {showReopen && !state.open && state.tabs.length > 0 && (
+        <ShellHeaderActions>
+          <CanvasReopenButton sessionId={sessionId} />
+        </ShellHeaderActions>
       )}
       {state.open && (
         <>

@@ -6,6 +6,25 @@
   padding-bottom: 12px;
   font-size: var(--font-size-small);
 }
+.agents-stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--color-raised);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
+.agents-stop:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.agents-stop:hover:not(:disabled) {
+  background: var(--color-raised-hover);
+}
 .agents-parent {
   display: inline-flex;
   align-items: center;
@@ -63,4 +82,56 @@
 }
 .shell-agent-chevron--expanded {
   transform: rotate(90deg);
+}
+
+.agent-status {
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-raised);
+}
+.agent-status--running {
+  color: var(--color-accent-bright);
+}
+.agent-status--waiting {
+  color: var(--color-ember);
+}
+.agent-status--failed {
+  color: var(--color-danger);
+}
+.shell-agent-row {
+  height: auto;
+  min-height: 34px;
+  align-items: flex-start;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+.shell-agent-row .shell-agent-state {
+  margin-top: 5px;
+}
+.shell-agent-row .shell-session-title {
+  flex: 1;
+  min-width: 0;
+}
+.shell-agent-label {
+  flex: none;
+  max-width: 100%;
+  font-size: var(--font-size-telemetry);
+  color: var(--color-text-muted);
+}
+.shell-agent-label--running {
+  color: var(--color-accent-bright);
+}
+.shell-agent-label--waiting {
+  color: var(--color-ember);
+}
+.shell-agent-label--failed {
+  color: var(--color-danger);
+}
+.shell-agent-state--waiting {
+  background: var(--color-ember);
+}
+.shell-agent-state--failed {
+  background: var(--color-danger);
 }

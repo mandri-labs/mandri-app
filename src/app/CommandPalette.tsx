@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
+import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useOverlayFocus } from "./dialogFocus";
 import { useTranslation } from "react-i18next";
 import { useStore } from "./useStore";
 import { navigate } from "./useHashRoute";
@@ -15,6 +18,11 @@ export interface PaletteAction {
   label: string;
   run: () => void;
   session?: { id: string };
+  section?: { id: string; label: string; icon?: ReactNode };
+  content?: ReactNode;
+  searchText?: string;
+  depth?: number;
+  disabled?: boolean;
 }
 
 function fuzzyMatch(query: string, label: string): boolean {
@@ -37,13 +45,26 @@ function fuzzyMatch(query: string, label: string): boolean {
 export interface CommandPaletteProps {
   open: boolean;
   onClose: () => void;
+  items?: PaletteAction[];
+  title?: string;
+  inputLabel?: string;
+  placeholder?: string;
+  emptyLabel?: string;
 }
 
-export function CommandPalette({ open, onClose }: CommandPaletteProps) {
+export function CommandPalette({
+  open,
+  onClose,
+  items,
+  title,
+  inputLabel,
+  placeholder,
+  emptyLabel,
+}: CommandPaletteProps) {
   const { t } = useTranslation();
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  useOverlayFocus(panelRef, open, onClose);
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
 
@@ -100,41 +121,41 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           navigate({ name: "session", id: session.id });
         },
         session: { id: session.id },
+        section: { id: "recent", label: t("core.palette.recent") },
       }));
-  }, [sessions, order]);
+  }, [sessions, order, t]);
 
   const actions = useMemo(() => {
-    return [...staticActions, ...recentActions].filter((action) =>
-      fuzzyMatch(query, action.label),
+    return (items ?? [...staticActions, ...recentActions]).filter((action) =>
+      fuzzyMatch(query, action.searchText ?? action.label),
     );
-  }, [staticActions, recentActions, query]);
+  }, [items, staticActions, recentActions, query]);
 
   useEffect(() => {
     if (!open) {
       return;
     }
-    restoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setQuery("");
     setCursor(0);
     inputRef.current?.focus();
-    return () => {
-      restoreFocusRef.current?.focus();
-      restoreFocusRef.current = null;
-    };
   }, [open]);
 
   useEffect(() => {
-    setCursor((current) => (actions.length === 0 ? 0 : Math.min(current, actions.length - 1)));
-  }, [actions.length]);
+    setCursor((current) => {
+      if (actions[current] && !actions[current].disabled) return current;
+      return Math.max(
+        0,
+        actions.findIndex((action) => !action.disabled),
+      );
+    });
+  }, [actions]);
 
   useEffect(() => {
     const panel = panelRef.current;
     if (panel === null || !open) {
       return;
     }
-    panel
-      .querySelector(".command-palette-item--active")
-      ?.scrollIntoView({ block: "nearest" });
+    panel.querySelector(".command-palette-item--active")?.scrollIntoView?.({ block: "nearest" });
   }, [cursor, open, actions.length]);
 
   if (!open) {
@@ -142,6 +163,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   }
 
   const closeAndRun = (action: PaletteAction): void => {
+    if (action.disabled) return;
     onClose();
     action.run();
   };
@@ -154,12 +176,18 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     }
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setCursor((current) => Math.min(current + 1, actions.length - 1));
+      const next = actions.findIndex((action, index) => index > cursor && !action.disabled);
+      if (next >= 0) setCursor(next);
       return;
     }
     if (event.key === "ArrowUp") {
       event.preventDefault();
-      setCursor((current) => Math.max(current - 1, 0));
+      for (let index = cursor - 1; index >= 0; index--) {
+        if (!actions[index]?.disabled) {
+          setCursor(index);
+          break;
+        }
+      }
       return;
     }
     if (event.key === "Enter") {
@@ -170,30 +198,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       }
       return;
     }
-    if (event.key === "Tab") {
-      const panel = panelRef.current;
-      if (panel === null) {
-        return;
-      }
-      const focusables = panel.querySelectorAll<HTMLElement>("input, button");
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      if (first === undefined || last === undefined) {
-        return;
-      }
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-        return;
-      }
-      if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
   };
 
-  return (
+  return createPortal(
     <div
       className="command-palette-overlay"
       role="presentation"
@@ -206,7 +213,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         className="command-palette-panel"
         role="dialog"
         aria-modal="true"
-        aria-label={t("core.palette.title")}
+        aria-label={title ?? t("core.palette.title")}
         onKeyDown={handleKeyDown}
         onClick={(event) => {
           event.stopPropagation();
@@ -216,8 +223,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           ref={inputRef}
           className="command-palette-input"
           type="text"
-          aria-label={t("core.palette.title")}
-          placeholder={t("core.palette.placeholder")}
+          aria-label={inputLabel ?? title ?? t("core.palette.title")}
+          placeholder={placeholder ?? t("core.palette.placeholder")}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -225,66 +232,53 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           }}
         />
         {actions.length === 0 ? (
-          <p className="command-palette-empty">{t("core.palette.empty")}</p>
+          <p className="command-palette-empty" role="status">
+            {emptyLabel ?? t("core.palette.empty")}
+          </p>
         ) : (
-          <ul className="command-palette-list" role="listbox" aria-label={t("core.palette.title")}>
-            {staticActions
-              .filter((action) => fuzzyMatch(query, action.label))
-              .map((action) => {
-                const index = actions.indexOf(action);
-                return (
-                  <li key={action.id}>
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={index === cursor}
-                      className={`command-palette-item${index === cursor ? " command-palette-item--active" : ""}`}
-                      onMouseEnter={() => {
-                        setCursor(index);
-                      }}
-                      onClick={() => {
-                        closeAndRun(action);
-                      }}
-                    >
-                      <span>{action.label}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            {recentActions.some((action) => fuzzyMatch(query, action.label)) ? (
-              <li className="command-palette-section" aria-hidden="true">
-                {t("core.palette.recent")}
-              </li>
-            ) : null}
-            {recentActions
-              .filter((action) => fuzzyMatch(query, action.label))
-              .map((action) => {
-                const index = actions.indexOf(action);
-                const session = sessions[action.session?.id ?? ""];
-                return (
-                  <li key={action.id}>
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={index === cursor}
-                      className={`command-palette-item${index === cursor ? " command-palette-item--active" : ""}`}
-                      onMouseEnter={() => {
-                        setCursor(index);
-                      }}
-                      onClick={() => {
-                        closeAndRun(action);
-                      }}
-                    >
-                      <span>{action.label}</span>
-                      {session === undefined ? null : <SessionDot session={session} />}
-                    </button>
-                  </li>
-                );
-              })}
+          <ul
+            className="command-palette-list"
+            role="listbox"
+            aria-label={title ?? t("core.palette.title")}
+          >
+            {actions.map((action, index) => {
+              const session = action.session ? sessions[action.session.id] : undefined;
+              return (
+                <li key={action.id}>
+                  {action.section && action.section.id !== actions[index - 1]?.section?.id && (
+                    <div className="command-palette-section" title={action.section.id}>
+                      {action.section.icon}
+                      {action.section.label}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-label={action.label}
+                    aria-selected={index === cursor}
+                    disabled={action.disabled}
+                    className={`command-palette-item${index === cursor ? " command-palette-item--active" : ""}`}
+                    style={
+                      action.depth
+                        ? { paddingLeft: 10 + Math.min(action.depth, 8) * 16 }
+                        : undefined
+                    }
+                    onMouseEnter={() => {
+                      if (!action.disabled) setCursor(index);
+                    }}
+                    onClick={() => closeAndRun(action)}
+                  >
+                    {action.content ?? <span>{action.label}</span>}
+                    {session && <SessionDot session={session} />}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { panesStore, type PaneWorkspace } from "@/stores/panes";
+import { parsePaneWorkspace, paneWorkspaceParams, workspaceForTarget } from "./panes/paneRoute";
 
 export type Route =
   | { name: "dashboard"; cwd?: string; worktree?: boolean; surrogate?: boolean }
-  | { name: "session"; id: string }
-  | { name: "agent"; id: string }
+  | { name: "session"; id: string; workspace?: PaneWorkspace | null }
+  | { name: "agent"; id: string; workspace?: PaneWorkspace | null }
   | { name: "providers" }
   | { name: "routes" }
   | { name: "usage"; sessionId?: string; projectPath?: string }
@@ -24,10 +26,11 @@ export function parseHash(hash: string): Route {
   const second = segments[1];
   switch (first) {
     case "agent":
-      return second ? { name: "agent", id: decodeURIComponent(second) } : { name: "dashboard" };
     case "session":
       if (second !== undefined && second.length > 0) {
-        return { name: "session", id: decodeURIComponent(second) };
+        const id = decodeURIComponent(second);
+        const workspace = parsePaneWorkspace(new URLSearchParams(query), { kind: first, id });
+        return { name: first, id, ...(workspace ? { workspace } : {}) };
       }
       return { name: "dashboard" };
     case "providers":
@@ -56,9 +59,11 @@ export function routeToHash(route: Route): string {
       return params.size ? `#/?${params}` : "#/";
     }
     case "session":
-      return `#/session/${encodeURIComponent(route.id)}`;
-    case "agent":
-      return `#/agent/${encodeURIComponent(route.id)}`;
+    case "agent": {
+      const params = route.workspace ? paneWorkspaceParams(route.workspace) : undefined;
+      const path = `#/${route.name}/${encodeURIComponent(route.id)}`;
+      return params?.size ? `${path}?${params}` : path;
+    }
     case "providers":
       return "#/providers";
     case "usage": {
@@ -76,8 +81,15 @@ export function routeTitleKey(route: Route): string {
   return `core.route.${route.name}`;
 }
 
+export function withPaneWorkspace(route: Route): Route {
+  if ((route.name !== "session" && route.name !== "agent") || route.workspace !== undefined)
+    return route;
+  const workspace = workspaceForTarget(panesStore.getState(), { kind: route.name, id: route.id });
+  return workspace ? { ...route, workspace } : route;
+}
+
 export function navigate(route: Route): void {
-  window.location.hash = routeToHash(route);
+  window.location.hash = routeToHash(withPaneWorkspace(route));
 }
 
 export function useHashRoute(): Route {

@@ -637,6 +637,26 @@
     "a11y": {
       "raw_json": "JSON brut"
     },
+    "panes": {
+      "workspace": "Espace agents",
+      "open": "Vue partagée",
+      "add": "Ajouter un panneau",
+      "single": "Vue unique",
+      "close": "Fermer le panneau {{title}}",
+      "choose": "Choisir une conversation",
+      "search": "Rechercher sessions et sous-agents",
+      "close_picker": "Fermer le sélecteur de conversations",
+      "picker_hint": "Gardez jusqu’à {{count}} conversations visibles. Chaque panneau conserve ses contrôles.",
+      "no_results": "Aucune autre conversation ne correspond à la recherche.",
+      "limit": "Jusqu’à {{count}} panneaux peuvent être ouverts simultanément.",
+      "session": "Session",
+      "agent": "Sous-agent",
+      "ready": "Prêt",
+      "resize": "Redimensionner les colonnes",
+      "resize_rows": "Redimensionner les lignes",
+      "maximize": "Agrandir le panneau {{title}}",
+      "restore": "Restaurer les panneaux"
+    },
     "agents": {
       "loading": "Chargement des sous-agents…",
       "parent": "Session parente",

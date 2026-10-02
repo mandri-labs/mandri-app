@@ -637,6 +637,26 @@
     "a11y": {
       "raw_json": "Raw JSON"
     },
+    "panes": {
+      "workspace": "Agent workspace",
+      "open": "Split view",
+      "add": "Add panel",
+      "single": "Single view",
+      "close": "Close {{title}} panel",
+      "choose": "Choose a conversation",
+      "search": "Search sessions and sub-agents",
+      "close_picker": "Close conversation picker",
+      "picker_hint": "Keep up to {{count}} conversations in view. Each panel keeps its own controls.",
+      "no_results": "No other conversations match your search.",
+      "limit": "Up to {{count}} panels can be open at once.",
+      "session": "Session",
+      "agent": "Sub-agent",
+      "ready": "Ready",
+      "resize": "Resize panel columns",
+      "resize_rows": "Resize panel rows",
+      "maximize": "Maximize {{title}} panel",
+      "restore": "Restore panel layout"
+    },
     "agents": {
       "loading": "Loading sub-agents…",
       "parent": "Parent session",

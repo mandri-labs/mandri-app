@@ -138,12 +138,13 @@ try {
             : []),
         ];
   page.on("pageerror", (error) => errors.push(error.message));
-  await page.addInitScript(() =>
+  await page.addInitScript(() => {
+    if (location.protocol === "about:") return;
     localStorage.setItem(
       "mandri.preferences",
       JSON.stringify({ state: { language: "en" }, version: 0 }),
-    ),
-  );
+    );
+  });
   await page.route("**/v1/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
     const id = path.split("/")[3] ?? "";
@@ -185,18 +186,29 @@ try {
           );
       }
       if (!frame.action) return;
-      if (frame.action === "command.catalogs") return reply({ default_cwd: "/mock-project", catalogs: [] });
-      if (frame.action === "command.catalog") return reply({
-        ...frame.params, cwd: frame.params.cwd ?? "/mock-project", profile_id: frame.params.profile_id ?? null,
-        execution_backend: frame.params.execution_backend ?? "host", privacy_mode: frame.params.privacy_mode ?? "none",
-        state: "ready", commands: [], reason: null,
-      });
+      if (frame.action === "command.catalogs")
+        return reply({ default_cwd: "/mock-project", catalogs: [] });
+      if (frame.action === "command.catalog")
+        return reply({
+          ...frame.params,
+          cwd: frame.params.cwd ?? "/mock-project",
+          profile_id: frame.params.profile_id ?? null,
+          execution_backend: frame.params.execution_backend ?? "host",
+          privacy_mode: frame.params.privacy_mode ?? "none",
+          state: "ready",
+          commands: [],
+          reason: null,
+        });
       if (frame.action === "command.list") return reply({ invocations: [] });
       if (frame.action === "session.list") return reply({ sessions });
       if (frame.action === "session.history")
         return reply({ entries: [], next_cursor: null, has_more: false });
       if (frame.action === "agent.list")
-        return reply({ agents, parent_capabilities: { "root-0": { create: true } }, classified_session_ids: sessions.map((session) => session.id) });
+        return reply({
+          agents,
+          parent_capabilities: { "root-0": { create: true } },
+          classified_session_ids: sessions.map((session) => session.id),
+        });
       if (frame.action === "agent.history")
         return reply({
           entries: history(frame.params.agent_id),
@@ -250,6 +262,103 @@ try {
     }),
     false,
   );
+  await page.getByRole("button", { name: "Split view", exact: true }).click();
+  await page.getByRole("dialog", { name: "Add panel", exact: true }).waitFor();
+  await page.getByRole("dialog").getByRole("option", { name: "Root 0", exact: true }).click();
+  assert.equal(await page.locator(".pane").count(), 2);
+  assert.equal(await page.getByText(replyText, { exact: true }).count(), 1);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const divider = page.getByRole("separator");
+  await divider.focus();
+  await divider.press("ArrowRight");
+  assert.equal(await divider.getAttribute("aria-valuenow"), "55");
+  await page.getByRole("textbox", { name: "Message to sub-agent" }).click();
+  const workspaceUrl = page.url();
+  const workspaceParams = new URLSearchParams(new URL(workspaceUrl).hash.split("?")[1]);
+  assert.deepEqual(workspaceParams.getAll("pane"), ["agent:child", "session:root-0"]);
+  assert.equal(workspaceParams.get("split"), "55");
+  await page.reload();
+  await page.getByText(replyText, { exact: true }).waitFor();
+  assert.equal(await page.locator(".pane").count(), 2);
+  assert.equal(await divider.getAttribute("aria-valuenow"), "55");
+  assert.equal(await page.locator(".pane--focused").getAttribute("aria-label"), child.title);
+  assert.equal(page.url(), workspaceUrl);
+  await page.getByRole("button", { name: "Root 1", exact: true }).click();
+  await page.locator('.pane[aria-label="Root 1"]').waitFor();
+  assert.equal(await page.locator('.pane[aria-label="Root 0"]').count(), 1);
+  await page.goBack();
+  await page.locator('.pane[aria-label="Research child"]').waitFor();
+  assert.equal(page.url(), workspaceUrl);
+  await page.goForward();
+  await page.locator('.pane[aria-label="Root 1"]').waitFor();
+  await page.goBack();
+  await page.locator('.pane[aria-label="Research child"]').waitFor();
+  await page.getByRole("button", { name: "Close Root 0 panel", exact: true }).click();
+  await page.getByRole("button", { name: "Single view", exact: true }).click();
+  await page.waitForURL(/#\/agent\/child$/);
+  await page.reload();
+  await page.getByText(replyText, { exact: true }).waitFor();
+  assert.equal(await page.locator(".pane").count(), 0);
+  // Open the copied link in a fresh document, with no in-memory workspace.
+  await page.goto("about:blank");
+  await page.goto(workspaceUrl);
+  await page.getByText(replyText, { exact: true }).waitFor();
+  assert.equal(await page.locator(".pane").count(), 2);
+  assert.equal(await divider.getAttribute("aria-valuenow"), "55");
+  assert.equal(await page.locator(".pane--focused").getAttribute("aria-label"), child.title);
+  for (const title of ["Root 1", "Root 2"]) {
+    await page
+      .locator(".pane--focused")
+      .getByRole("button", { name: "Add panel", exact: true })
+      .click();
+    await page.getByRole("option", { name: title, exact: true }).click();
+  }
+  const rows = page.getByRole("separator", { name: "Resize panel rows" });
+  await rows.focus();
+  await rows.press("ArrowDown");
+  await rows.press("ArrowDown");
+  assert.equal(await rows.getAttribute("aria-valuenow"), "60");
+  const gridUrl = page.url();
+  assert.equal(new URLSearchParams(new URL(gridUrl).hash.split("?")[1]).get("rows"), "60");
+  await page.reload();
+  await page.locator(".panes--grid").waitFor();
+  assert.equal(await page.locator(".pane").count(), 4);
+  assert.equal(await rows.getAttribute("aria-valuenow"), "60");
+  const rowHeights = await page
+    .locator(".pane")
+    .evaluateAll((panes) => panes.map((pane) => pane.getBoundingClientRect().height));
+  assert.ok(Math.abs(rowHeights[0]! / (rowHeights[0]! + rowHeights[2]!) - 0.6) < 0.005);
+  await page.screenshot({ path: resolve(output, "resized-grid.png") });
+  await page.goto("about:blank");
+  await page.goto(gridUrl);
+  await rows.waitFor();
+  assert.equal(await rows.getAttribute("aria-valuenow"), "60");
+  assert.equal(await page.locator(".pane").count(), 4);
+  await page.getByRole("button", { name: "Maximize Root 2 panel", exact: true }).click();
+  const zoomUrl = page.url();
+  assert.equal(
+    new URLSearchParams(new URL(zoomUrl).hash.split("?")[1]).get("zoom"),
+    "session:root-2",
+  );
+  await page.reload();
+  await page.getByRole("button", { name: "Restore panel layout", exact: true }).waitFor();
+  assert.equal(await page.locator(".pane:not([hidden])").count(), 1);
+  assert.equal(await page.locator(".pane[hidden]").count(), 3);
+  assert.equal(await page.locator(".shell-header").count(), 0);
+  assert.equal(page.url(), zoomUrl);
+  await page.getByRole("button", { name: "Restore panel layout", exact: true }).click();
+  assert.equal(await page.locator(".pane:not([hidden])").count(), 4);
+  assert.equal(await rows.getAttribute("aria-valuenow"), "60");
+  assert.equal(
+    await page
+      .getByRole("separator", { name: "Resize panel columns" })
+      .getAttribute("aria-valuenow"),
+    "55",
+  );
+  await page.goto(workspaceUrl);
+  await page.getByText(replyText, { exact: true }).waitFor();
+  assert.equal(await page.locator(".pane").count(), 2);
+  await page.setViewportSize({ width: 1024, height: 720 });
   const input = page.getByRole("textbox", { name: "Message to sub-agent" });
   await input.fill("Investigate the cache");
   await input.press("Enter");
@@ -287,19 +396,21 @@ try {
       },
     }),
   );
+  await page.getByRole("button", { name: "Allow once", exact: true }).waitFor();
+  assert.equal(await page.getByRole("button", { name: "Allow once", exact: true }).count(), 1);
   await page.getByRole("button", { name: "Allow once", exact: true }).click();
   assert.deepEqual(commands.at(-1), {
     action: "approval.answer",
     params: { approval_id: "approval-child", decision: "once" },
   });
   await page.getByRole("button", { name: "Stop", exact: true }).click();
-  await page.getByText("Stopped", { exact: true }).waitFor();
+  await page.locator(".shell-agent-label--stopped").waitFor();
   assert.deepEqual(commands.at(-1), { action: "agent.stop", params: { agent_id: "child" } });
   await page.getByRole("button", { name: "Nested reviewer — Running", exact: true }).click();
   await page.getByText("Read-only Claude review", { exact: true }).waitFor();
   assert.equal(await page.getByRole("textbox", { name: "Message to sub-agent" }).count(), 0);
   assert.equal(await page.getByRole("button", { name: "Stop", exact: true }).count(), 0);
-  await page.getByRole("link", { name: "Root 0", exact: true }).click();
+  await page.locator(".shell-sidebar").getByRole("button", { name: "Root 0", exact: true }).click();
   const rootRow = page
     .locator(".shell-session-container")
     .filter({ has: page.getByRole("button", { name: "Root 0", exact: true }) });
@@ -311,12 +422,12 @@ try {
     .getByRole("dialog")
     .getByRole("button", { name: "Create sub-agent", exact: true })
     .click();
-  await page.waitForURL("**/#/agent/created");
+  await page.waitForURL(/#\/agent\/created(?:\?|$)/);
   assert.deepEqual(commands.at(-1), {
     action: "agent.create",
     params: { session_id: "root-0", content: "Review the cache", title: "Created child" },
   });
-  await page.getByRole("link", { name: "Root 0", exact: true }).click();
+  await page.locator(".shell-sidebar").getByRole("button", { name: "Root 0", exact: true }).click();
   await rootRow.locator(".lifecycle-trigger").click();
   await page.getByRole("menuitem", { name: "Release session", exact: true }).click();
   assert.equal(releases, 0);
@@ -334,7 +445,7 @@ try {
   await page.screenshot({ path: resolve(output, "agents-ownership-1024.png"), fullPage: true });
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: nested child sidebar/root count, native transcripts, supported create/message/stop, scoped approval, confirmed release, separate prompt-free native restore",
+    "PASS: workspace URL refresh, copied link, focus/column and row ratios, resized grid restoration, back/forward, explicit single view; nested child sidebar/root count, native transcripts, supported create/message/stop, scoped approval, confirmed release, separate prompt-free native restore",
   );
 } finally {
   await browser.close();

@@ -10,7 +10,7 @@ import { lastSegment, SessionDot } from "@/features/sessions/SessionRow";
 import { AntigravityLogo, ClaudeLogo, OpenAILogo, OpencodeLogo, PiLogo } from "@/design/logos";
 import { selectByProject, sessionWorkspace, sessionsStore, UNGROUPED_PROJECT } from "@/stores/sessions";
 import type { SessionView } from "@/stores/sessions";
-import { navigate, routeTitleKey, routeToHash } from "./useHashRoute";
+import { navigate, routeTitleKey, routeToHash, withPaneWorkspace } from "./useHashRoute";
 import type { Route } from "./useHashRoute";
 import { NEW_SESSION_EVENT, requestFocusComposer, toggleCommandPalette } from "./keyboard";
 import { EndpointMenu } from "./EndpointMenu";
@@ -19,6 +19,8 @@ import "./shell.css";
 import { ProjectMenu } from "./ProjectMenu";
 import { agentsStore } from "@/stores/agents";
 import { AgentSidebar } from "@/features/agents/AgentSidebar";
+import { ShellHeaderActionsContext } from "./ShellHeaderActions";
+import { panesStore, paneKey } from "@/stores/panes";
 
 export interface ShellProps {
   route: Route;
@@ -158,7 +160,7 @@ function ProjectsSection({
                 </button>
               )}
               </div>
-              {roots.slice(0, visibleCount).map((session) => (
+              {roots.filter((session, index) => index < visibleCount || session.id === activeSessionId).map((session) => (
                 <Fragment key={session.id}>
                   <SidebarSessionRow
                     key={session.id}
@@ -231,7 +233,7 @@ function Breadcrumb({ route }: { route: Route }) {
         {route.name === "agent" && sessionId !== null ? (
           <a
             className="shell-breadcrumb-segment shell-breadcrumb-link"
-            href={routeToHash({ name: "session", id: sessionId })}
+            href={routeToHash(withPaneWorkspace({ name: "session", id: sessionId }))}
           >
             {title}
           </a>
@@ -265,6 +267,9 @@ function Breadcrumb({ route }: { route: Route }) {
 
 export function Shell({ route, children }: ShellProps) {
   const { t } = useTranslation();
+  const [headerActions, setHeaderActions] = useState<HTMLDivElement | null>(null);
+  const multiplePanes = useStore(panesStore, (state) => state.panes.length > 1);
+  const hideHeader = multiplePanes && (route.name === "session" || route.name === "agent");
   const parentSessionId = useStore(agentsStore, (state) =>
     route.name === "agent" ? state.agents[route.id]?.parent_session_id : undefined,
   );
@@ -291,6 +296,7 @@ export function Shell({ route, children }: ShellProps) {
     return () => window.removeEventListener(NEW_SESSION_EVENT, onNewSession);
   }, []);
   return (
+    <ShellHeaderActionsContext.Provider value={headerActions}>
     <div className={`shell${route.name === "usage" ? " shell--usage" : ""}`}>
       <aside className="shell-sidebar">
         <div className="shell-top">
@@ -350,16 +356,18 @@ export function Shell({ route, children }: ShellProps) {
         />
         <EndpointMenu />
       </aside>
-      <CanvasLayout sessionId={route.name === "session" ? route.id : undefined}>
+      <CanvasLayout sessionId={route.name === "session" || route.name === "agent" ? paneKey({ kind: route.name, id: route.id }) : undefined} showReopen={!hideHeader}>
       <div className="shell-main">
-        <header className="shell-header">
+        {!hideHeader && <header className="shell-header">
           <Breadcrumb route={route} />
-        </header>
+          <div className="shell-header-actions" ref={setHeaderActions} />
+        </header>}
         <div className="shell-content">
           <div className="shell-content-scroll">{children}</div>
         </div>
       </div>
       </CanvasLayout>
     </div>
+    </ShellHeaderActionsContext.Provider>
   );
 }

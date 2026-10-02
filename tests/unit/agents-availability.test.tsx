@@ -8,13 +8,19 @@ import {
   ingestAgentFrame,
 } from "@/stores/agents";
 import { daemonIdentity } from "@/daemon/identity";
-import { refreshAvailability, applyAvailability, useSessionAvailability } from "@/features/sessions/availability";
+import {
+  refreshAvailability,
+  applyAvailability,
+  useSessionAvailability,
+} from "@/features/sessions/availability";
 import { getSessionAvailability, type SessionAvailability } from "@/daemon/rest/availability";
 import { sessionsStore } from "@/stores/sessions";
 import { approvalsStore, setApprovalTransport } from "@/stores/approvals";
 import { SessionApprovals } from "@/features/approvals/SessionApprovals";
 import { useAgentsSync } from "@/features/agents/useAgentsSync";
 import { Shell } from "@/app/Shell";
+import { CodexAgentActivity } from "@/features/transcript/renderers/CodexAgentActivity";
+import type { TranscriptNode } from "@/features/transcript/parse/types";
 import { AgentSidebar } from "@/features/agents/AgentSidebar";
 import type { AgentView } from "@/daemon/types/agents";
 import { initI18n } from "@/i18n";
@@ -102,7 +108,12 @@ it("backs off failed polling and shares refreshes between viewers", async () => 
     useSessionAvailability("parent");
     return null;
   }
-  const view = render(<><Viewer /><Viewer /></>);
+  const view = render(
+    <>
+      <Viewer />
+      <Viewer />
+    </>,
+  );
   await act(async () => undefined);
   expect(getSessionAvailability).toHaveBeenCalledTimes(1);
   await act(async () => vi.advanceTimersByTimeAsync(5000));
@@ -280,18 +291,24 @@ it("does not navigate to a child created on a previous daemon", async () => {
 it.each([undefined, "mandri", "external", "unowned"] as const)(
   "preserves %s availability during pending, failed and inconclusive refreshes",
   async (owner) => {
-    const previous: SessionAvailability | undefined = owner === undefined ? undefined : {
-      ...free,
-      owner,
-      can_resume: owner === "unowned",
-      can_release: owner === "mandri",
-    };
+    const previous: SessionAvailability | undefined =
+      owner === undefined
+        ? undefined
+        : {
+            ...free,
+            owner,
+            can_resume: owner === "unowned",
+            can_release: owner === "mandri",
+          };
     sessionsStore.getState().applySessionPatch("parent", { availability: previous });
     const session = sessionsStore.getState().sessions.parent;
     let fail!: (error: Error) => void;
-    vi.mocked(getSessionAvailability).mockImplementationOnce(() => new Promise((_resolve, reject) => {
-      fail = reject;
-    }));
+    vi.mocked(getSessionAvailability).mockImplementationOnce(
+      () =>
+        new Promise((_resolve, reject) => {
+          fail = reject;
+        }),
+    );
     const loading = refreshAvailability("parent");
     expect(refreshAvailability("parent")).toBe(loading);
     expect(sessionsStore.getState().sessions.parent).toBe(session);
@@ -314,9 +331,12 @@ it.each([undefined, "mandri", "external", "unowned"] as const)(
     expect(sessionsStore.getState().sessions.parent).toBe(session);
 
     let finish!: (result: SessionAvailability) => void;
-    vi.mocked(getSessionAvailability).mockImplementationOnce(() => new Promise((resolve) => {
-      finish = resolve;
-    }));
+    vi.mocked(getSessionAvailability).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
     const retry = refreshAvailability("parent");
     expect(sessionsStore.getState().sessions.parent).toBe(session);
     finish(free);
@@ -363,12 +383,9 @@ it("renders nested and orphan child relationships once even for malformed cycles
   const buttons = screen
     .getAllByRole("button")
     .filter((button) => button.classList.contains("shell-agent-row"));
-  expect(buttons.map((button) => button.textContent)).toEqual([
-    "Child",
-    "Nested",
-    "Orphan",
-    "Cycle",
-  ]);
+  expect(
+    buttons.map((button) => button.querySelector(".shell-session-title")?.textContent),
+  ).toEqual(["Child", "Nested", "Orphan", "Cycle"]);
   expect(buttons[1]?.getAttribute("aria-current")).toBe("page");
   fireEvent.click(buttons[1]!);
   expect(window.location.hash).toBe("#/agent/nested");
@@ -496,7 +513,10 @@ it("shows only the selected family, keeps it expanded for descendant routes, and
   });
   const view = render(<Shell route={{ name: "session", id: "parent" }}>Conversation</Shell>);
   const titles = () =>
-    Array.from(view.container.querySelectorAll(".shell-agent-row"), (row) => row.textContent);
+    Array.from(
+      view.container.querySelectorAll(".shell-agent-row"),
+      (row) => row.querySelector(".shell-session-title")?.textContent,
+    );
   expect(titles()).toEqual(["Child"]);
   view.rerender(<Shell route={{ name: "session", id: "other" }}>Conversation</Shell>);
   expect(titles()).toEqual(["Other child"]);
@@ -604,4 +624,75 @@ it("retries a classification invalidation received during an in-flight cache res
   await waitFor(() => expect(agentsStore.getState().classifiedSessionIds).toEqual(["parent"]));
   expect(request).toHaveBeenCalledTimes(2);
   expect(agentsStore.getState().agents.child).toBeTruthy();
+});
+
+it("keeps the selected child's family visible beyond the five root preview rows", () => {
+  const prototype = sessionsStore.getState().sessions.parent!;
+  const rows = Array.from({ length: 6 }, (_, index) => ({
+    ...prototype,
+    id: `root-${index}`,
+    title: `Root ${index}`,
+    projectPath: "/synthetic",
+    lastActivityAt: 100 - index,
+  }));
+  sessionsStore.setState({
+    sessions: Object.fromEntries(rows.map((row) => [row.id, row])),
+    order: rows.map((row) => row.id),
+  });
+  agentsStore.setState({
+    loaded: true,
+    classifiedSessionIds: rows.map((row) => row.id),
+    agents: { child: { ...child, parent_session_id: "root-5" } },
+  });
+  render(<Shell route={{ name: "agent", id: "child" }}>Conversation</Shell>);
+  expect(screen.getByRole("button", { name: "Child — Running" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Root 5" })).toBeTruthy();
+});
+
+it("keeps mirrored child approvals only in the panel that can answer them", () => {
+  upsertAgent(child);
+  approvalsStore.getState().ingestFrame({
+    type: "approval.pending",
+    topic: "agent.child",
+    source: "opencode",
+    seq: 1,
+    ts: Date.now(),
+    approval_id: "scoped",
+    deadline: Date.now() + 60000,
+    status: "pending",
+    raw: {
+      type: "permission.asked",
+      properties: { permission: "bash", patterns: ["echo synthetic"] },
+    },
+  });
+  const view = render(<SessionApprovals sessionId="parent" excludeAgentIds={["child"]} />);
+  expect(screen.queryByRole("button", { name: "Allow once" })).toBeNull();
+  view.rerender(<SessionApprovals sessionId="parent" agentId="child" />);
+  expect(screen.getByRole("button", { name: "Allow once" })).toBeTruthy();
+});
+
+it("resolves delegation names for a synthetic agent transcript id", () => {
+  agentsStore.setState({
+    agents: {
+      child: { ...child, harness: "codex", session_id: "native-child", task_id: "/root/reviewer" },
+      leaf: {
+        ...child,
+        id: "leaf",
+        native_id: "native-leaf",
+        harness: "codex",
+        parent_agent_id: "child",
+        title: "Migration reviewer",
+        task_id: "/root/reviewer/leaf",
+      },
+    },
+  });
+  const node: Extract<TranscriptNode, { kind: "tool" }> = {
+    kind: "tool",
+    tool: "wait_agent",
+    label: "Wait",
+    status: "done",
+    codex: { input: { targets: ["native-leaf"] } },
+  };
+  render(<CodexAgentActivity sessionId="agent:child" node={node} />);
+  expect(screen.getByText(/Migration reviewer \(leaf\)/)).toBeTruthy();
 });
