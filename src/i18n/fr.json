@@ -864,6 +864,7 @@
     "worktree_unavailable": "L’opération sur le worktree a échoué. Vérifie l’accès au dépôt et à Git.",
     "worktree_missing": "Le worktree de la session est absent ou a été modifié hors de Mandri.",
     "worktree_has_changes": "Intègre d’abord ton travail ou coche la suppression définitive des fichiers et commits du worktree. Annule pour les conserver.",
+    "worktree_ignored_files": "Tes changements sont intégrés, mais des fichiers ignorés par Git restent présents. Déplace-les hors du worktree ou autorise leur suppression pour terminer.",
     "worktree_closed": "Ce worktree a été intégré et nettoyé. Créez une nouvelle session pour continuer.",
     "worktree_git_busy": "Terminez ou annulez l’opération Git en cours, puis relancez la revue.",
     "worktree_submodule_changes": "Commitez les modifications des sous-modules avant l’intégration.",
@@ -922,6 +923,7 @@
     "success": "Intégré dans {{branch}} · {{commit}}",
     "finish_hint": "Terminer retire le worktree et sa branche. La conversation reste consultable dans son workspace. Tout nouveau changement empêchera le nettoyage.",
     "finish": "Terminer et nettoyer",
+    "discard_ignored": "Supprimer tous les fichiers ignorés par Git dans ce worktree, y compris les caches et la configuration locale.",
     "continue": "Continuer dans le worktree"
   }
 }

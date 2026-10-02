@@ -29,6 +29,9 @@ export function resolveWorktree(id: string, review: IntegrationPreview) {
   });
 }
 
-export function finishWorktree(id: string) {
-  return request<SessionOut>(`${path(id)}/finish`, { method: "POST" });
+export function finishWorktree(id: string, discardIgnored = false) {
+  return request<SessionOut>(`${path(id)}/finish`, {
+    method: "POST",
+    query: { discard_ignored: discardIgnored || undefined },
+  });
 }

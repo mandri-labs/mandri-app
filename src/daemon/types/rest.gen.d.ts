@@ -4076,7 +4076,9 @@ export interface operations {
     };
     finish_worktree: {
         parameters: {
-            query?: never;
+            query?: {
+                discard_ignored?: boolean;
+            };
             header?: never;
             path: {
                 session_id: string;

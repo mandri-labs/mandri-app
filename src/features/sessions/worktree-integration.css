@@ -26,8 +26,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.worktree-integration-panel {
-  width: 1040px;
+.lifecycle-panel.worktree-integration-panel {
+  width: calc(100vw - 64px);
   height: min(880px, calc(100dvh - 64px));
   max-width: calc(100vw - 64px);
   max-height: calc(100dvh - 64px);
@@ -36,7 +36,7 @@
   overflow: hidden;
   box-shadow: 0 24px 80px rgb(0 0 0 / 0.3);
 }
-.worktree-integration-panel--fullscreen {
+.lifecycle-panel.worktree-integration-panel--fullscreen {
   width: 100vw;
   height: 100dvh;
   max-width: none;
@@ -370,13 +370,13 @@
   font-size: var(--font-size-label);
 }
 @media (max-width: 760px) {
-  .worktree-integration-panel {
+  .lifecycle-panel.worktree-integration-panel {
     width: calc(100vw - 24px);
     max-width: calc(100vw - 24px);
     height: calc(100dvh - 24px);
     max-height: calc(100dvh - 24px);
   }
-  .worktree-integration-panel--fullscreen {
+  .lifecycle-panel.worktree-integration-panel--fullscreen {
     width: 100vw;
     max-width: none;
     height: 100dvh;

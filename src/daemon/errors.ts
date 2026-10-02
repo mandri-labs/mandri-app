@@ -72,6 +72,7 @@ const DAEMON_ERROR_CODES = [
   "worktree_unavailable",
   "worktree_missing",
   "worktree_has_changes",
+  "worktree_ignored_files",
   "worktree_closed",
   "worktree_git_busy",
   "worktree_submodule_changes",

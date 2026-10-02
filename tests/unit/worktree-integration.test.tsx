@@ -13,6 +13,7 @@ import {
   type IntegrationPreview,
 } from "@/daemon/rest/worktrees";
 import { initI18n } from "@/i18n";
+import { DaemonError } from "@/daemon/errors";
 
 vi.mock("@/daemon/rest/worktrees", () => ({
   previewIntegration: vi.fn(),
@@ -129,6 +130,55 @@ it("reviews, integrates and cleans up a stopped session without stopping or resu
   await waitFor(() =>
     expect(sessionsStore.getState().sessions.one?.worktree?.state).toBe("closed"),
   );
+  expect(finishWorktree).toHaveBeenCalledWith("one", false);
+});
+
+it("offers ignored-file deletion after cleanup is blocked and requires checking it", async () => {
+  vi.mocked(integrateWorktree).mockResolvedValue(row());
+  vi.mocked(finishWorktree)
+    .mockRejectedValueOnce(new DaemonError({ code: "worktree_ignored_files", message: "Ignored" }))
+    .mockRejectedValueOnce(new DaemonError({ code: "worktree_ignored_files", message: "Ignored" }))
+    .mockResolvedValue(row("closed"));
+  await prepare();
+  fireEvent.click(screen.getByRole("button", { name: "Integrate into trunk" }));
+  await screen.findByText("Integrated into trunk · 12345678");
+  expect(screen.queryByRole("checkbox")).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "Finish and clean up" }));
+  const checkbox = await screen.findByRole("checkbox", { name: /Delete all files ignored by Git/ });
+  expect((checkbox as HTMLInputElement).checked).toBe(false);
+  expect(screen.getByRole("alert").textContent).toContain("Your changes are integrated");
+  expect(finishWorktree).toHaveBeenLastCalledWith("one", false);
+  await waitFor(() => expect((checkbox as HTMLInputElement).disabled).toBe(false));
+  fireEvent.click(screen.getByRole("button", { name: "Finish and clean up" }));
+  await waitFor(() => expect(finishWorktree).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect((checkbox as HTMLInputElement).disabled).toBe(false));
+  expect(finishWorktree).toHaveBeenLastCalledWith("one", false);
+  fireEvent.click(checkbox);
+  fireEvent.click(screen.getByRole("button", { name: "Finish and clean up" }));
+  await waitFor(() =>
+    expect(sessionsStore.getState().sessions.one?.worktree?.state).toBe("closed"),
+  );
+  expect(finishWorktree).toHaveBeenLastCalledWith("one", true);
+});
+
+it("reopens an integrated session on its destination even when another branch is the default", async () => {
+  const current = {
+    ...session,
+    worktree: {
+      ...session.worktree!,
+      integrated_target: "release",
+      integrated_commit: "abcdef1234",
+    },
+  };
+  vi.mocked(previewIntegration).mockResolvedValue({ ...review, target: "release", files: [] });
+  vi.mocked(finishWorktree).mockResolvedValue(row("closed"));
+  render(<WorktreeIntegration session={current} />);
+  fireEvent.click(screen.getByRole("button", { name: "Integrate…" }));
+  await screen.findByText("Integrated into release · abcdef12");
+  expect(previewIntegration).toHaveBeenCalledWith("one", "release", "squash");
+  fireEvent.click(screen.getByRole("button", { name: "Finish and clean up" }));
+  await waitFor(() => expect(finishWorktree).toHaveBeenCalledWith("one", false));
+  expect(integrateWorktree).not.toHaveBeenCalled();
 });
 
 it("requires an explicit branch when no default is known and refreshes after changing strategy", async () => {

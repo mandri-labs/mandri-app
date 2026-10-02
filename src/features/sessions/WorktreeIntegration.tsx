@@ -7,6 +7,7 @@ import { navigate } from "@/app/useHashRoute";
 import { requestFocusComposer } from "@/app/keyboard";
 import { sessionsStore, type SessionView } from "@/stores/sessions";
 import { getSession } from "@/daemon/rest/sessions";
+import { DaemonError } from "@/daemon/errors";
 import {
   previewIntegration,
   integrateWorktree,
@@ -104,6 +105,8 @@ function IntegrationDialog({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [integrated, setIntegrated] = useState<{ target: string; commit: string }>();
+  const [hasIgnoredFiles, setHasIgnoredFiles] = useState(false);
+  const [discardIgnored, setDiscardIgnored] = useState(false);
   const operation = useRef(false);
   const initialReviewRequested = useRef(false);
   const blocked = integrationBlocked(session);
@@ -138,12 +141,14 @@ function IntegrationDialog({
     () =>
       run(async () => {
         setReview(undefined);
-        const next = await previewIntegration(session.id, target || undefined, strategy).catch(
-          (caught) => {
-            setTarget("");
-            throw caught;
-          },
-        );
+        const next = await previewIntegration(
+          session.id,
+          target || session.worktree?.integrated_target || undefined,
+          strategy,
+        ).catch((caught) => {
+          setTarget("");
+          throw caught;
+        });
         setReview(next);
         setTarget(next.target ?? "");
         if (
@@ -164,7 +169,12 @@ function IntegrationDialog({
   }, [blocked, refresh]);
   const finish = () =>
     run(async () => {
-      const row = await finishWorktree(session.id);
+      const row = await finishWorktree(session.id, discardIgnored).catch((caught) => {
+        if (caught instanceof DaemonError && caught.code === "worktree_ignored_files") {
+          setHasIgnoredFiles(true);
+        }
+        throw caught;
+      });
       sessionsStore.getState().upsertFromRest([row]);
       onClose();
     });
@@ -243,6 +253,17 @@ function IntegrationDialog({
                 })}
               </p>
               <p className="lifecycle-panel-body">{t("worktree.finish_hint")}</p>
+              {hasIgnoredFiles ? (
+                <label className="lifecycle-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={discardIgnored}
+                    disabled={unavailable}
+                    onChange={(event) => setDiscardIgnored(event.target.checked)}
+                  />
+                  {t("worktree.discard_ignored")}
+                </label>
+              ) : null}
             </div>
           ) : (
             <>
