@@ -292,7 +292,7 @@ export function PaneManager({
     if (focused) onActivate?.(focused);
   };
   return (
-    <div className={`pane-workspace${panes.length ? " pane-workspace--split" : ""}`}>
+    <div className={`pane-workspace${multiple ? " pane-workspace--split" : ""}`}>
       {!multiple && (
         <ShellHeaderActions>
           <div className="pane-header-controls">

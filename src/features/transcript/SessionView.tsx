@@ -12,6 +12,7 @@ import { SessionComposer } from "./SessionComposer";
 import { useSessionAvailability } from "@/features/sessions/availability";
 import { Transcript } from "./Transcript";
 import "./session-view.css";
+import { displayPreferencesStore } from "@/stores/displayPreferences";
 
 const log = createDebugLogger("sessionView");
 
@@ -42,6 +43,7 @@ export function SessionView({
   feedReason = "session",
   excludeAgentApprovals,
 }: SessionViewProps) {
+  const conversationWidth = useStore(displayPreferencesStore, (state) => state.conversationWidth);
   useSessionAvailability(sessionId);
   const session = useStore(
     sessionsStore,
@@ -72,7 +74,7 @@ export function SessionView({
   }, [sessionId, harness, feedReason]);
 
   return (
-    <div className="session-view">
+    <div className="session-view" data-conversation-width={conversationWidth}>
       <div className="session-view-column">
         <SessionStatusRow sessionId={sessionId} />
         {harness === undefined ? null : (

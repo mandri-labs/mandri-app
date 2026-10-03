@@ -1,5 +1,6 @@
 {
   "core": {
+    "status": {"working":"Working", "waiting":"Waiting for input", "unknown":"Activity could not be confirmed", "unread_completed":"Completed · unread", "unread_failed":"Failed · unread", "unread_interrupted":"Interrupted · unread", "mark_read":"Mark as read", "read_error":"Unable to mark this conversation as read"},
     "permissions": {
       "legacy": "Previous profile: {{mode}}",
       "claude": {
@@ -184,6 +185,7 @@
       "session_files_changed_other": "{{count}} files changed in the session",
       "diff_unavailable": "The combined diff is unavailable; individual edits remain in the activities.",
       "thinking": "Thinking",
+      "compacting": "Compacting conversation context…",
       "waiting_approval": "Waiting for approval",
       "waiting_answer": "Waiting for your answer",
       "preparation": {
@@ -563,6 +565,10 @@
         "theme": "Theme",
         "theme_dark": "Dark",
         "theme_light": "Light",
+        "conversation_width": "Conversation width",
+        "width_standard": "Standard",
+        "width_wide": "Wide",
+        "width_full": "Full width",
         "hide_temporary_folders": "Hide temporary folders in the sidebar (on this device)",
         "technical_events": "Show technical events (debug, on this device)"
       },

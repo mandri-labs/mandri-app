@@ -1,3 +1,5 @@
+import { ConversationIndicator } from "@/features/sessions/ConversationIndicator";
+import { ConversationReadMenu } from "@/features/sessions/ConversationReadMenu";
 import { useTranslation } from "react-i18next";
 import type { AgentView } from "@/daemon/types/agents";
 import { navigate } from "@/app/useHashRoute";
@@ -30,8 +32,7 @@ export function AgentSidebar({ agents, activeId }: { agents: AgentView[]; active
       </button>
       {expanded &&
         rows.map(({ agent, depth }) => (
-          <button
-            key={agent.id}
+          <div key={agent.id} className={`shell-session-container${activeId === agent.id ? " shell-session-container--active" : ""}`}><button
             type="button"
             title={agent.title}
             className={`shell-session-row shell-agent-row${activeId === agent.id ? " shell-session-row--active" : ""}`}
@@ -40,15 +41,16 @@ export function AgentSidebar({ agents, activeId }: { agents: AgentView[]; active
             aria-current={activeId === agent.id ? "page" : undefined}
             onClick={() => navigate({ name: "agent", id: agent.id })}
           >
-            <span
-              className={`shell-agent-state shell-agent-state--${agent.state}`}
-              aria-hidden="true"
-            />
+            <span className="shell-session-icon-slot" aria-hidden="true" />
             <span className="shell-session-title">{agent.title}</span>
-            <span className={`shell-agent-label shell-agent-label--${agent.state}`}>
-              {t(`core.agents.state.${agent.state}`)}
+            <span className="shell-session-status-slot">
+              <ConversationIndicator
+                target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`}
+              />
             </span>
           </button>
+          <ConversationReadMenu target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`} />
+          </div>
         ))}
     </div>
   );

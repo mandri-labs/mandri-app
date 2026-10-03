@@ -1,3 +1,4 @@
+import { ingestConversationFrame } from "@/stores/conversationStatus";
 import { ingestNativeSessionUi } from "@/stores/nativeSessionUi";
 import { approvalsStore } from "@/stores/approvals";
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
@@ -121,6 +122,7 @@ export function registerIngest(ingest: FrameIngest): () => void {
 }
 
 export function dispatchFrame(message: ServerMessage): void {
+  ingestConversationFrame(message);
   ensureApprovalSync();
   approvalsStore.getState().ingestFrame(message);
   if (!("type" in message && (message.type === "approval.pending" || message.type === "approval.resolved"))) {

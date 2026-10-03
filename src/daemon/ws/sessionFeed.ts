@@ -33,6 +33,8 @@ const HISTORY_RETRY_MAX_MS = 8_000;
 const log = createDebugLogger("sessionFeed");
 
 export interface HistoryPage {
+  completion_revision?: number | null;
+  completion_target?: string | null;
   turn_active?: boolean | null;
   external_busy?: boolean | null;
   external_model?: string | null;
@@ -547,6 +549,10 @@ export class SessionFeedService {
         totalNodes: merged.length,
       });
       this.syncFlags(buffer);
+      if (cursor === null) transcriptStore.getState().setFlags(sessionId, {
+        loadedCompletionRevision: page.entries.length ? page.completion_revision ?? null : null,
+        loadedCompletionTarget: page.completion_target ?? null,
+      });
     } catch (error) {
       if (this.buffers.get(sessionId) !== buffer) return;
       if (

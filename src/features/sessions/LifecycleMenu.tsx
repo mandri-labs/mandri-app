@@ -1,3 +1,4 @@
+import { ConversationReadItem } from "./ConversationReadMenu";
 import { BarChart3, MoreVertical, Pencil, Play, Trash2, LockOpen, RotateCcw } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -138,6 +139,7 @@ export function LifecycleMenu({ session, className = "" }: LifecycleMenuProps) {
       </button>
       {open ? createPortal(
         <div ref={menuRef} className="lifecycle-popover" role="menu">
+          <ConversationReadItem target={`session:${session.id}`} disabled={busy} run={run} />
           {canCreate && (
             <button
               type="button"

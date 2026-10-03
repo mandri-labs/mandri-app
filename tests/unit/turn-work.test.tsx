@@ -23,6 +23,43 @@ const harnesses: HarnessKind[] = ["codex", "claude", "opencode", "agy", "pi"];
 const turns = () => sessionsStore.getState().sessions.s!.turnWork ?? [];
 beforeAll(() => initI18n("en"));
 
+it.each([false, true])("shows Codex compaction before the user echo with turn started=%s and clears it on stop", async (started) => {
+  const { feed, send } = setup("codex");
+  transcriptStore.getState().addPendingUser("s", "Continue the requested changes");
+  sessionsStore.getState().applySessionPatch("s", { nativeTurnActive: false });
+  if (started) send({ method: "turn/started", params: { threadId: "native", turn: { id: "turn" } } }, 1000);
+  send({ method: "item/started", params: {
+    threadId: "native", turnId: "turn", item: { id: "compact", type: "contextCompaction" },
+  } }, 1001);
+  const view = render(<Transcript sessionId="s" harness="codex" feed={feed} />);
+  await act(async () => {});
+  expect(view.container.textContent).toContain("Compacting conversation context");
+  expect(view.container.textContent).toContain("Continue the requested changes");
+  expect(view.container.querySelector(".conversation-indicator--working")).toBeNull();
+  act(() => send({ method: "item/completed", params: {
+    threadId: "child", item: { id: "other", type: "contextCompaction" },
+  } }, 1002));
+  expect(view.container.textContent).toContain("Compacting conversation context");
+  act(() => sessionsStore.getState().ingestFrame({
+    type: "session_stopped", topic: "session.s", seq: 4, source: "mandri", ts: 2000,
+    raw: { session_id: "s", harness: "codex", state: "stopped", cause: "viewer_stop" },
+  }));
+  expect(view.container.textContent).not.toContain("Compacting conversation context");
+  expect(transcriptStore.getState().transcripts.s?.localUsers?.[0]?.node.text)
+    .toBe("Continue the requested changes");
+});
+
+it("clears the Codex compaction notice when the native compaction finishes", () => {
+  const { send } = setup("codex");
+  const params = { threadId: "native", turnId: "turn", item: { id: "compact", type: "contextCompaction" } };
+  send({ method: "turn/started", params: { threadId: "native", turn: { id: "turn" } } }, 1000);
+  send({ method: "item/started", params }, 1001);
+  expect(sessionsStore.getState().sessions.s?.nativeTurnCompacting).toBe(true);
+  send({ method: "item/completed", params }, 2000);
+  expect(sessionsStore.getState().sessions.s?.nativeTurnCompacting).toBe(false);
+  expect(sessionsStore.getState().sessions.s?.nativeTurnActive).toBe(true);
+});
+
 it("keeps a failed Codex turn beside its error when a later turn succeeds", async () => {
   const { feed, send, setHistory } = setup("codex");
   send({ method: "turn/started", params: { threadId: "native", turn: { id: "failed" } } }, 1000);
@@ -64,6 +101,7 @@ it("keeps a failed Codex turn beside its error when a later turn succeeds", asyn
     .toBeLessThan(reloaded.container.textContent!.indexOf("Synthetic provider rejection"));
 });
 beforeEach(() => {
+  localStorage.clear();
   sessionsStore.setState(sessionsStore.getInitialState());
   transcriptStore.getState().resetTranscripts();
 });

@@ -1,3 +1,4 @@
+import type { ConversationStatus } from "./conversationStatus";
 import type { CommandParams, CommandRequest, CommandResults } from "./commands";
 export type HarnessKind = "codex" | "claude" | "opencode" | "agy" | "pi";
 
@@ -40,6 +41,7 @@ export type ProtocolErrorCode =
   | "duplicate_op_id";
 
 export type WsTopic =
+  | "conversations.all"
   | "sessions.all"
   | `session.${string}`
   | "agents.all"
@@ -142,6 +144,7 @@ export interface SessionInterruptParams {
 export type RequestAction =
   | keyof CommandParams
   | keyof AgentParams
+  | "conversation.read"
   | "session.list"
   | "session.history"
   | "approval.answer"
@@ -152,6 +155,7 @@ export type RequestAction =
 
 export type RequestMessage =
   | CommandRequest
+  | { type: "request"; op_id: string; action: "conversation.read"; params: { target: string; through_revision: number; completion_key: string } }
   | AgentRequest
   | { type: "request"; op_id: string; action: "session.list"; params: Record<string, never> }
   | {
@@ -196,8 +200,11 @@ export type SessionInterruptResult = {
 };
 
 export type ActionResultMap = CommandResults & AgentResults & {
+  "conversation.read": ConversationStatus;
   "session.list": { sessions: import("./rest.gen").components["schemas"]["SessionOut"][] };
   "session.history": {
+    completion_revision?: number | null;
+    completion_target?: string | null;
     entries: string[];
     next_cursor: string | null;
     has_more: boolean;
@@ -227,6 +234,7 @@ export interface SnapshotMessage {
   type: "snapshot";
   topic: "sessions.all";
   sessions: SnapshotSession[];
+  statuses?: ConversationStatus[];
   runtimes: RuntimeStatus[];
 }
 
@@ -325,6 +333,7 @@ export type ServerMessage =
   | SubscribedMessage
   | UnsubscribedMessage
   | SnapshotMessage
+  | { type: "conversation_status"; topic: "conversations.all"; seq: number; status: ConversationStatus }
   | EventMessage
   | DegradationMessage
   | ApprovalPendingMessage

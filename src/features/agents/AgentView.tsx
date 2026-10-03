@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ArrowUp, Square } from "lucide-react";
 import { useStore } from "@/app/useStore";
+import { displayPreferencesStore } from "@/stores/displayPreferences";
 import { getDaemonSocket } from "@/app/connection";
 import { daemonErrorKey, DaemonError } from "@/daemon/errors";
 import { acquireAgentFeed, releaseAgentFeed, getAgentFeed } from "./agentFeed";
@@ -21,6 +22,7 @@ export function AgentView({
   feedReason?: "view" | "pane";
 }) {
   const agentFeed = getAgentFeed();
+  const conversationWidth = useStore(displayPreferencesStore, (state) => state.conversationWidth);
   const { t } = useTranslation();
   const agent = useStore(agentsStore, (state) => state.agents[agentId]);
   const loadingError = useStore(agentsStore, (state) => state.error);
@@ -102,12 +104,10 @@ export function AgentView({
     }
   };
   return (
-    <div className="session-view">
+    <div className="session-view" data-conversation-width={conversationWidth}>
       <div className="session-view-column">
         <div className="agents-toolbar">
-          <span className={`agent-status agent-status--${agent.state}`}>
-            {t(`core.agents.state.${agent.state}`)}
-          </span>
+
           {agent.capabilities.stop && (
             <button
               className="agents-stop"

@@ -992,6 +992,41 @@ export interface components {
             /** Size */
             size: number;
         };
+        /** ConversationStatus */
+        ConversationStatus: {
+            /** Completion Content Key */
+            completion_content_key?: string | null;
+            /** Completion Key */
+            completion_key?: string | null;
+            /**
+             * Completion Revision
+             * @default 0
+             */
+            completion_revision?: number;
+            /**
+             * Cycle Active
+             * @default false
+             */
+            cycle_active?: boolean;
+            /** Observation Source */
+            observation_source?: ("live" | "native") | null;
+            outcome?: components["schemas"]["WorkOutcome"] | null;
+            pending_outcome?: components["schemas"]["WorkOutcome"] | null;
+            /**
+             * Read Revision
+             * @default 0
+             */
+            read_revision?: number;
+            /**
+             * Revision
+             * @default 0
+             */
+            revision?: number;
+            /** Target */
+            target: string;
+            /** @default idle */
+            work_state?: components["schemas"]["WorkState"];
+        };
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -1511,6 +1546,7 @@ export interface components {
             reasoning_effort?: string | null;
             /** State */
             state: string;
+            status?: components["schemas"]["ConversationStatus"] | null;
             /** Title */
             title: string;
             /** Updated At */
@@ -1856,6 +1892,10 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** @enum {string} */
+        WorkOutcome: "completed" | "failed" | "interrupted";
+        /** @enum {string} */
+        WorkState: "idle" | "working" | "waiting" | "unknown";
         /** Worktree */
         Worktree: {
             /** Base Commit */

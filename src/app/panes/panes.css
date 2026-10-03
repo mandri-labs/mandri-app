@@ -176,7 +176,7 @@
   min-height: 0;
   min-width: 0;
 }
-.pane-body .session-view-column {
+.pane-workspace--split .pane-body .session-view-column {
   width: 100%;
 }
 .pane-body .session-approvals {

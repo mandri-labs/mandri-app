@@ -1,10 +1,11 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import { initI18n } from "@/i18n";
 import { SessionView } from "@/features/transcript/SessionView";
 import { keepAlive } from "@/daemon/ws/keepAlive";
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
 import { panesStore } from "@/stores/panes";
+import { displayPreferencesStore } from "@/stores/displayPreferences";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
 import type { SessionView as SessionRow } from "@/stores/sessions";
 
@@ -54,6 +55,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  displayPreferencesStore.setState(displayPreferencesStore.getInitialState());
   sessionsStore.setState({ sessions: {}, order: [], filters: {}, syncState: "idle" });
   transcriptStore.getState().resetTranscripts();
   panesStore.setState({ panes: [], lastActionRejected: undefined });
@@ -64,6 +66,16 @@ afterEach(() => {
 });
 
 describe("SessionView", () => {
+  it("applies width changes immediately to the current conversation", () => {
+    seedSession({ id: "s1" });
+    const { container } = render(<SessionView sessionId="s1" />);
+    const view = container.querySelector(".session-view")!;
+    expect(view.getAttribute("data-conversation-width")).toBe("standard");
+    for (const width of ["wide", "full", "standard"] as const) {
+      act(() => displayPreferencesStore.getState().setConversationWidth(width));
+      expect(view.getAttribute("data-conversation-width")).toBe(width);
+    }
+  });
   it("ensures the feed and acquires keepalive on mount, releases on unmount", () => {
     seedSession({ id: "s1", harness: "claude", state: "live" });
     const { unmount } = render(<SessionView sessionId="s1" />);

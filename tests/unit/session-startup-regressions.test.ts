@@ -6,6 +6,7 @@ import type { HarnessKind } from "@/daemon/types/ws";
 import { isSessionWorking } from "@/features/transcript/turnActivity";
 
 beforeEach(() => {
+  localStorage.clear();
   sessionsStore.setState(sessionsStore.getInitialState());
   transcriptStore.getState().resetTranscripts();
 });

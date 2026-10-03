@@ -1,3 +1,4 @@
+import { ingestConversationStatus } from "./conversationStatus";
 import { daemonIdentity } from "@/daemon/identity";
 import { composerStorageKey, readSessionDrafts, writeComposerStorage } from "@/lib/composerStorage";
 import { sessionModelRef } from "@/daemon/modelSelection";
@@ -15,13 +16,14 @@ import type {
 } from "@/daemon/types/ws";
 import type { components } from "@/daemon/types/rest.gen";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
-import { nativeTurnNotice } from "@/features/transcript/turnActivity";
+import { nativeCompactionActive, nativeTurnNotice } from "@/features/transcript/turnActivity";
 import { stoppedNodes } from "@/features/transcript/stoppedNodes";
 import { normalizeTurnEvent } from "@/features/transcript/turns/normalize";
 import { reduceTurnEvent } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnWork } from "@/features/transcript/turns/types";
 export type { TurnWork } from "@/features/transcript/turns/types";
-import { preserveLocalUserPresentation, reconcilePendingUsers } from "@/features/transcript/optimistic";
+import { pendingUserBaseline, preserveLocalUserPresentation, reconcilePendingUsers } from "@/features/transcript/optimistic";
+import { readPendingUsers, writePendingUsers } from "@/features/transcript/pendingUserStorage";
 import { userImages } from "@/features/transcript/parse/images";
 import type { PendingUser } from "@/features/transcript/optimistic";
 import type { SessionAvailability } from "@/daemon/rest/availability";
@@ -74,6 +76,7 @@ export interface SessionView extends SessionPolicy {
   awaitingResponse?: boolean;
   nativeTurnActive?: boolean;
   nativeTurnNotice?: string | null;
+  nativeTurnCompacting?: boolean;
   nativeTurnStartedAt?: number;
   executionPhaseUpdatedAt?: number;
   turnWork?: readonly TurnWork[];
@@ -278,6 +281,7 @@ export function stoppedPatch(session: SessionView, stoppedAt: number, cause?: Se
     awaitingResponse: false,
     sending: false,
     nativeTurnNotice: null,
+    nativeTurnCompacting: false,
     availabilityStatus: "stale",
     availabilityUpdatedAt: undefined,
     turnWork: external ? session.turnWork : session.turnWork?.map((turn) => !turnCompleted(turn)
@@ -513,6 +517,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
               key: `${event.topic}:${event.ts}:${event.seq}`, nativeId: session.nativeId, timestamp: event.ts,
             });
             const notice = nativeTurnNotice(session.harness, session.nativeId, event.raw);
+            const compacting = nativeCompactionActive(session.harness, session.nativeId, event.raw);
             patchSession(id, (existing) => {
               const turns = turnEvent ? reduceTurnEvent(existing.turnWork ?? [], turnEvent) : existing.turnWork;
               const current = turns?.at(-1);
@@ -522,6 +527,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
               return {
                 ...existing,
                 ...(notice !== undefined ? { nativeTurnNotice: notice } : {}),
+                ...(compacting !== undefined ? { nativeTurnCompacting: compacting } : {}),
                 ...(active !== undefined ? {
                   nativeTurnActive: active,
                   nativeTurnStartedAt: active
@@ -542,6 +548,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
     },
 
     upsertFromRest: (rows) => {
+      for (const row of rows) ingestConversationStatus(row.status);
       for (const row of rows) {
         const harness = parseHarness(row.harness);
         if (harness === undefined) {
@@ -611,6 +618,8 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
 });
 
 export interface TranscriptSnapshot {
+  loadedCompletionRevision?: number | null;
+  loadedCompletionTarget?: string | null;
   nodes: readonly TranscriptNode[];
   pendingUsers?: readonly PendingUser[];
   localUsers?: readonly PendingUser[];
@@ -620,7 +629,7 @@ export interface TranscriptSnapshot {
 }
 
 export type TranscriptFlagPatch = Partial<
-  Pick<TranscriptSnapshot, "gapFlag" | "historyUnavailable" | "historyExhausted">
+  Pick<TranscriptSnapshot, "gapFlag" | "historyUnavailable" | "historyExhausted" | "loadedCompletionRevision" | "loadedCompletionTarget">
 >;
 
 export interface TranscriptsState {
@@ -642,7 +651,7 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
     const key = `local-${crypto.randomUUID()}`;
     const pending: PendingUser = {
       node: { kind: "user", text, key, ...(images?.length ? { images } : {}), localPresentation: { key, images } },
-      baseline: existing?.nodes ?? [],
+      baseline: pendingUserBaseline(existing?.nodes ?? []),
     };
     set({
       transcripts: {
@@ -695,11 +704,13 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
 
   setNodes: (sessionId, nodes, persistedNodes) => {
     const existing = get().transcripts[sessionId];
-    const local = existing?.localUsers ?? existing?.pendingUsers ?? [];
+    const local = existing?.localUsers ?? existing?.pendingUsers ?? readPendingUsers(sessionId);
     const presented = preserveLocalUserPresentation(existing?.nodes ?? [], nodes, local);
     const localUsers = persistedNodes ? reconcilePendingUsers(local, persistedNodes) : local;
     const next: TranscriptSnapshot = {
       nodes: presented,
+      loadedCompletionRevision: existing?.loadedCompletionRevision,
+      loadedCompletionTarget: existing?.loadedCompletionTarget,
       localUsers,
       pendingUsers: reconcilePendingUsers(localUsers, nodes),
       gapFlag: existing?.gapFlag ?? false,
@@ -718,12 +729,15 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
       gapFlag: existing?.gapFlag ?? false,
       historyUnavailable: existing?.historyUnavailable ?? false,
       historyExhausted: existing?.historyExhausted ?? false,
+      loadedCompletionRevision: existing?.loadedCompletionRevision,
+      loadedCompletionTarget: existing?.loadedCompletionTarget,
       ...flags,
     };
     set({ transcripts: { ...get().transcripts, [sessionId]: next } });
   },
 
   removeTranscript: (sessionId) => {
+    writePendingUsers(sessionId, []);
     const transcripts = { ...get().transcripts };
     delete transcripts[sessionId];
     set({ transcripts });
@@ -733,6 +747,14 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
     set({ transcripts: {} });
   },
 }));
+
+transcriptStore.subscribe((state, previous) => {
+  for (const [id, transcript] of Object.entries(state.transcripts)) {
+    if (transcript.localUsers && transcript.localUsers !== previous.transcripts[id]?.localUsers) {
+      writePendingUsers(id, transcript.localUsers);
+    }
+  }
+});
 
 export function selectTranscript(
   state: TranscriptsState,

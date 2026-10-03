@@ -6,6 +6,7 @@ import { connectDaemon, getDaemonSocket } from "@/app/connection";
 import { listRuntimes } from "@/daemon/rest/runtime";
 import { DEFAULT_DAEMON_BASE_URL, preferencesStore } from "@/stores/preferences";
 import { providersStore } from "@/stores/providers";
+import { displayPreferencesStore } from "@/stores/displayPreferences";
 import { listProviders, listProviderModels } from "@/daemon/rest/providers";
 import { SettingsModal } from "./SettingsModal";
 
@@ -51,6 +52,7 @@ function resetPreferences(): void {
 beforeEach(() => {
   cleanup();
   resetPreferences();
+  displayPreferencesStore.setState(displayPreferencesStore.getInitialState());
   providersStore.setState(providersStore.getInitialState());
   vi.mocked(listProviders).mockResolvedValue([
     { name: "openrouter", kind: "openrouter", state: "verified", api_base: null },
@@ -113,6 +115,24 @@ describe("SettingsModal", () => {
     fireEvent.click(screen.getByLabelText("Light"));
     expect(preferencesStore.getState().theme).toBe("light");
     expect(screen.queryByLabelText("Transcript density")).toBeNull();
+  });
+
+  it("saves conversation width locally from the appearance settings", async () => {
+    render(<SettingsModal open initialSection="appearance" onClose={() => undefined} />);
+    expect((screen.getByLabelText("Standard") as HTMLInputElement).checked).toBe(true);
+    for (const [label, width] of [
+      ["Wide", "wide"],
+      ["Full width", "full"],
+      ["Standard", "standard"],
+    ]) {
+      fireEvent.click(screen.getByLabelText(label!));
+      expect(displayPreferencesStore.getState().conversationWidth).toBe(width);
+      expect(JSON.parse(localStorage.getItem("mandri.display")!).state.conversationWidth).toBe(
+        width,
+      );
+      await displayPreferencesStore.persist.rehydrate();
+      expect((screen.getByLabelText(label!) as HTMLInputElement).checked).toBe(true);
+    }
   });
 
   it("calls changeLocale when the language changes", () => {

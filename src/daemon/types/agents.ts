@@ -1,3 +1,4 @@
+import type { ConversationStatus } from "./conversationStatus";
 import type { HarnessKind } from "./ws";
 
 export interface AgentView {
@@ -8,6 +9,7 @@ export interface AgentView {
   native_id: string;
   harness: HarnessKind;
   title: string;
+  status?: ConversationStatus | null;
   state: "running" | "completed" | "failed" | "stopped" | "waiting" | "unknown";
   delegation_id: string | null;
   task_id?: string | null;
@@ -30,7 +32,7 @@ export interface AgentResults {
     parent_capabilities: Record<string, { create: boolean }>;
     classified_session_ids: string[];
   };
-  "agent.history": { entries: string[]; next_cursor: string | null; has_more: boolean };
+  "agent.history": { entries: string[]; next_cursor: string | null; has_more: boolean; completion_revision?: number | null; completion_target?: string | null };
   "agent.create": { agent: AgentView };
   "agent.message": { agent_id: string; accepted: boolean };
   "agent.stop": { agent_id: string; stopped: boolean };

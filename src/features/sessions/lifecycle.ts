@@ -253,6 +253,7 @@ export function resumeSessionAction(sessionId: string): Promise<void> {
     lastStoppedAt: undefined,
     nativeTurnActive: undefined,
     nativeTurnNotice: undefined,
+    nativeTurnCompacting: false,
     promptError: undefined,
   });
   const pending = resumeSession(sessionId).finally(() => {

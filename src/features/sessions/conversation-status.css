@@ -1,0 +1,36 @@
+.conversation-indicator-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+.conversation-indicator {
+  display: inline-block;
+  box-sizing: border-box;
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.conversation-indicator--unread {
+  background: var(--color-accent);
+}
+.conversation-indicator--working {
+  border: 1.5px solid var(--color-accent);
+  border-right-color: transparent;
+  animation: conversation-spin 0.8s linear infinite;
+}
+.conversation-indicator--waiting {
+  border: 1.5px solid var(--color-ember);
+}
+.conversation-indicator--unknown {
+  border: 1px solid var(--color-text-muted);
+}
+@keyframes conversation-spin {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .conversation-indicator--working { animation: none; }
+}

@@ -22,6 +22,7 @@ import { useStore } from "@/app/useStore";
 import { changeLocale } from "@/i18n";
 import { preferencesStore } from "@/stores/preferences";
 import { debugPreferencesStore } from "@/stores/debugPreferences";
+import { displayPreferencesStore, type ConversationWidth } from "@/stores/displayPreferences";
 import type { LanguageSetting, ThemeSetting } from "@/stores/preferences";
 import { isTauri } from "@/lib/platform";
 import { listRuntimes } from "@/daemon/rest/runtime";
@@ -266,6 +267,7 @@ function ProvidersSection() {
 
 function AppearanceSection() {
   const { t } = useTranslation();
+  const conversationWidth = useStore(displayPreferencesStore, (state) => state.conversationWidth);
   const theme = useStore(preferencesStore, (state) => state.theme);
   const hideTemporaryFolders = useStore(
     sidebarPreferencesStore,
@@ -286,6 +288,17 @@ function AppearanceSection() {
           { value: "light", label: t("core.settings.appearance.theme_light") },
         ]}
         onChange={(next) => preferencesStore.getState().setTheme(next)}
+      />
+      <RadioGroup<ConversationWidth>
+        name="settings-conversation-width"
+        legend={t("core.settings.appearance.conversation_width")}
+        value={conversationWidth}
+        options={[
+          { value: "standard", label: t("core.settings.appearance.width_standard") },
+          { value: "wide", label: t("core.settings.appearance.width_wide") },
+          { value: "full", label: t("core.settings.appearance.width_full") },
+        ]}
+        onChange={(next) => displayPreferencesStore.getState().setConversationWidth(next)}
       />
       <Toggle
         label={t("core.settings.appearance.hide_temporary_folders")}

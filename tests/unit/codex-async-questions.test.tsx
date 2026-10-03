@@ -26,6 +26,7 @@ const history = [
 
 beforeAll(async () => { await initI18n("en"); });
 beforeEach(() => {
+  localStorage.clear();
   transcriptStore.getState().resetTranscripts();
   sessionsStore.setState({ sessions: { s1: { id: "s1", harness: "codex", state: "live",
     title: "Session", deleted: false, pendingApprovals: 0 } }, drafts: {}, order: ["s1"] });

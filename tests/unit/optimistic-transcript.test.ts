@@ -4,7 +4,10 @@ import { withPendingUsers } from "@/features/transcript/optimistic";
 import { parseFrame, parseHistoryLine } from "@/features/transcript/parse";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
 
-beforeEach(() => transcriptStore.getState().resetTranscripts());
+beforeEach(() => {
+  localStorage.clear();
+  transcriptStore.getState().resetTranscripts();
+});
 
 const previous: TranscriptNode[] = [
   { kind: "user", text: "Retry", key: "old-user" },

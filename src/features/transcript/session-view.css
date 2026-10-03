@@ -10,9 +10,17 @@
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  width: min(800px, 100%);
+  width: min(var(--conversation-width, 800px), 100%);
   margin: 0 auto;
   min-height: 0;
+}
+
+.session-view[data-conversation-width="wide"] {
+  --conversation-width: 1200px;
+}
+
+.session-view[data-conversation-width="full"] {
+  --conversation-width: 100%;
 }
 
 .session-status {

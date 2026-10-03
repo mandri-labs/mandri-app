@@ -421,21 +421,24 @@ it("clears STOP after native completion despite an active metadata snapshot", ()
 it.each([
   { sending: true }, { awaitingResponse: true }, { pendingApprovals: 1 },
   { stopping: true }, { nativeTurnActive: undefined }, { externalBusy: true },
-])("keeps STOP and the session indicator for pending work %j", (pending) => {
+])("keeps STOP available independently of the sidebar work indicator for %j", (pending) => {
   sessionsStore.getState().setDraft("s1", "");
   sessionsStore.getState().applySessionPatch("s1", {
     activity: "active", nativeTurnActive: false, promptError: null, ...pending,
   });
   render(<><Composer sessionId="s1" /><SessionDot session={sessionsStore.getState().sessions.s1!} /></>);
   expect(screen.getByRole("button", { name: "Stop" })).toBeTruthy();
-  expect(document.querySelector(".session-dot--live")).toBeTruthy();
+  expect(Boolean(document.querySelector(".conversation-indicator--working"))).toBe(
+    sessionsStore.getState().sessions.s1?.externalBusy === true,
+  );
 });
 
-it("shows an idle session dot for the completed real-session snapshot", () => {
+it("keeps imported idle sessions neutral without an observed completion", () => {
   sessionsStore.getState().applySessionPatch("s1", {
     harness: "opencode", activity: "active", nativeTurnActive: false, promptError: null,
     sending: false, awaitingResponse: false, externalBusy: false,
   });
   render(<SessionDot session={sessionsStore.getState().sessions.s1!} />);
-  expect(document.querySelector(".session-dot--idle")).toBeTruthy();
+  expect(document.querySelector(".conversation-indicator-slot")).toBeTruthy();
+  expect(screen.queryByRole("img")).toBeNull();
 });

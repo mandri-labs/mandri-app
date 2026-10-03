@@ -5,7 +5,7 @@ import { useStore } from "@/app/useStore";
 import { approvalsStore, selectApprovalCount } from "@/stores/approvals";
 import { sessionWorkspace, type SessionView } from "@/stores/sessions";
 import { policyChoice } from "@/daemon/protection";
-import { isSessionBusy } from "@/features/transcript/turnActivity";
+import { ConversationIndicator } from "./ConversationIndicator";
 import { LifecycleMenu } from "./LifecycleMenu";
 import "./session-list.css";
 
@@ -16,13 +16,8 @@ export function lastSegment(path: string): string {
 }
 
 export function SessionDot({ session }: { session: SessionView }) {
-  const live = isSessionBusy(session);
-  return (
-    <span
-      className={`session-dot ${live ? "session-dot--live" : "session-dot--idle"}`}
-      aria-hidden="true"
-    />
-  );
+  return <ConversationIndicator target={`session:${session.id}`}
+    fallback={session.nativeTurnActive || session.externalBusy ? "working" : undefined} />;
 }
 
 export interface SessionRowProps {
@@ -53,19 +48,10 @@ export function SessionRow({ session, selected = false, onSelect }: SessionRowPr
         onClick={open}
         title={session.title}
       >
-        <SessionDot session={session} />
         <span className="session-item-title">{session.title}</span>
         <span className="session-item-meta">
           {session.policyConfirmed && policyChoice(session) !== "standard" ? (
             <span className="session-badge">{t(`core.protection.${policyChoice(session)}`)}</span>
-          ) : null}
-          <span className={`session-badge session-badge--${session.state}`}>
-            {t(`core.states.${session.state}`)}
-          </span>
-          {session.activity !== undefined ? (
-            <span className={`session-badge session-badge--${session.activity}`}>
-              {t(`core.states.${session.activity}`)}
-            </span>
           ) : null}
           {session.model !== undefined ? (
             <span className="session-item-model">{session.model}</span>
@@ -84,6 +70,7 @@ export function SessionRow({ session, selected = false, onSelect }: SessionRowPr
             </span>
           ) : null}
         </span>
+        <SessionDot session={session} />
       </button>
       <LifecycleMenu session={session} />
     </div>

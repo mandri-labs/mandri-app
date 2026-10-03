@@ -22,7 +22,7 @@ import {
 } from "./protocol";
 import type { Clock } from "./protocol";
 
-const CORE_TOPICS: WsTopic[] = ["sessions.all", "runtimes", "gateway.events"];
+const CORE_TOPICS: WsTopic[] = ["conversations.all", "sessions.all", "runtimes", "gateway.events"];
 const PING_TIMEOUT_MS = 45_000;
 const RECONNECT_BASE_MS = 500;
 const RECONNECT_MAX_MS = 10_000;

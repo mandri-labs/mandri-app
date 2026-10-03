@@ -218,6 +218,7 @@ describe("URL workspace restoration", () => {
       fireEvent(window, new HashChangeEvent("hashchange"));
     });
     await waitFor(() => expect(panesStore.getState().panes).toHaveLength(1));
+    expect(document.querySelector(".pane-workspace--split")).toBeNull();
     expect(panesStore.getState().splitRatio).toBe(65);
     act(() => {
       window.history.replaceState(null, "", "#/session/s1");

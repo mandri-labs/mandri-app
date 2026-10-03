@@ -52,19 +52,6 @@
   padding-left: 22px;
   font-size: var(--font-size-small);
 }
-.shell-agent-state {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--color-text-muted);
-}
-.shell-agent-state--running {
-  background: var(--color-accent);
-}
-.shell-agent-state--failed {
-  background: var(--color-ember);
-}
 .shell-agent-heading {
   display: flex;
   align-items: center;
@@ -84,54 +71,11 @@
   transform: rotate(90deg);
 }
 
-.agent-status {
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--color-raised);
-}
-.agent-status--running {
-  color: var(--color-accent-bright);
-}
-.agent-status--waiting {
-  color: var(--color-ember);
-}
-.agent-status--failed {
-  color: var(--color-danger);
-}
 .shell-agent-row {
-  height: auto;
-  min-height: 34px;
-  align-items: flex-start;
-  gap: 6px;
-  flex-wrap: wrap;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-.shell-agent-row .shell-agent-state {
-  margin-top: 5px;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 .shell-agent-row .shell-session-title {
   flex: 1;
   min-width: 0;
-}
-.shell-agent-label {
-  flex: none;
-  max-width: 100%;
-  font-size: var(--font-size-telemetry);
-  color: var(--color-text-muted);
-}
-.shell-agent-label--running {
-  color: var(--color-accent-bright);
-}
-.shell-agent-label--waiting {
-  color: var(--color-ember);
-}
-.shell-agent-label--failed {
-  color: var(--color-danger);
-}
-.shell-agent-state--waiting {
-  background: var(--color-ember);
-}
-.shell-agent-state--failed {
-  background: var(--color-danger);
 }

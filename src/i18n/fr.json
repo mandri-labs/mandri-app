@@ -1,5 +1,6 @@
 {
   "core": {
+    "status": {"working":"En cours", "waiting":"En attente de votre réponse", "unknown":"Activité impossible à confirmer", "unread_completed":"Terminée · non lue", "unread_failed":"Échec · non lue", "unread_interrupted":"Interrompue · non lue", "mark_read":"Marquer comme lue", "read_error":"Impossible de marquer cette conversation comme lue"},
     "permissions": {
       "legacy": "Ancien profil : {{mode}}",
       "claude": {
@@ -184,6 +185,7 @@
       "session_files_changed_other": "{{count}} fichiers modifiés dans la session",
       "diff_unavailable": "Le diff consolidé est indisponible ; les éditions restent consultables dans les activités.",
       "thinking": "Réflexion",
+      "compacting": "Compression du contexte de la conversation…",
       "waiting_approval": "En attente d’approbation",
       "waiting_answer": "En attente de votre réponse",
       "preparation": {
@@ -563,6 +565,10 @@
         "theme": "Thème",
         "theme_dark": "Sombre",
         "theme_light": "Clair",
+        "conversation_width": "Largeur des conversations",
+        "width_standard": "Standard",
+        "width_wide": "Large",
+        "width_full": "Pleine largeur",
         "hide_temporary_folders": "Masquer les dossiers temporaires dans la barre latérale (sur cet appareil)",
         "technical_events": "Afficher les événements techniques (debug, sur cet appareil)"
       },

@@ -1,3 +1,4 @@
+import { ingestConversationStatus } from "./conversationStatus";
 import { createStore } from "zustand/vanilla";
 import type { AgentView } from "@/daemon/types/agents";
 import type { ServerMessage } from "@/daemon/types/ws";
@@ -37,6 +38,7 @@ daemonIdentity.subscribe(() => {
 });
 
 export function upsertAgent(agent: AgentView): void {
+  ingestConversationStatus(agent.status);
   revision += 1;
   agentRevisions.set(agent.id, revision);
   agentsStore.setState((state) => ({ agents: { ...state.agents, [agent.id]: agent } }));
@@ -58,6 +60,7 @@ export function refreshAgents(): Promise<void> {
       if (generation !== daemonIdentity.getState().generation) return;
       if (!Array.isArray(result.agents))
         throw new DaemonError({ code: "unknown", message: "Invalid agent list" });
+      for (const agent of result.agents) ingestConversationStatus(agent.status);
       const listed = Object.fromEntries(result.agents.map((agent) => [agent.id, agent]));
       // A live event received during the list request is newer than that response.
       const agents = { ...listed };

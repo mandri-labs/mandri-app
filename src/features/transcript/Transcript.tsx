@@ -1,3 +1,4 @@
+import { useConversationRead } from "@/features/sessions/useConversationRead";
 import { useTranscriptViewport } from "./useTranscriptViewport";
 import { CommandHistory } from "@/features/commands/CommandHistory";
 import { commandsStore, EMPTY_COMMANDS } from "@/features/commands/store";
@@ -162,6 +163,7 @@ function SessionTranscript({
       pendingApprovals: current?.pendingApprovals ?? 0,
       awaitingResponse: current?.awaitingResponse,
       nativeTurnNotice: current?.nativeTurnNotice,
+      nativeTurnCompacting: current?.nativeTurnCompacting,
     };
   }));
   const awaitingInput = useStore(approvalsStore, useCallback((state) => Object.values(state.pending)
@@ -195,6 +197,8 @@ function SessionTranscript({
     activityLabel = t(phase === "starting" && session?.executionBackend === "docker"
       ? "core.transcript.preparation.starting_docker" : `core.transcript.preparation.${phase}`);
 
+  } else if (session.nativeTurnCompacting && session.working && !waiting) {
+    activityLabel = t("core.transcript.compacting");
   } else if (!working && session?.awaitingResponse) {
     activityLabel = t("core.transcript.thinking");
   } else if (waiting) {
@@ -279,6 +283,9 @@ function SessionTranscript({
     // An explicit pause (e.g. opening a tool) must also disable resize pinning.
     scrollEndThreshold: following ? FOLLOW_THRESHOLD_PX : -1,
   });
+
+  const refreshForRead = useCallback(() => feed.loadHistory(sessionId, { refresh: true, preserveOlder: true }), [feed, sessionId]);
+  useConversationRead({ sessionId, viewport: scrollRef, latestIndex: nodes.length - 1, refresh: refreshForRead });
 
   const totalSize = virtualizer.getTotalSize();
   const viewportHeight = virtualizer.scrollRect?.height;
