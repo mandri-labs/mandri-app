@@ -245,7 +245,7 @@ try {
   });
   await page.goto(`http://127.0.0.1:${address.port}/#/session/root-0`);
   await page.getByRole("button", { name: "Research child — Running", exact: true }).waitFor();
-  assert.equal(await page.locator(".shell-session-container").count(), 5);
+  assert.equal(await page.locator(".shell-session-container > .shell-session-row:not(.shell-agent-row)").count(), 5);
   assert.equal(await page.getByText("Native duplicate child", { exact: true }).count(), 0);
   assert.equal(await page.locator(".shell-agent-row").count(), 2);
   await page.getByRole("button", { name: "Sub-agents (2)", exact: true }).click();
@@ -404,7 +404,7 @@ try {
     params: { approval_id: "approval-child", decision: "once" },
   });
   await page.getByRole("button", { name: "Stop", exact: true }).click();
-  await page.locator(".shell-agent-label--stopped").waitFor();
+  await page.getByRole("button", { name: "Research child — Stopped", exact: true }).waitFor();
   assert.deepEqual(commands.at(-1), { action: "agent.stop", params: { agent_id: "child" } });
   await page.getByRole("button", { name: "Nested reviewer — Running", exact: true }).click();
   await page.getByText("Read-only Claude review", { exact: true }).waitFor();

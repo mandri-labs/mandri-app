@@ -695,7 +695,7 @@
     "protection": {
       "harness_settings": "Permissions et sandbox de {{harness}}",
       "execution_context": "Contexte d’exécution",
-      "stop_to_change": "Arrêtez la session pour changer sa protection.",
+      "stop_to_change": "Arrêtez la session pour changer son contexte d’exécution.",
       "execution": "Exécution",
       "harness_permissions": "Permissions de {{harness}}",
       "resuming": "Reprise de la session…",
@@ -706,6 +706,7 @@
       "standard_description": "Exécuter sur la machine du daemon.",
       "surrogate": "Pseudonymisation",
       "surrogate_description": "Remplacer le contexte sensible des LLM par des données surrogate réversibles.",
+      "privacy_live": "S’applique aux prochaines requêtes au modèle, sans redémarrage ni nouvelle session.",
       "docker": "Sandbox Docker",
       "docker_description": "Exécuter le harnais entier dans un conteneur jetable.",
       "paranoid": "Docker avec pseudonymisation",

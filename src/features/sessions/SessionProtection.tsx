@@ -9,7 +9,8 @@ import {
   type ProtectionChoice,
 } from "@/daemon/protection";
 import { DaemonError } from "@/daemon/errors";
-import { forkSession } from "@/daemon/rest/protection";
+import { forkSession, setSessionPrivacy } from "@/daemon/rest/protection";
+import { queueSessionModelChange } from "@/features/providers/sessionModelQueue";
 import { cancelStartup } from "@/daemon/rest/runtime";
 import { getSession, renameWorktree } from "@/daemon/rest/sessions";
 import { sessionsStore, type SessionView } from "@/stores/sessions";
@@ -112,15 +113,57 @@ function PolicyFork({
   const [worktreeId, setWorktreeId] = useState("");
   const mode = session.interactionMode ?? DEFAULT_MODE[session.harness];
   const canChange = session.state === "stopped" && session.resumeStartedAt === undefined;
-  const changed = choice !== policyChoice(session);
+  const selectedEnvironment = choicePolicy(choice);
+  const currentEnvironment = choicePolicy(policyChoice(session));
+  const changed =
+    selectedEnvironment.execution_backend !== currentEnvironment.execution_backend ||
+    !!selectedEnvironment.worktree !== !!currentEnvironment.worktree;
+  const nativeModel = session.model?.startsWith("native:") !== false;
   const [busy, setBusy] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const operation = useRef<{ id: string; cancelled: boolean } | undefined>(undefined);
   const [error, setError] = useState<string>();
+  const [contextAttempted, setContextAttempted] = useState(false);
   const selectedPolicy = choicePolicy(choice);
   const policy = {
     ...selectedPolicy,
     ...(selectedPolicy.worktree && worktreeId.trim() ? { worktree_id: worktreeId.trim() } : {}),
+  };
+  const select = async (next: ProtectionChoice) => {
+    const nextPolicy = choicePolicy(next);
+    if (nextPolicy.privacy_mode === selectedPolicy.privacy_mode) {
+      if (!canChange && next !== choice) {
+        setContextAttempted(true);
+        return;
+      }
+      setChoice(next);
+      return;
+    }
+    if (busy || nativeModel) return;
+    setContextAttempted(false);
+    setBusy(true);
+    onBusyChange(true);
+    setError(undefined);
+    try {
+      await queueSessionModelChange(session.id, async () => {
+        const row = await setSessionPrivacy(session.id, nextPolicy.privacy_mode);
+        const confirmed = policyFromWire(row);
+        if (row.id !== session.id || !confirmed.policyConfirmed ||
+            confirmed.privacyMode !== nextPolicy.privacy_mode) {
+          throw new DaemonError({
+            code: "session_policy_unconfirmed",
+            message: "The daemon did not confirm the privacy mode",
+          });
+        }
+        sessionsStore.getState().upsertFromRest([row]);
+      });
+      setChoice(next);
+    } catch (caught) {
+      setError(t(errorKey(caught)));
+    } finally {
+      setBusy(false);
+      onBusyChange(false);
+    }
   };
   const submit = async () => {
     if (busy || !canChange || !changed) return;
@@ -198,21 +241,22 @@ function PolicyFork({
       ) : null}
       <ProtectionMenu
         value={choice}
-        onSelect={setChoice}
-        disabled={busy || !canChange}
+        onSelect={(next) => { void select(next); }}
+        disabled={busy}
+        contextLocked={!canChange}
+        contextNotice={!canChange && contextAttempted ? t("core.protection.stop_to_change") : undefined}
+        privacyDisabled={busy || nativeModel || session.resumeStartedAt !== undefined || !!session.stopping}
         worktreeId={worktreeId}
         onWorktreeIdChange={changed ? setWorktreeId : undefined}
         onPrivacyInfo={session.privacyMode === "surrogate" ? onPrivacyInfo : undefined}
       />
-      {!canChange ? <p className="protection-note">{t("core.protection.stop_to_change")}</p> : null}
+      <p className="protection-note">
+        {t(nativeModel ? "core.protection.gateway_required" : "core.protection.privacy_live")}
+      </p>
+      {error ? <p role="alert" className="protection-note">{error}</p> : null}
       {changed ? (
         <div className="session-protection-confirm">
           <p className="protection-note">{t("core.protection.fork_description")}</p>
-          {error ? (
-            <p role="alert" className="protection-note">
-              {error}
-            </p>
-          ) : null}
           <div className="protection-fork-actions">
             <button
               type="button"

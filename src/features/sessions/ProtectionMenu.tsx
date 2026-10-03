@@ -9,6 +9,9 @@ export function ProtectionMenu({
   value,
   onSelect,
   disabled = false,
+  privacyDisabled = disabled,
+  contextLocked = false,
+  contextNotice,
   worktreeId = "",
   onWorktreeIdChange,
   onPrivacyInfo,
@@ -16,6 +19,9 @@ export function ProtectionMenu({
   value: ProtectionChoice;
   onSelect: (choice: ProtectionChoice) => void;
   disabled?: boolean;
+  privacyDisabled?: boolean;
+  contextLocked?: boolean;
+  contextNotice?: string;
   worktreeId?: string;
   onWorktreeIdChange?: (value: string) => void;
   onPrivacyInfo?: () => void;
@@ -60,6 +66,7 @@ export function ProtectionMenu({
             className="permission-option execution-option"
             aria-pressed={environment === choice}
             disabled={disabled}
+            aria-disabled={contextLocked || disabled}
             onClick={() => select(choice)}
           >
             <Icon size={17} aria-hidden="true" />
@@ -77,6 +84,7 @@ export function ProtectionMenu({
           </button>
         );
       })}
+      {contextNotice ? <p role="status" className="protection-note">{contextNotice}</p> : null}
       {environment === "worktree" && onWorktreeIdChange ? (
         <div className="worktree-name-field">
           <label htmlFor={inputId}>{t("core.protection.worktree_name")}</label>
@@ -101,7 +109,7 @@ export function ProtectionMenu({
           role="switch"
           aria-checked={surrogate}
           className="permission-option execution-option"
-          disabled={disabled}
+          disabled={privacyDisabled}
           onClick={() => select(environment, !surrogate)}
         >
           <ShieldCheck size={17} aria-hidden="true" />

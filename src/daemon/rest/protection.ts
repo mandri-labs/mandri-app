@@ -16,6 +16,16 @@ export function getExecutionStatus(id: string): Promise<ExecutionStatus> {
   return request(`/v1/runtime/sessions/${encodeURIComponent(id)}/execution`);
 }
 
+export function setSessionPrivacy(
+  id: string,
+  privacyMode: PolicyRequest["privacy_mode"],
+): Promise<components["schemas"]["SessionOut"]> {
+  return request(`/v1/sessions/${encodeURIComponent(id)}/privacy`, {
+    method: "PATCH",
+    body: { privacy_mode: privacyMode },
+  });
+}
+
 export function forkSession(
   id: string,
   body: components["schemas"]["SessionForkIn"],

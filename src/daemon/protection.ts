@@ -90,7 +90,8 @@ export function policyFromWire(raw: unknown, previous: SessionPolicy = {}): Sess
   if (revision < (previous.policyRevision ?? 0)) return previous;
   if (
     previous.policyConfirmed &&
-    (previous.executionBackend !== execution || previous.privacyMode !== privacy)
+    (previous.executionBackend !== execution ||
+      (previous.privacyMode !== privacy && revision === previous.policyRevision))
   ) {
     return { ...previous, executionReason: "session_policy_conflict", effectiveBinding: false };
   }

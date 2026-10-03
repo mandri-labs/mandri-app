@@ -253,7 +253,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.permission-option:disabled {
+.permission-option:disabled,
+.permission-option[aria-disabled="true"] {
   cursor: default;
   opacity: 0.65;
 }

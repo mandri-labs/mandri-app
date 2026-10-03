@@ -733,7 +733,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Set Session Privacy */
+        patch: operations["set_session_privacy"];
         trace?: never;
     };
     "/v1/sessions/{session_id}/release": {
@@ -1558,6 +1559,10 @@ export interface components {
          * @enum {string}
          */
         SessionOwner: "mandri" | "external" | "unowned" | "unknown";
+        /** SessionPrivacyIn */
+        SessionPrivacyIn: {
+            privacy_mode: components["schemas"]["PrivacyMode"];
+        };
         /** SessionPrivacyOut */
         SessionPrivacyOut: {
             /** Entries */
@@ -3879,6 +3884,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    set_session_privacy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SessionPrivacyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+            /** @description Resource not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Conflicting state */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

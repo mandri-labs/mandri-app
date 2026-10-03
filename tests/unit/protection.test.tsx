@@ -321,8 +321,12 @@ it("preserves confirmed policy across absent/stale metadata without overwriting 
     previous,
   );
   expect(stale.privacyMode).toBe("surrogate");
+  const updated = policyFromWire(
+    { execution_backend: "host", privacy_mode: "none", policy_revision: 4 }, previous,
+  );
+  expect(updated).toMatchObject({ privacyMode: "none", policyRevision: 4 });
   const conflict = policyFromWire(
-    { execution_backend: "host", privacy_mode: "none", policy_revision: 4 },
+    { execution_backend: "host", privacy_mode: "none", policy_revision: 3 },
     previous,
   );
   expect(conflict).toMatchObject({
@@ -377,7 +381,7 @@ it("shows a daemon refusal to fork without changing the source session", async (
   expect(sessionsStore.getState().order).toEqual(["protected"]);
 });
 
-it("forks with the supported API contract and preserves the source permission mode", async () => {
+it("forks execution context with the supported API contract and preserves permissions", async () => {
   const source = session({
     model: "fixture/model",
     interactionMode: "ask",
@@ -391,8 +395,8 @@ it("forks with the supported API contract and preserves the source permission mo
     harness: "codex",
     gateway_route_id: "route",
     state: "live",
-    execution_backend: "docker",
-    privacy_mode: "surrogate",
+    execution_backend: "host",
+    privacy_mode: "none",
     policy_revision: 1,
   };
   vi.mocked(request).mockImplementation(async (path) => {
@@ -412,18 +416,18 @@ it("forks with the supported API contract and preserves the source permission mo
   render(<SessionProtection session={source} />);
   fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
   expect(screen.queryByRole("button", { name: "Create new session" })).toBeNull();
-  fireEvent.click(screen.getByRole("switch", { name: /^Pseudonymized/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
   fireEvent.click(screen.getByRole("button", { name: "Create new session" }));
   await waitFor(() =>
-    expect(sessionsStore.getState().sessions.forked?.privacyMode).toBe("surrogate"),
+    expect(sessionsStore.getState().sessions.forked?.privacyMode).toBe("none"),
   );
   expect(request).toHaveBeenCalledWith(
     "/v1/sessions/protected/fork",
     expect.objectContaining({
       method: "POST",
       body: {
-        execution_backend: "docker",
-        privacy_mode: "surrogate",
+        execution_backend: "host",
+        privacy_mode: "none",
         mode: "ask",
         operation_id: expect.any(String),
       },
@@ -451,7 +455,7 @@ it("cancels a pending fork on the daemon and ignores its late successful result"
   vi.mocked(cancelStartup).mockResolvedValue(undefined);
   render(<SessionProtection session={source} />);
   fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
-  fireEvent.click(screen.getByRole("switch", { name: /^Pseudonymized/ }));
+  fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
   fireEvent.click(screen.getByRole("button", { name: "Create new session" }));
   fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
   await waitFor(() => expect(cancelStartup).toHaveBeenCalledTimes(1));
@@ -596,7 +600,9 @@ it("shows the selected protection without claiming the agent is ready", () => {
   expect(trigger.textContent).toContain("Docker with pseudonymization");
   expect(trigger.getAttribute("aria-expanded")).toBe("false");
   fireEvent.click(trigger);
-  expect(screen.getByRole("dialog").textContent).toContain("Stop the session");
+  expect(screen.getByRole("dialog").textContent).not.toContain("Stop the session");
+  fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
+  expect(screen.getByRole("status").textContent).toContain("Stop the session");
   expect((screen.getByRole("switch", { name: /^Pseudonymized/ }) as HTMLButtonElement).disabled).toBe(
     true,
   );

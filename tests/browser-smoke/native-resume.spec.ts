@@ -240,7 +240,8 @@ try {
     "1",
   );
   await row.locator(".lifecycle-trigger").click();
-  assert.equal(await page.getByRole("menuitem").count(), 4);
+  assert.equal(await page.getByRole("menuitem").count(), 5);
+  assert.equal(await page.getByRole("menuitem", { name: "Mark as read", exact: true }).count(), 1);
   assert.equal(await page.getByRole("menuitem", { name: "Release session" }).isDisabled(), true);
   assert.equal(
     await page
