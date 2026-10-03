@@ -37,6 +37,7 @@ const DAEMON_ERROR_CODES = [
   "prompt_delivery_failed",
   "control_delivery_failed",
   "delivery_unknown",
+  "composer_storage_unavailable",
   "internal_error",
   "agent_unsupported",
   "native_restore_failed",

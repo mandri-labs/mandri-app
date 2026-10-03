@@ -316,6 +316,7 @@ it("puts the local image inside the pending bubble while upload is unresolved", 
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "Describe this" } });
   fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file] } });
   fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  await waitFor(() => expect(transcriptStore.getState().transcripts.s1?.pendingUsers).toHaveLength(1));
   const node = transcriptStore.getState().transcripts.s1!.pendingUsers![0]!.node;
   expect(node.images?.[0]?.file).toBe(file);
   expect(document.querySelector(".attachment-chips")).toBeNull();

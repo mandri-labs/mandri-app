@@ -1,3 +1,4 @@
+import { setFiles } from "@/features/transcript/attachments";
 import { ingestConversationStatus } from "./conversationStatus";
 import { daemonIdentity } from "@/daemon/identity";
 import { composerStorageKey, readSessionDrafts, writeComposerStorage } from "@/lib/composerStorage";
@@ -25,7 +26,8 @@ export type { TurnWork } from "@/features/transcript/turns/types";
 import { pendingUserBaseline, preserveLocalUserPresentation, reconcilePendingUsers } from "@/features/transcript/optimistic";
 import { readPendingUsers, writePendingUsers } from "@/features/transcript/pendingUserStorage";
 import { userImages } from "@/features/transcript/parse/images";
-import type { PendingUser } from "@/features/transcript/optimistic";
+import { DaemonError } from "@/daemon/errors";
+import type { PendingDelivery, PendingUser } from "@/features/transcript/optimistic";
 import type { SessionAvailability } from "@/daemon/rest/availability";
 
 type SessionOut = components["schemas"]["SessionOut"];
@@ -96,7 +98,7 @@ export interface SessionsState {
   sessions: Record<string, SessionView>;
   // Keystrokes must not invalidate session metadata, the sidebar or transcripts.
   drafts: Record<string, string>;
-  setDraft: (sessionId: string, text: string) => void;
+  setDraft: (sessionId: string, text: string, requireStorage?: boolean) => boolean;
   order: string[];
   filters: SessionFilters;
   syncState: SyncState;
@@ -380,7 +382,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         const cleared = lifecycle.state === "live";
         patchSession(lifecycle.sessionId, (existing) => ({
           ...existing,
-          ...(lifecycle.state === "stopped" ? stoppedPatch(existing, ts) : {}),
+          ...(lifecycle.state === "stopped" && existing.state !== "stopped" ? stoppedPatch(existing, ts) : {}),
           state: lifecycle.state as SessionState,
           ...(lifecycle.state === "live" ? { lastStoppedAt: undefined } : {}),
           needsAttention: cleared ? false : existing.needsAttention,
@@ -437,8 +439,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         }),
         ...parsed,
         ...(parsed.state === "live" ? { lastStoppedAt: undefined } : {}),
-        ...(parsed.state === "stopped" && existing && (existing.state !== "stopped" || existing.sending || existing.awaitingResponse ||
-          (existing.nativeTurnActive === true && !existing.externalBusy))
+        ...(parsed.state === "stopped" && existing && (existing.state !== "stopped")
           ? stoppedPatch(existing, Date.now()) : {}),
         ...policyFromWire(entry, existing),
         deleted: existing?.deleted ?? false,
@@ -456,13 +457,14 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
   return {
     sessions: {},
     drafts: readSessionDrafts(),
-    setDraft: (sessionId, text) => {
-      if (get().drafts[sessionId] === text) return;
+    setDraft: (sessionId, text, requireStorage = false) => {
       const drafts = { ...get().drafts };
       if (text) drafts[sessionId] = text;
       else delete drafts[sessionId];
-      writeComposerStorage(composerStorageKey("text"), drafts);
+      const saved = writeComposerStorage(composerStorageKey("text"), drafts);
+      if (!saved && requireStorage) return false;
       set({ drafts: { ...get().drafts, [sessionId]: text } });
+      return saved;
     },
     order: [],
     filters: {},
@@ -561,8 +563,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           harness,
           state: parseState(row.state) ?? "discovered",
           ...(row.state === "live" ? { lastStoppedAt: undefined } : {}),
-          ...(row.state === "stopped" && existing && (existing.state !== "stopped" || existing.sending || existing.awaitingResponse ||
-            (existing.nativeTurnActive === true && !existing.externalBusy))
+          ...(row.state === "stopped" && existing && (existing.state !== "stopped")
             ? stoppedPatch(existing, Date.now()) : {}),
           deleted: existing?.deleted ?? false,
           title: row.title,
@@ -634,7 +635,8 @@ export type TranscriptFlagPatch = Partial<
 
 export interface TranscriptsState {
   transcripts: Record<string, TranscriptSnapshot>;
-  addPendingUser: (sessionId: string, text: string, images?: Extract<TranscriptNode, { kind: "user" }>["images"]) => string;
+  addPendingUser: (sessionId: string, text: string, images?: Extract<TranscriptNode, { kind: "user" }>["images"], delivery?: PendingDelivery) => string;
+  setDeliveryState: (sessionId: string, key: string, state: PendingDelivery["state"]) => boolean;
   updatePendingUser: (sessionId: string, key: string, text: string) => void;
   removePendingUser: (sessionId: string, key: string) => void;
   setNodes: (sessionId: string, nodes: readonly TranscriptNode[], persistedNodes?: readonly TranscriptNode[]) => void;
@@ -646,13 +648,18 @@ export interface TranscriptsState {
 export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
   transcripts: {},
 
-  addPendingUser: (sessionId, text, images) => {
+  addPendingUser: (sessionId, text, images, delivery) => {
     const existing = get().transcripts[sessionId];
+    const previousLocal = existing?.localUsers ?? existing?.pendingUsers ?? readPendingUsers(sessionId);
     const key = `local-${crypto.randomUUID()}`;
     const pending: PendingUser = {
       node: { kind: "user", text, key, ...(images?.length ? { images } : {}), localPresentation: { key, images } },
       baseline: pendingUserBaseline(existing?.nodes ?? []),
+      delivery,
     };
+    if (delivery && !writePendingUsers(sessionId, [...previousLocal, pending])) {
+      throw new DaemonError({ code: "composer_storage_unavailable", message: "Unable to save the message" });
+    }
     set({
       transcripts: {
         ...get().transcripts,
@@ -662,12 +669,24 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
           historyUnavailable: false,
           historyExhausted: false,
           ...existing,
-          pendingUsers: [...(existing?.pendingUsers ?? []), pending],
-          localUsers: [...(existing?.localUsers ?? existing?.pendingUsers ?? []), pending],
+          pendingUsers: [...reconcilePendingUsers(previousLocal, existing?.nodes ?? []), pending],
+          localUsers: [...previousLocal, pending],
         },
       },
     });
     return key;
+  },
+
+  setDeliveryState: (sessionId, key, state) => {
+    const existing = get().transcripts[sessionId];
+    if (!existing) return true;
+    const localUsers = (existing.localUsers ?? []).map((entry) => entry.node.key === key && entry.delivery
+      ? { ...entry, delivery: { ...entry.delivery, state } } : entry);
+    if (!writePendingUsers(sessionId, localUsers)) return false;
+    set({ transcripts: { ...get().transcripts, [sessionId]: {
+      ...existing, localUsers, pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
+    } } });
+    return true;
   },
 
   updatePendingUser: (sessionId, key, text) => {
@@ -751,7 +770,14 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
 transcriptStore.subscribe((state, previous) => {
   for (const [id, transcript] of Object.entries(state.transcripts)) {
     if (transcript.localUsers && transcript.localUsers !== previous.transcripts[id]?.localUsers) {
-      writePendingUsers(id, transcript.localUsers);
+      const previousLocal = previous.transcripts[id]?.localUsers ?? readPendingUsers(id);
+      const saved = writePendingUsers(id, transcript.localUsers);
+      if (saved) {
+        const retained = new Set(transcript.localUsers.map((entry) => entry.node.key));
+        for (const entry of previousLocal) {
+          if (!retained.has(entry.node.key) && entry.delivery?.filesKey) setFiles(entry.delivery.filesKey, []);
+        }
+      }
     }
   }
 });

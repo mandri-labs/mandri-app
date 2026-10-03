@@ -12,6 +12,8 @@ import { initI18n } from "@/i18n";
 import { connectionStore } from "@/stores/connection";
 import { preferencesStore } from "@/stores/preferences";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
+import { readPendingUsers } from "@/features/transcript/pendingUserStorage";
+import { restoreDelivery } from "@/features/transcript/promptDelivery";
 import { WelcomeComposer } from "@/features/sessions/WelcomeComposer";
 
 vi.mock("@/daemon/rest/client", async (importOriginal) => ({
@@ -577,4 +579,61 @@ it("restores welcome text and every setting without additional UI", async () => 
   render(<WelcomeComposer />);
   expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Edited prompt");
   expect(JSON.parse(localStorage.getItem(composerStorageKey("welcome"))!)).toEqual({ ...saved, text: "Edited prompt" });
+});
+
+
+it("retains the first message after a lost acknowledgement and recovers it after reload", async () => {
+  const send = vi.spyOn(sessionFeed, "sendPrompt").mockRejectedValueOnce(
+    new DaemonError({ code: "delivery_unknown", message: "Acknowledgement lost" }),
+  );
+  try {
+    sessionsStore.setState({ drafts: {} });
+    const view = render(<WelcomeComposer />);
+    await screen.findByText("Claude Code");
+    await pickFolder();
+    await submitPrompt("Keep my first message");
+    await waitFor(() => expect(readPendingUsers("session-1")[0]?.delivery?.state).toBe("unknown"));
+    expect(send).toHaveBeenCalledTimes(1);
+    view.unmount();
+    transcriptStore.getState().resetTranscripts();
+    transcriptStore.getState().setNodes("session-1", [], []);
+    const key = readPendingUsers("session-1")[0]!.node.key!;
+    expect(await restoreDelivery("session-1", key)).toBe(true);
+    expect(sessionsStore.getState().drafts["session-1"]).toBe("Keep my first message");
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(readPendingUsers("session-1")).toHaveLength(0);
+  } finally {
+    send.mockRestore();
+  }
+});
+
+
+it("restores the first message and files when stopped during upload", async () => {
+  let finishUpload!: (value: unknown) => void;
+  vi.mocked(request).mockImplementation(() => new Promise((resolve) => { finishUpload = resolve; }));
+  const send = vi.spyOn(sessionFeed, "sendPrompt").mockResolvedValue({ state: "queued", code: null });
+  const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
+  try {
+    sessionsStore.setState({ drafts: {} });
+    render(<WelcomeComposer />);
+    await screen.findByText("Claude Code");
+    await pickFolder();
+    fireEvent.change(document.querySelector('input[type="file"]')!, {
+      target: { files: [new File(["notes"], "notes.txt")] },
+    });
+    await submitPrompt("Keep my notes");
+    await waitFor(() => expect(request).toHaveBeenCalled());
+    act(() => sessionsStore.getState().ingestFrame({
+      topic: "sessions.all", seq: 1, ts: 1, source: "mandri",
+      raw: { type: "session_stopped", session_id: "session-1", cause: "user" },
+    }));
+    await act(async () => finishUpload({ id: "file", reference: "[notes.txt](/files/notes.txt)" }));
+    await waitFor(() => expect(sessionsStore.getState().drafts["session-1"]).toBe("Keep my notes"));
+    expect(await filesFor("session-1")[0]!.file.text()).toBe("notes");
+    expect(send).not.toHaveBeenCalled();
+    expect(readPendingUsers("session-1")).toHaveLength(0);
+  } finally {
+    send.mockRestore();
+    subscribe.mockRestore();
+  }
 });

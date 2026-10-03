@@ -35,6 +35,7 @@ export type ProtocolErrorCode =
   | "steer_no_active_turn"
   | "mode_requires_restart"
   | "mode_rejected"
+  | "delivery_unknown"
   | "prompt_delivery_failed"
   | "control_delivery_failed"
   | "invalid_params"

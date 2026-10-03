@@ -1,5 +1,5 @@
 import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@/lib/composerStorage";
-import type { PendingUser } from "./optimistic";
+import type { PendingDelivery, PendingUser } from "./optimistic";
 import type { TranscriptImage } from "./parse/images";
 
 function images(value: unknown): TranscriptImage[] | undefined {
@@ -13,6 +13,13 @@ function images(value: unknown): TranscriptImage[] | undefined {
   });
 }
 
+function delivery(value: unknown): PendingDelivery | undefined {
+  if (!value || typeof value !== "object" || !("content" in value) || typeof value.content !== "string" ||
+    !("state" in value) || !["preparing", "sending", "accepted", "unknown", "not_sent"].includes(String(value.state))) return undefined;
+  return { content: value.content, state: value.state as PendingDelivery["state"],
+    ...("filesKey" in value && typeof value.filesKey === "string" ? { filesKey: value.filesKey } : {}) };
+}
+
 export function readPendingUsers(sessionId: string): readonly PendingUser[] {
   const value = readComposerStorage<unknown>(composerStorageKey("pending", sessionId), []);
   if (!Array.isArray(value)) return [];
@@ -24,12 +31,12 @@ export function readPendingUsers(sessionId: string): readonly PendingUser[] {
       !Array.isArray(baseline) || !baseline.every((key: unknown) => typeof key === "string")) return [];
     return [{ node: { kind: "user", key: node.key, text: node.text,
       images: images("images" in node ? node.images : undefined),
-    }, baseline }];
+    }, baseline, delivery: delivery("delivery" in entry ? entry.delivery : undefined) }];
   });
 }
 
-export function writePendingUsers(sessionId: string, pending: readonly PendingUser[]): void {
-  writeComposerStorage(composerStorageKey("pending", sessionId), pending.length ? pending.map(({ node, baseline }) => ({
-    node: { kind: node.kind, key: node.key, text: node.text, images: images(node.images) }, baseline,
+export function writePendingUsers(sessionId: string, pending: readonly PendingUser[]): boolean {
+  return writeComposerStorage(composerStorageKey("pending", sessionId), pending.length ? pending.map(({ node, baseline, delivery }) => ({
+    node: { kind: node.kind, key: node.key, text: node.text, images: images(node.images) }, baseline, delivery,
   })) : null);
 }

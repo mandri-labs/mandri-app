@@ -1,7 +1,14 @@
 import { userContentKey } from "./parse/userContent";
 import type { TranscriptNode } from "./parse/types";
 
+export interface PendingDelivery {
+  content: string;
+  state: "preparing" | "sending" | "accepted" | "unknown" | "not_sent";
+  filesKey?: string;
+}
+
 export interface PendingUser {
+  delivery?: PendingDelivery;
   node: Extract<TranscriptNode, { kind: "user" }>;
   baseline: readonly string[];
 }

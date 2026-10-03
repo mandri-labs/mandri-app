@@ -858,6 +858,7 @@
     "control_delivery_failed": "La commande n'a pas pu être remise à la session.",
     "invalid_params": "La requête est mal formée. Veuillez réessayer.",
     "duplicate_op_id": "Cette opération est déjà en cours.",
+    "composer_storage_unavailable": "Le stockage local est indisponible ou plein. Votre message n’a pas été effacé. Libérez de l’espace avant de l’envoyer.",
     "delivery_unknown": "La connexion a été interrompue avant confirmation. La livraison est incertaine ; vérifiez la conversation après reconnexion avant de renvoyer le message.",
     "internal_error": "Le daemon n’a pas pu terminer cette opération. Réessayez.",
     "agent_unsupported": "Ce harnais ne prend pas en charge cette commande de sous-agent.",

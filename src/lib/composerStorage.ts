@@ -13,12 +13,13 @@ export function readComposerStorage<T>(key: string, fallback: T): T {
   }
 }
 
-export function writeComposerStorage(key: string, value: unknown): void {
+export function writeComposerStorage(key: string, value: unknown): boolean {
   try {
     if (value === null) localStorage.removeItem(key);
     else localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    // Storage can be unavailable or full; keep the current input usable.
+    return false;
   }
 }
 

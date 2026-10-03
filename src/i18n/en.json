@@ -858,6 +858,7 @@
     "control_delivery_failed": "The command could not be delivered to the session.",
     "invalid_params": "The request was malformed. Please try again.",
     "duplicate_op_id": "This operation is already in progress.",
+    "composer_storage_unavailable": "Local storage is unavailable or full. Your message has not been cleared. Free some space before sending.",
     "delivery_unknown": "The connection ended before confirmation. Delivery is uncertain; check the conversation after reconnection before sending again.",
     "internal_error": "The daemon could not complete this operation. Please try again.",
     "agent_unsupported": "This harness does not support this sub-agent command.",

@@ -307,12 +307,10 @@ export class SessionFeedService {
     if (!recorded.ok) this.handleGap(sessionId);
     if (event.source === "mandri" && asRecord(event.raw)?.["type"] === "history_changed") {
       if (asRecord(event.raw)?.["reset"] === true) {
-        // A native branch/session switch replaces the conversation, including
-        // optimistic rows and in-flight history from the previous branch.
         buffer.stopHistoryDeferral?.();
         buffer.cancelHistoryRetry?.();
         this.buffers.delete(sessionId);
-        transcriptStore.getState().removeTranscript(sessionId);
+        transcriptStore.getState().setNodes(sessionId, []);
         sessionsStore.getState().applySessionPatch(sessionId, { turnWork: [], nativeTurnActive: false });
         this.ensureSession(sessionId, harness);
         this.buffers.get(sessionId)!.tracker = buffer.tracker;

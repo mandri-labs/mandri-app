@@ -100,10 +100,10 @@ it("marks unfinished cold history as stopped without inventing its finish timest
   expect(sessionsStore.getState().sessions.s?.turnWork).toEqual([expect.objectContaining({ outcome: "stopped", endedAt: undefined })]);
 });
 
-it("a repeated stopped snapshot clears leftover delivery flags", () => {
+it("a repeated stopped snapshot preserves delivery while a stopped session is resuming", () => {
   sessionsStore.getState().applySessionPatch("s", { state: "stopped", sending: true, awaitingResponse: true });
   sessionsStore.getState().ingestFrame({ type: "snapshot", topic: "sessions.all", runtimes: [], sessions: [{ id: "s", harness: "codex", state: "stopped", title: "Synthetic" }] });
-  expect(sessionsStore.getState().sessions.s).toMatchObject({ state: "stopped", sending: false, awaitingResponse: false });
+  expect(sessionsStore.getState().sessions.s).toMatchObject({ state: "stopped", sending: true, awaitingResponse: true });
 });
 
 it("invalidates a pre-stop ownership response and confirms unowned after successful stop", async () => {

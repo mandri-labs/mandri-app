@@ -144,3 +144,22 @@ export function attachmentMessage(text: string, files: readonly UploadedAttachme
 }
 
 daemonIdentity.subscribe(() => attachmentDrafts.setState({ drafts: {}, errors: {} }));
+
+export async function persistFiles(key: string, files: readonly DraftAttachment[]): Promise<boolean> {
+  const storageKey = composerStorageKey("files", key);
+  const generation = daemonIdentity.getState().generation;
+  const revision = {};
+  writes.set(storageKey, revision);
+  try {
+    const stored = await Promise.all(files.map(async ({ key: fileKey, file }) => ({
+      key: fileKey, name: file.name, type: file.type, lastModified: file.lastModified,
+      data: await encodeFile(file),
+    })));
+    if (generation !== daemonIdentity.getState().generation || writes.get(storageKey) !== revision) return false;
+    if (!writeComposerStorage(storageKey, stored.length ? stored : null)) return false;
+    attachmentDrafts.setState(({ drafts }) => ({ drafts: { ...drafts, [key]: [...files] } }));
+    return true;
+  } catch {
+    return false;
+  }
+}

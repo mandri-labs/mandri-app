@@ -20,6 +20,7 @@ beforeAll(async () => {
   await initI18n("en");
 });
 beforeEach(() => {
+  localStorage.clear();
   transcriptStore.getState().resetTranscripts();
   sessionsStore.setState({
     sessions: {
@@ -195,7 +196,7 @@ it("preserves both the failed message and text composed during delivery", async 
   const input = screen.getByRole("textbox") as HTMLTextAreaElement;
   fireEvent.keyDown(input, { key: "Enter" });
   fireEvent.change(input, { target: { value: "Next draft" } });
-  rejectPrompt(new Error("offline"));
+  rejectPrompt(new DaemonError({ code: "service_unavailable", message: "offline" }));
   await screen.findByRole("alert");
   expect(input.value).toBe("Unsent first prompt\n\nNext draft");
 });

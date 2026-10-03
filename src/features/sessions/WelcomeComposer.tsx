@@ -1,3 +1,4 @@
+import { deliveryUncertain, markDelivery, restoreDelivery } from "@/features/transcript/promptDelivery";
 import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@/lib/composerStorage";
 import { useTranscriptViewport } from "@/features/transcript/useTranscriptViewport";
 import { useComposerAutosize } from "@/features/transcript/useComposerAutosize";
@@ -13,6 +14,7 @@ import {
   useAttachmentInput,
 } from "@/features/transcript/AttachmentInput";
 import {
+  persistFiles,
   draftMessage,
   attachmentMessage,
   uploadFiles,
@@ -347,11 +349,26 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
           sessionFeed.ensureSession(created.id, created.harness, { newSession: true });
           sessionFeed.subscribeSession(created.id);
         }
+        const filesKey = selected.length ? `delivery:${crypto.randomUUID()}` : undefined;
+        if (filesKey && !await persistFiles(filesKey, selected)) throw new DaemonError({
+          code: "composer_storage_unavailable", message: "Unable to retain message attachments",
+        });
+        if (generation !== daemonIdentity.getState().generation) return;
+        const preview = draftMessage(composed, selected);
+        let pendingKey: string;
+        try {
+          pendingKey = transcriptStore.getState().addPendingUser(created.id, preview.text, preview.images, {
+            content: composed, state: "preparing", filesKey,
+          });
+        } catch (error) {
+          if (filesKey) setFiles(filesKey, []);
+          throw error;
+        }
         writeComposerStorage(storageKey, { text: "", harness, mode, protection, worktreeId, model, effort, cwd });
         setFiles(created.id, selected);
         removeFiles("welcome", selected);
-        const preview = draftMessage(composed, selected);
-        const pendingKey = transcriptStore.getState().addPendingUser(created.id, preview.text, preview.images);
+        let submitted = false;
+        const stopRevision = sessionsStore.getState().sessions[created.id]?.stopRevision;
         sessionsStore.getState().applySessionPatch(created.id, {
           sending: true,
           awaitingResponse: true,
@@ -367,9 +384,14 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
           await uploadFiles(created.id, selected)
             .then((uploaded) => {
               if (generation !== daemonIdentity.getState().generation) return;
+              if (stopRevision !== sessionsStore.getState().sessions[created.id]?.stopRevision) {
+                throw new DaemonError({ code: "operation_cancelled", message: "Delivery interrupted" });
+              }
               if (uploaded.length) {
                 transcriptStore.getState().updatePendingUser(created.id, pendingKey, attachmentMessage(composed, uploaded));
               }
+              markDelivery(created.id, pendingKey, "sending");
+              submitted = true;
               return uploaded.length
                 ? sessionFeed.sendPrompt(
                     created.id,
@@ -380,30 +402,30 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
             })
             .then(() => {
               if (generation !== daemonIdentity.getState().generation) return;
+              markDelivery(created.id, pendingKey, "accepted");
               removeFiles(created.id, selected);
               sessionsStore.getState().applySessionPatch(created.id, { promptError: null });
             })
-            .catch((promptError: unknown) => {
+            .catch(async (promptError: unknown) => {
               if (generation !== daemonIdentity.getState().generation) return;
               if (selected.length)
                 setAttachmentError(
                   created.id,
                   promptError instanceof Error ? promptError.message : t("error.unknown"),
                 );
-              if (promptError instanceof DaemonError && promptError.code === "delivery_unknown") {
+              if (submitted && deliveryUncertain(promptError)) {
+                transcriptStore.getState().setDeliveryState(created.id, pendingKey, "unknown");
                 sessionsStore
                   .getState()
                   .applySessionPatch(created.id, {
                     awaitingResponse: false,
-                    promptError: errorKey(promptError),
+                    promptError: "error.delivery_unknown",
                   });
                 return;
               }
-              transcriptStore.getState().removePendingUser(created.id, pendingKey);
-              const nextDraft = sessionsStore.getState().drafts[created.id];
-              sessionsStore
-                .getState()
-                .setDraft(created.id, nextDraft ? `${composed}\n\n${nextDraft}` : composed);
+              transcriptStore.getState().setDeliveryState(created.id, pendingKey, "not_sent");
+              await restoreDelivery(created.id, pendingKey);
+              if (generation !== daemonIdentity.getState().generation) return;
               sessionsStore.getState().applySessionPatch(created.id, {
                 awaitingResponse: false,
                 promptError: errorKey(promptError),
@@ -414,7 +436,8 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
               });
             })
             .finally(() => {
-              if (generation === daemonIdentity.getState().generation)
+              if (generation === daemonIdentity.getState().generation &&
+                stopRevision === sessionsStore.getState().sessions[created.id]?.stopRevision)
                 sessionsStore.getState().applySessionPatch(created.id, { sending: false });
             });
         }
