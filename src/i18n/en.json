@@ -209,6 +209,7 @@
       "copy": "Copy",
       "copied": "Copied",
       "read_message": "Read message",
+      "collapse_message": "Collapse message",
       "reasoning": "Reasoning",
       "failed": "Failed",
       "awaiting_output": "Waiting for output…",

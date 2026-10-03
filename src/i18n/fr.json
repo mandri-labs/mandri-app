@@ -209,6 +209,7 @@
       "copy": "Copier",
       "copied": "Copié",
       "read_message": "Lire le message",
+      "collapse_message": "Replier le message",
       "reasoning": "Réflexion",
       "failed": "Échec",
       "awaiting_output": "En attente du résultat…",

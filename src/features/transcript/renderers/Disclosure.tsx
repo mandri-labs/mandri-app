@@ -6,10 +6,12 @@ export const DisclosureContext = createContext<Map<string, boolean> | null>(null
 export const DisclosureKeyContext = createContext<string>("");
 export function Disclosure({
   title,
+  expandedTitle,
   children,
   className = "",
 }: {
   title: ReactNode;
+  expandedTitle?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
@@ -27,7 +29,7 @@ export function Disclosure({
           setOpen(!open);
         }}
       >
-        {title}
+        {open ? (expandedTitle ?? title) : title}
         <ChevronDown size={12} aria-hidden="true" className={open ? "tr-tool-chevron-open" : ""} />
       </button>
       {open && <div className="tr-disclosure-content">{children}</div>}

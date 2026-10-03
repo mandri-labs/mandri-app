@@ -28,6 +28,7 @@ export function UserBubble({ text: original, sessionId, images }: UserBubbleProp
       <div className="tr-user-bubble">
         {long ? (
           <Disclosure
+            expandedTitle={t("core.transcript.collapse_message")}
             title={
               <span className="tr-user-preview">
                 {text.slice(0, 220)}… <span>{t("core.transcript.read_message")}</span>
