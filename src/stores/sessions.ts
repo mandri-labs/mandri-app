@@ -1,7 +1,7 @@
 import { setFiles } from "@/features/transcript/attachments";
 import { ingestConversationStatus } from "./conversationStatus";
 import { daemonIdentity } from "@/daemon/identity";
-import { composerStorageKey, readSessionDrafts, writeComposerStorage } from "@/lib/composerStorage";
+import { readSessionDrafts, writeSessionDraft } from "@/lib/composerStorage";
 import { sessionModelRef } from "@/daemon/modelSelection";
 import { policyFromWire, type SessionPolicy } from "@/daemon/protection";
 import { createStore } from "zustand/vanilla";
@@ -458,10 +458,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
     sessions: {},
     drafts: readSessionDrafts(),
     setDraft: (sessionId, text, requireStorage = false) => {
-      const drafts = { ...get().drafts };
-      if (text) drafts[sessionId] = text;
-      else delete drafts[sessionId];
-      const saved = writeComposerStorage(composerStorageKey("text"), drafts);
+      const saved = writeSessionDraft(sessionId, text);
       if (!saved && requireStorage) return false;
       set({ drafts: { ...get().drafts, [sessionId]: text } });
       return saved;
@@ -790,6 +787,7 @@ export function selectTranscript(
 }
 
 sessionsStore.subscribe((state, previous) => {
+  if (state.sessions === previous.sessions) return;
   for (const [id, session] of Object.entries(state.sessions)) {
     if (session.state !== "stopped" || session.externalBusy === true ||
       (previous.sessions[id]?.state === "stopped" && previous.sessions[id]?.externalBusy !== true)) continue;

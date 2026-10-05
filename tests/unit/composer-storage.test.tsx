@@ -1,6 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
-import { composerStorageKey, readSessionDrafts } from "@/lib/composerStorage";
+import { composerStorageKey, readSessionDrafts, writeComposerStorage, writeSessionDraft } from "@/lib/composerStorage";
 import { selectDaemon } from "@/daemon/identity";
 import { sessionsStore } from "@/stores/sessions";
 import { Composer } from "@/features/transcript/Composer";
@@ -14,7 +14,18 @@ beforeEach(() => {
   sessionsStore.setState({ drafts: {}, sessions: {} });
   attachmentDrafts.setState({ drafts: {}, errors: {} });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
+function mockStorageWrite(setItem: Storage["setItem"]) {
+  const storage = localStorage;
+  vi.stubGlobal("localStorage", new Proxy(storage, {
+    get(target, key) {
+      if (key === "setItem") return setItem;
+      const value = Reflect.get(target, key, target);
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  }));
+}
 
 it("restores text after navigation and a storage reload, isolated by session and daemon", () => {
   const view = render(<Composer sessionId="one" />);
@@ -62,7 +73,42 @@ it("does not resurrect an image removed while its serialization is pending", asy
 it("tolerates corrupt or unavailable storage", () => {
   localStorage.setItem(composerStorageKey("text"), "invalid JSON");
   expect(readSessionDrafts()).toEqual({});
-  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("Quota exceeded"); });
+  mockStorageWrite(() => { throw new Error("Quota exceeded"); });
   expect(() => sessionsStore.getState().setDraft("one", "Still editable")).not.toThrow();
   expect(sessionsStore.getState().drafts.one).toBe("Still editable");
+});
+
+it("saves only the edited session even with many other drafts", () => {
+  sessionsStore.setState({ drafts: Object.fromEntries(Array.from({ length: 150 }, (_, index) => [String(index), "Large unrelated draft".repeat(500)])) });
+  const write = vi.fn(localStorage.setItem.bind(localStorage));
+  mockStorageWrite(write);
+  sessionsStore.getState().setDraft("one", "Edited text");
+  expect(write).toHaveBeenCalledExactlyOnceWith(composerStorageKey("draft", "one"), JSON.stringify("Edited text"));
+  expect(sessionsStore.getState().drafts["149"]).toBe("Large unrelated draft".repeat(500));
+});
+
+it("migrates legacy drafts and preserves edits and deletions after an interrupted migration", () => {
+  const key = composerStorageKey("text");
+  writeComposerStorage(key, { one: "Legacy one", two: "Legacy two", invalid: 12 });
+  const nativeWrite = localStorage.setItem.bind(localStorage);
+  mockStorageWrite((storageKey, value) => {
+    if (storageKey === composerStorageKey("draft", "two")) throw new Error("Storage unavailable");
+    nativeWrite(storageKey, value);
+  });
+  expect(readSessionDrafts()).toEqual({ one: "Legacy one", two: "Legacy two" });
+  expect(localStorage.getItem(key)).not.toBeNull();
+  expect(localStorage.getItem(composerStorageKey("draft", "one"))).toBeNull();
+  vi.unstubAllGlobals();
+  writeSessionDraft("one", "");
+  writeSessionDraft("two", "Newer text");
+  expect(readSessionDrafts()).toEqual({ two: "Newer text" });
+  expect(localStorage.getItem(key)).toBeNull();
+  expect(readSessionDrafts()).toEqual({ two: "Newer text" });
+});
+
+it("ignores malformed storage without hiding valid drafts", () => {
+  writeComposerStorage(composerStorageKey("text"), []);
+  writeComposerStorage(`${composerStorageKey("draft")}%`, "Bad key");
+  writeSessionDraft("id:/encoded", "Valid text");
+  expect(readSessionDrafts()).toEqual({ "id:/encoded": "Valid text" });
 });

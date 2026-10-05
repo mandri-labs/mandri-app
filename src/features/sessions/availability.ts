@@ -34,6 +34,7 @@ export function invalidateAvailability(id: string): void {
 }
 
 sessionsStore.subscribe((state, previous) => {
+  if (state.sessions === previous.sessions) return;
   for (const [id, session] of Object.entries(state.sessions)) {
     const before = previous.sessions[id];
     if (before && (session.state !== before.state || session.stopRevision !== before.stopRevision)) {

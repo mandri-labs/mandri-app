@@ -14,8 +14,11 @@
 
 .composer-input {
   resize: none;
+  field-sizing: content;
+  overflow-y: auto;
   flex-shrink: 0;
-  min-height: 40px;
+  /* Preserve the existing rows=2 height when native sizing ignores rows. */
+  min-height: max(40px, calc(3em + 4px));
   padding: 2px 6px;
   border: none;
   background: transparent;

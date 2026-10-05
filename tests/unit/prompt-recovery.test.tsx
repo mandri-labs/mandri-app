@@ -108,7 +108,7 @@ it("does not discard the retained copy if draft restoration cannot be saved", as
   sessionsStore.getState().setDraft("s1", "New draft");
   const setItem = localStorage.setItem.bind(localStorage);
   mockStorageWrite((key, value) => {
-    if (key === composerStorageKey("text")) throw new Error("Quota exceeded");
+    if (key === composerStorageKey("draft", "s1")) throw new Error("Quota exceeded");
     setItem(key, value);
   });
   expect(await restoreDelivery("s1", key)).toBe(false);
