@@ -3,7 +3,7 @@
 Mandri is a local control plane for AI agent sessions. This repository contains
 the React client and its Tauri desktop application.
 
-[View a still image](docs/assets/mandri-readme-poster.png)
+<img src="docs/assets/mandri-session-screenshot.png" alt="Mandri showing a completed session and its code changes" width="960" />
 
 ## Development
 
