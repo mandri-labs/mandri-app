@@ -112,6 +112,43 @@ it("ignores callbacks from a replaced socket", () => {
   expect(Socket.instances).toHaveLength(2);
 });
 
+it("keeps a connection alive while valid events arrive without idle pings", () => {
+  const socket = Socket.instances[0]!;
+  socket.open();
+  for (let seq = 1; seq <= 6; seq += 1) {
+    vi.advanceTimersByTime(15_000);
+    socket.receive(event(seq));
+  }
+  expect(Socket.instances).toHaveLength(1);
+  expect(socket.readyState).toBe(Socket.OPEN);
+  vi.advanceTimersByTime(45_000);
+  expect(socket.readyState).toBe(3);
+  vi.advanceTimersByTime(250);
+  expect(Socket.instances).toHaveLength(2);
+});
+
+it("responds to pings and expires only after incoming traffic stops", () => {
+  const socket = Socket.instances[0]!;
+  socket.open();
+  vi.advanceTimersByTime(30_000);
+  socket.receive({ type: "ping" });
+  expect(socket.sent).toContainEqual({ type: "pong" });
+  vi.advanceTimersByTime(30_000);
+  expect(socket.readyState).toBe(Socket.OPEN);
+  vi.advanceTimersByTime(15_000);
+  expect(socket.readyState).toBe(3);
+});
+
+it("does not treat malformed messages as proof of a healthy connection", () => {
+  const socket = Socket.instances[0]!;
+  socket.open();
+  vi.advanceTimersByTime(30_000);
+  socket.onmessage?.({ data: "invalid json" });
+  socket.onmessage?.({ data: JSON.stringify({ type: "unknown" }) });
+  vi.advanceTimersByTime(15_000);
+  expect(socket.readyState).toBe(3);
+});
+
 it.each(["remote close", "caller close", "daemon change", "watchdog", "send failure"])(
   "settles unacknowledged operations on %s without resending",
   async (reason) => {

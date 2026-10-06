@@ -23,7 +23,7 @@ import {
 import type { Clock } from "./protocol";
 
 const CORE_TOPICS: WsTopic[] = ["conversations.all", "sessions.all", "runtimes", "gateway.events"];
-const PING_TIMEOUT_MS = 45_000;
+const INACTIVITY_TIMEOUT_MS = 45_000;
 const RECONNECT_BASE_MS = 500;
 const RECONNECT_MAX_MS = 10_000;
 
@@ -56,8 +56,8 @@ export class MandriSocket {
   private attempt = 0;
   private closedByCaller = false;
   private reconnectHandle: unknown = null;
-  private pingWatchdog: unknown = null;
-  private lastPingAt = 0;
+  private inactivityWatchdog: unknown = null;
+  private lastReceivedAt = 0;
 
   constructor(options?: { clock?: Clock }) {
     this.clock = options?.clock ?? createDefaultClock();
@@ -69,7 +69,7 @@ export class MandriSocket {
       return;
     }
     this.clearReconnectHandle();
-    this.clearPingWatchdog();
+    this.clearInactivityWatchdog();
     const previous = this.ws;
     this.ws = null;
     this.ops.failPending(
@@ -92,7 +92,7 @@ export class MandriSocket {
 
   close(): void {
     this.closedByCaller = true;
-    this.clearPingWatchdog();
+    this.clearInactivityWatchdog();
     this.clearReconnectHandle();
     this.ops.failPending("connection_lost");
     log.info("close requested by caller");
@@ -199,8 +199,8 @@ export class MandriSocket {
     const state = connectionStore.getState();
     state.setReconnectAttempt(0);
     state.setStatus("online");
-    this.lastPingAt = this.clock.now();
-    this.armPingWatchdog();
+    this.lastReceivedAt = this.clock.now();
+    this.armInactivityWatchdog();
     log.info("websocket open", { url: this.url, topics: [...this.topics] });
     for (const topic of this.topics) {
       this.sendSubscribe(topic);
@@ -224,6 +224,8 @@ export class MandriSocket {
       log.warn("unrecognized frame dropped", { raw: parsed });
       return;
     }
+    this.lastReceivedAt = this.clock.now();
+    this.armInactivityWatchdog();
     this.dispatch(frame);
   }
 
@@ -247,8 +249,6 @@ export class MandriSocket {
     switch (frame.type) {
       case "ping":
         this.send({ type: "pong" });
-        this.lastPingAt = this.clock.now();
-        this.armPingWatchdog();
         return;
       case "response":
         this.ops.handleResponse(frame.op_id, frame.ok, frame.result, frame.error);
@@ -316,7 +316,7 @@ export class MandriSocket {
   }
 
   private handleClose(): void {
-    this.clearPingWatchdog();
+    this.clearInactivityWatchdog();
     this.ops.failPending("connection_lost");
     this.ws = null;
     if (this.closedByCaller) {
@@ -340,21 +340,24 @@ export class MandriSocket {
     }, delay);
   }
 
-  private armPingWatchdog(): void {
-    this.clearPingWatchdog();
-    this.pingWatchdog = this.clock.setTimeout(() => {
-      if (this.clock.now() - this.lastPingAt >= PING_TIMEOUT_MS) {
+  private armInactivityWatchdog(): void {
+    this.clearInactivityWatchdog();
+    this.inactivityWatchdog = this.clock.setTimeout(() => {
+      if (this.clock.now() - this.lastReceivedAt >= INACTIVITY_TIMEOUT_MS) {
+        log.warn("websocket inactivity timeout", {
+          idleMs: this.clock.now() - this.lastReceivedAt,
+        });
         const expired = this.ws;
         this.handleClose();
         expired?.close();
       }
-    }, PING_TIMEOUT_MS);
+    }, INACTIVITY_TIMEOUT_MS);
   }
 
-  private clearPingWatchdog(): void {
-    if (this.pingWatchdog !== null) {
-      this.clock.clearTimeout(this.pingWatchdog);
-      this.pingWatchdog = null;
+  private clearInactivityWatchdog(): void {
+    if (this.inactivityWatchdog !== null) {
+      this.clock.clearTimeout(this.inactivityWatchdog);
+      this.inactivityWatchdog = null;
     }
   }
 
