@@ -42,6 +42,7 @@ const LIFECYCLE_TYPES: readonly string[] = [
   "session_state",
   "activity",
   "control_lost",
+  "interaction_mode",
 ];
 
 export const UNGROUPED_PROJECT = "—";
@@ -56,6 +57,7 @@ export interface SessionView extends SessionPolicy {
   model?: string;
   reasoningEffort?: string | null;
   interactionMode?: string | null;
+  interactionModeUpdatedAt?: number;
   resumeMode?: string;
   externalBusy?: boolean;
   externalModel?: string;
@@ -116,6 +118,7 @@ export interface SessionsState {
 export type SessionsSnapshot = Pick<SessionsState, "sessions" | "order" | "filters">;
 
 interface LifecycleRaw extends SessionPolicy {
+  mode?: string;
   type: string;
   sessionId: string;
   harness?: HarnessKind;
@@ -173,6 +176,7 @@ function parseLifecycle(raw: unknown): LifecycleRaw | null {
   return {
     type,
     sessionId,
+    mode: typeof record?.["mode"] === "string" ? record["mode"] : undefined,
     ...policyFromWire(record),
     harness: parseHarness(record?.["harness"]),
     state: parseState(record?.["state"]),
@@ -348,6 +352,16 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
     if (previousTime !== undefined && ts < previousTime) return;
     if (previous) lifecycleEventTimes.set(previous, ts);
     switch (lifecycle.type) {
+      case "interaction_mode": {
+        if (lifecycle.mode === undefined || (previous?.interactionModeUpdatedAt ?? 0) > ts) return;
+        patchSession(lifecycle.sessionId, (existing) => ({
+          ...existing,
+          interactionMode: lifecycle.mode,
+          interactionModeUpdatedAt: ts,
+          resumeMode: existing.state === "live" ? undefined : existing.resumeMode,
+        }));
+        return;
+      }
       case "session_started": {
         if (lifecycle.harness === undefined) {
           return;
@@ -469,6 +483,11 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
 
     ingestFrame: (message) => {
       if ("type" in message) {
+        if (message.type === "interaction_mode") {
+          const lifecycle = parseLifecycle({ ...message.raw, type: "interaction_mode" });
+          if (lifecycle) applyLifecycle(lifecycle, message.ts);
+          return;
+        }
         if (message.type === "snapshot" && message.topic === "sessions.all") {
           applySnapshot(message);
           return;
@@ -555,6 +574,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         }
         const existing = get().sessions[row.id];
         const rowEffort = parseEffort((row as Record<string, unknown>)["reasoning_effort"]);
+        const modeIsCurrent = existing?.interactionModeUpdatedAt === undefined || row.updated_at >= existing.interactionModeUpdatedAt;
         upsertView({
           id: row.id,
           harness,
@@ -567,7 +587,10 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
           projectPath: row.project_path.length > 0 ? row.project_path : existing?.projectPath,
           model: sessionModelRef(row) ?? existing?.model,
           ...policyFromWire(row, existing),
-          interactionMode: row.interaction_mode?.mode ?? existing?.interactionMode,
+          interactionMode: modeIsCurrent
+            ? row.interaction_mode?.mode ?? existing?.interactionMode : existing?.interactionMode,
+          interactionModeUpdatedAt: row.interaction_mode && modeIsCurrent
+            ? row.updated_at : existing?.interactionModeUpdatedAt,
           resumeMode: existing?.resumeMode,
           reasoningEffort: rowEffort === undefined ? existing?.reasoningEffort : rowEffort,
           activity: row.state === "stopped" ? "idle" : parseActivity(row.activity) ?? existing?.activity,

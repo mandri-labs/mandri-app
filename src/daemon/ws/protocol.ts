@@ -222,6 +222,7 @@ const TYPED_TOPIC_FRAMES = new Set<string>([
   "approval.resolved",
   "session_stopped",
   "control_lost",
+  "interaction_mode",
 ]);
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {

@@ -115,6 +115,7 @@ export interface PongMessage {
 }
 
 export interface ApprovalAnswerParams {
+  permission_mode?: "default" | "acceptEdits" | "bypassPermissions" | "auto";
   answers?: { question: string; answers: string[] }[];
   approval_id: string;
   decision: ApprovalDecision;
@@ -254,6 +255,8 @@ export type DegradationMessage = EventMessage & {
 };
 
 export interface ApprovalPendingMessage {
+  kind?: "command_execution" | "file_change" | "permission_scope" | "user_input" | "elicitation" | "unknown";
+  permission_modes?: string[];
   agent_id?: string | null;
   type: "approval.pending";
   topic: WsTopic;
@@ -304,6 +307,15 @@ export interface ControlLostMessage {
   ts: number;
 }
 
+export interface InteractionModeMessage {
+  type: "interaction_mode";
+  topic: WsTopic;
+  seq: number;
+  source: "mandri";
+  raw: { session_id: string; harness: HarnessKind; mode: string; applied: string };
+  ts: number;
+}
+
 export interface GapMessage {
   type: "gap";
   topic: WsTopic;
@@ -341,6 +353,7 @@ export type ServerMessage =
   | ApprovalResolvedMessage
   | SessionStoppedMessage
   | ControlLostMessage
+  | InteractionModeMessage
   | GapMessage
   | PingMessage
   | ErrorMessage

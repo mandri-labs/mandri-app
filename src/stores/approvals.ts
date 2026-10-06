@@ -33,6 +33,7 @@ export interface ApprovalView {
   harness: HarnessKind;
   kind: ApprovalKind;
   raw: unknown;
+  permissionModes?: readonly string[];
   deadline: number;
   status: ApprovalViewStatus;
   decision?: ApprovalDecision;
@@ -95,6 +96,8 @@ export interface ApprovalTransport {
   cancel: (params: ApprovalCancelParams) => Promise<ApprovalCancelResult>;
 }
 
+export type ApprovalResponse = Pick<ApprovalAnswerParams, "permission_mode" | "updated_input">;
+
 function defaultTransport(): ApprovalTransport {
   return {
     answer: (params) => {
@@ -130,7 +133,7 @@ export interface ApprovalsState {
   errors: Record<string, string>;
   submitting: Record<string, boolean>;
   ingestFrame: (message: ServerMessage) => void;
-  answer: (approvalId: string, decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"]) => Promise<void>;
+  answer: (approvalId: string, decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse) => Promise<void>;
   cancel: (approvalId: string) => Promise<void>;
   tick: (now: number) => void;
   clearError: (approvalId: string) => void;
@@ -164,6 +167,7 @@ export function classifyKind(harness: HarnessKind, raw: unknown): ApprovalKind {
     const request = asRecord(record["request"]);
     const input = asRecord(request?.["input"]);
     const toolName = typeof request?.["tool_name"] === "string" ? request["tool_name"] : undefined;
+    if (toolName === "EnterPlanMode" || toolName === "ExitPlanMode") return "permission_scope";
     if (toolName === "Bash" || typeof input?.["command"] === "string") {
       return "command_execution";
     }
@@ -186,6 +190,7 @@ export function classifyKind(harness: HarnessKind, raw: unknown): ApprovalKind {
     return "unknown";
   }
   if (harness === "opencode") {
+    if (record["type"] === "question.asked") return "user_input";
     const props = asRecord(record["properties"]);
     const metadata = asRecord(props?.["metadata"]);
     if (typeof metadata?.["command"] === "string") {
@@ -197,6 +202,17 @@ export function classifyKind(harness: HarnessKind, raw: unknown): ApprovalKind {
     return "unknown";
   }
   const params = asRecord(record["params"]);
+  if (harness === "codex") {
+    const kinds: Record<string, ApprovalKind> = {
+      "item/commandExecution/requestApproval": "command_execution",
+      "item/fileChange/requestApproval": "file_change",
+      "item/permissions/requestApproval": "permission_scope",
+      "item/tool/requestUserInput": "user_input",
+      "mcpServer/elicitation/request": "elicitation",
+    };
+    const method = record["method"];
+    if (typeof method === "string" && kinds[method]) return kinds[method];
+  }
   const command = params?.["command"] ?? params?.["cmd"] ?? record["command"];
   if (typeof command === "string" || Array.isArray(command)) {
     return "command_execution";
@@ -319,13 +335,18 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
             message.topic.startsWith("session.") || existing.sessionId === message.approval_id
               ? sessionIdOfPending(message)
               : existing.sessionId;
-          if (sessionId !== existing.sessionId || (agentId && agentId !== existing.agentId)) {
+          const kind = message.kind ?? existing.kind;
+          const permissionModes = message.permission_modes ?? existing.permissionModes;
+          if (sessionId !== existing.sessionId || (agentId && agentId !== existing.agentId)
+            || kind !== existing.kind || permissionModes !== existing.permissionModes) {
             set({
               pending: {
                 ...state.pending,
                 [message.approval_id]: {
                   ...existing,
                   sessionId,
+                  kind,
+                  permissionModes,
                   agentId: agentId ?? existing.agentId,
                 },
               },
@@ -341,7 +362,8 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
           approvalId: message.approval_id,
           sessionId: sessionIdOfPending(message),
           harness: message.source,
-          kind: classifyKind(message.source, message.raw),
+          kind: message.kind ?? classifyKind(message.source, message.raw),
+          permissionModes: message.permission_modes,
           raw: message.raw,
           deadline: message.deadline,
           status: "pending",
@@ -357,7 +379,7 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
       }
     },
 
-    answer: async (approvalId, decision, answers) => {
+    answer: async (approvalId, decision, answers, response) => {
       const state = get();
       if (state.submitting[approvalId]) return;
       const view = state.pending[approvalId];
@@ -374,7 +396,7 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
       const answeredAt = Date.now();
       setSubmitting(approvalId, true);
       try {
-        await transport.answer({ approval_id: approvalId, decision, ...(answers ? { answers } : {}) });
+        await transport.answer({ approval_id: approvalId, decision, ...(answers ? { answers } : {}), ...response });
         if (get().pending[approvalId])
           resolveView(approvalId, "answered", { decision, answeredAt });
         set((current) => {

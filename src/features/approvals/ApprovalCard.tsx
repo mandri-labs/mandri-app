@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { useStore } from "@/app/useStore";
 import { agyToolCall } from "./AgyQuestions";
 import { NativeQuestions, NativeInputUnavailable } from "./NativeQuestions";
+import { ClaudePlanApproval, isClaudePlanApproval } from "./ClaudePlanApproval";
+import { CodexElicitation } from "./CodexElicitation";
 import type { ApprovalAnswerParams, ApprovalDecision } from "@/daemon/types/ws";
 import {
   HARNESS_VARIANTS,
@@ -10,6 +12,7 @@ import {
   decisionLabelKey,
 } from "@/stores/approvals";
 import type { ApprovalView } from "@/stores/approvals";
+import type { ApprovalResponse } from "@/stores/approvals";
 import "./approvals.css";
 
 const URGENT_THRESHOLD_MS = 15_000;
@@ -144,7 +147,7 @@ function Countdown({ deadline, onTick }: CountdownProps) {
 export interface ApprovalCardProps {
   approval: ApprovalView;
   variant?: "full" | "mini";
-  onAnswer?: (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"]) => void;
+  onAnswer?: (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse) => void;
   onCancel?: () => void;
 }
 
@@ -161,18 +164,26 @@ export function ApprovalCard({
   );
   const submitting = useStore(approvalsStore, (state) => state.submitting[approval.approvalId] ?? false);
   const pending = approval.status === "pending";
+  const plan = isClaudePlanApproval(approval);
+  const elicitation = approval.harness === "codex" && approval.kind === "elicitation";
+  const grants = approval.harness === "codex" && approval.kind === "permission_scope"
+    ? asRecord(asRecord(asRecord(approval.raw)?.["params"])?.["permissions"]) : undefined;
   const context = useMemo(() => extractApprovalContext(approval), [approval]);
   const scopes = context.scopes?.filter((scope) => scope.trim() !== context.command?.trim());
   const variants = HARNESS_VARIANTS[approval.harness];
   const handleTick = useCallback((now: number) => {
     approvalsStore.getState().tick(now);
   }, []);
-  const answer = (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"]): void => {
+  const answer = (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse): void => {
     if (onAnswer !== undefined) {
-      onAnswer(decision, answers);
+      onAnswer(decision, answers, response);
       return;
     }
-    void approvalsStore.getState().answer(approval.approvalId, decision, answers);
+    void approvalsStore.getState().answer(approval.approvalId, decision, answers, response);
+  };
+  const decide = (decision: ApprovalDecision): void => {
+    answer(decision, undefined, grants && (decision === "accept" || decision === "acceptForSession")
+      ? { updated_input: JSON.stringify({ permissions: grants, scope: decision === "acceptForSession" ? "session" : "turn" }) } : undefined);
   };
   const cancel = (): void => {
     if (onCancel !== undefined) {
@@ -215,14 +226,19 @@ export function ApprovalCard({
           ) : null}
           {context.command === undefined &&
           context.path === undefined &&
-          context.scopes === undefined && approval.kind !== "user_input" ? (
+          context.scopes === undefined && approval.kind !== "user_input" && !plan && !elicitation ? (
             <span className="approval-summary">
               {context.title && context.question && <><strong>{context.title}</strong><br /></>}
               {context.question ?? context.summary}
             </span>
           ) : null}
           {approval.kind === "user_input" ? <NativeQuestions key={approval.approvalId} harness={approval.harness} raw={approval.raw} disabled={submitting} onAnswer={(answers) => answer(approval.harness === "codex" || approval.harness === "pi" ? "accept" : approval.harness === "opencode" ? "once" : "allow", answers)} /> : null}
-          {approval.kind === "unknown" ? <NativeInputUnavailable /> : null}
+          {approval.kind === "unknown" && !plan ? <NativeInputUnavailable /> : null}
+          {plan ? <ClaudePlanApproval approval={approval} disabled={submitting}
+            onApprove={(response) => answer("allow", undefined, response)} onReject={() => answer("deny")} /> : null}
+          {grants ? <pre className="approval-command">{JSON.stringify(grants, null, 2)}</pre> : null}
+          {elicitation ? <CodexElicitation raw={approval.raw} disabled={submitting}
+            onAccept={(updated_input) => answer("accept", undefined, { updated_input })} /> : null}
         </div>
       ) : (
         <div className={`approval-resolved approval-resolved--${approval.status}`} role="status">
@@ -239,13 +255,14 @@ export function ApprovalCard({
       ) : null}
       {pending ? (
         <footer className="approval-actions">
-          {variants.filter(() => approval.kind !== "user_input" && approval.kind !== "unknown").map((variantEntry) => (
+          {variants.filter((entry) => approval.kind !== "user_input" && approval.kind !== "unknown" && !plan
+            && (!elicitation || entry.decision === "decline" || entry.decision === "cancel")).map((variantEntry) => (
             <button
               key={variantEntry.decision}
               type="button"
               className={`approval-decision approval-decision--${variantEntry.decision}`}
               disabled={submitting}
-              onClick={() => answer(variantEntry.decision)}
+              onClick={() => decide(variantEntry.decision)}
             >
               {t(variantEntry.labelKey)}
             </button>
