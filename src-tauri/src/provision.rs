@@ -7,7 +7,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-pub const BACKEND_VERSION: &str = "0.2.0b0";
+pub const BACKEND_VERSION: &str = "0.3.0b0";
 pub static CANCELLED: AtomicBool = AtomicBool::new(false);
 
 pub fn command(program: &Path) -> Command {

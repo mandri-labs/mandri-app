@@ -479,6 +479,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/runtime/runs": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Prepare Native Run */
+    post: operations["prepare_native_run"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/runtime/runs/{run_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Release Native Run */
+    delete: operations["release_native_run"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/runtime/sessions": {
     parameters: {
       query?: never;
@@ -1113,6 +1147,11 @@ export interface components {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
+    /**
+     * HarnessKind
+     * @enum {string}
+     */
+    HarnessKind: "codex" | "claude" | "opencode" | "agy" | "pi";
     /** HistoryPageOut */
     HistoryPageOut: {
       /** Entries */
@@ -1265,6 +1304,43 @@ export interface components {
        * @default []
        */
       reasoning_efforts?: string[];
+    };
+    /** NativeRunPlan */
+    NativeRunPlan: {
+      /** Argv */
+      argv: string[];
+      /** Env */
+      env?: {
+        [key: string]: string;
+      };
+      /** Id */
+      id: string;
+    };
+    /** NativeRunStart */
+    NativeRunStart: {
+      /** Args */
+      args?: string[];
+      /** Cwd */
+      cwd: string;
+      /** Effort */
+      effort?: string | null;
+      /** @default host */
+      execution_backend?: components["schemas"]["ExecutionBackend"];
+      harness: components["schemas"]["HarnessKind"];
+      /** Model */
+      model: string;
+      /** @default none */
+      privacy_mode?: components["schemas"]["PrivacyMode"];
+      /**
+       * Term
+       * @default xterm-256color
+       */
+      term?: string;
+      /**
+       * Tty
+       * @default false
+       */
+      tty?: boolean;
     };
     /** PrivacyEntryOut */
     PrivacyEntryOut: {
@@ -3178,6 +3254,68 @@ export interface operations {
       header?: never;
       path: {
         operation_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  prepare_native_run: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["NativeRunStart"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NativeRunPlan"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  release_native_run: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
       };
       cookie?: never;
     };
