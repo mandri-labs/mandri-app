@@ -1,4 +1,6 @@
-.connection-app { display: contents; }
+.connection-app {
+  display: contents;
+}
 
 .connection-overlay {
   position: fixed;
@@ -19,9 +21,18 @@
   animation: connection-overlay-leave var(--connection-fade-duration) ease-out forwards;
 }
 
-.connection-overlay-center { position: relative; width: min(100%, 480px); text-align: center; }
-.connection-overlay-wordmark { font-size: 56px; }
-.connection-overlay-status { margin: 24px 0 0; font-size: var(--font-size-body); }
+.connection-overlay-center {
+  position: relative;
+  width: min(100%, 480px);
+  text-align: center;
+}
+.connection-overlay-wordmark {
+  font-size: 56px;
+}
+.connection-overlay-status {
+  margin: 24px 0 0;
+  font-size: var(--font-size-body);
+}
 .connection-overlay-recovery {
   position: absolute;
   top: 100%;
@@ -37,7 +48,13 @@
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
-.connection-overlay-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.connection-overlay-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
 .connection-overlay-actions button {
   padding: 8px 12px;
   border: 1px solid var(--color-border-subtle);
@@ -48,8 +65,13 @@
   font-size: var(--font-size-label);
   cursor: pointer;
 }
-.connection-overlay-actions button:hover { background: var(--color-raised-hover); }
-.connection-overlay :is(button, summary):focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.connection-overlay-actions button:hover {
+  background: var(--color-raised-hover);
+}
+.connection-overlay :is(button, summary):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
 .connection-overlay-details {
   margin-top: 16px;
   padding: 12px;
@@ -59,7 +81,9 @@
   text-align: left;
   font-size: var(--font-size-label);
 }
-.connection-overlay-details summary { cursor: pointer; }
+.connection-overlay-details summary {
+  cursor: pointer;
+}
 .connection-overlay-details pre {
   max-height: 180px;
   margin: 12px 0 0;
@@ -68,10 +92,29 @@
   overflow-wrap: anywhere;
   font: var(--font-size-code)/1.6 var(--font-mono);
 }
-.connection-overlay-settings { margin-top: 24px; text-align: left; }
-@keyframes connection-overlay-leave { to { opacity: 0; } }
-@keyframes connection-recovery-enter { from { opacity: 0; } to { opacity: 1; } }
+.connection-overlay-settings {
+  margin-top: 24px;
+  text-align: left;
+}
+@keyframes connection-overlay-leave {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes connection-recovery-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .connection-overlay--leaving { animation: none; opacity: 0; }
-  .connection-overlay-recovery { animation: none; }
+  .connection-overlay--leaving {
+    animation: none;
+    opacity: 0;
+  }
+  .connection-overlay-recovery {
+    animation: none;
+  }
 }

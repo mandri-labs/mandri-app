@@ -6,11 +6,7 @@ import { NativeQuestions, NativeInputUnavailable } from "./NativeQuestions";
 import { ClaudePlanApproval, isClaudePlanApproval } from "./ClaudePlanApproval";
 import { CodexElicitation } from "./CodexElicitation";
 import type { ApprovalAnswerParams, ApprovalDecision } from "@/daemon/types/ws";
-import {
-  HARNESS_VARIANTS,
-  approvalsStore,
-  decisionLabelKey,
-} from "@/stores/approvals";
+import { HARNESS_VARIANTS, approvalsStore, decisionLabelKey } from "@/stores/approvals";
 import type { ApprovalView } from "@/stores/approvals";
 import type { ApprovalResponse } from "@/stores/approvals";
 import "./approvals.css";
@@ -54,13 +50,20 @@ export function extractApprovalContext(approval: ApprovalView): ApprovalContext 
     return {};
   }
   if (approval.harness === "pi") {
-    return { title: stringAt(raw, "title"), summary: stringAt(raw, "title"), question: stringAt(raw, "message") };
+    return {
+      title: stringAt(raw, "title"),
+      summary: stringAt(raw, "title"),
+      question: stringAt(raw, "message"),
+    };
   }
   if (approval.harness === "agy") {
     const call = agyToolCall(raw);
     const args = asRecord(call?.["args"]);
-    return { command: commandAt(args?.["CommandLine"]), path: stringAt(args, "TargetFile"),
-      summary: stringAt(args, "toolSummary") ?? stringAt(call, "name") };
+    return {
+      command: commandAt(args?.["CommandLine"]),
+      path: stringAt(args, "TargetFile"),
+      summary: stringAt(args, "toolSummary") ?? stringAt(call, "name"),
+    };
   }
   if (approval.harness === "claude") {
     const request = asRecord(raw["request"]);
@@ -78,7 +81,9 @@ export function extractApprovalContext(approval: ApprovalView): ApprovalContext 
         return content === undefined ? [] : [content];
       });
     });
-    const questions = Array.isArray(input?.["questions"]) ? (input?.["questions"] as unknown[]) : [];
+    const questions = Array.isArray(input?.["questions"])
+      ? (input?.["questions"] as unknown[])
+      : [];
     const question = questions
       .map((entry) => stringAt(asRecord(entry), "question"))
       .find((value) => value !== undefined);
@@ -96,7 +101,10 @@ export function extractApprovalContext(approval: ApprovalView): ApprovalContext 
     const patterns = Array.isArray(props?.["patterns"]) ? (props?.["patterns"] as unknown[]) : [];
     return {
       command: commandAt(metadata?.["command"]),
-      scopes: patterns.length > 0 ? patterns.filter((p): p is string => typeof p === "string") : undefined,
+      scopes:
+        patterns.length > 0
+          ? patterns.filter((p): p is string => typeof p === "string")
+          : undefined,
       summary: stringAt(props, "permission"),
     };
   }
@@ -147,7 +155,11 @@ function Countdown({ deadline, onTick }: CountdownProps) {
 export interface ApprovalCardProps {
   approval: ApprovalView;
   variant?: "full" | "mini";
-  onAnswer?: (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse) => void;
+  onAnswer?: (
+    decision: ApprovalDecision,
+    answers?: ApprovalAnswerParams["answers"],
+    response?: ApprovalResponse,
+  ) => void;
   onCancel?: () => void;
 }
 
@@ -158,23 +170,29 @@ export function ApprovalCard({
   onCancel,
 }: ApprovalCardProps) {
   const { t } = useTranslation();
-  const error = useStore(
+  const error = useStore(approvalsStore, (state) => state.errors[approval.approvalId]);
+  const submitting = useStore(
     approvalsStore,
-    (state) => state.errors[approval.approvalId],
+    (state) => state.submitting[approval.approvalId] ?? false,
   );
-  const submitting = useStore(approvalsStore, (state) => state.submitting[approval.approvalId] ?? false);
   const pending = approval.status === "pending";
   const plan = isClaudePlanApproval(approval);
   const elicitation = approval.harness === "codex" && approval.kind === "elicitation";
-  const grants = approval.harness === "codex" && approval.kind === "permission_scope"
-    ? asRecord(asRecord(asRecord(approval.raw)?.["params"])?.["permissions"]) : undefined;
+  const grants =
+    approval.harness === "codex" && approval.kind === "permission_scope"
+      ? asRecord(asRecord(asRecord(approval.raw)?.["params"])?.["permissions"])
+      : undefined;
   const context = useMemo(() => extractApprovalContext(approval), [approval]);
   const scopes = context.scopes?.filter((scope) => scope.trim() !== context.command?.trim());
   const variants = HARNESS_VARIANTS[approval.harness];
   const handleTick = useCallback((now: number) => {
     approvalsStore.getState().tick(now);
   }, []);
-  const answer = (decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse): void => {
+  const answer = (
+    decision: ApprovalDecision,
+    answers?: ApprovalAnswerParams["answers"],
+    response?: ApprovalResponse,
+  ): void => {
     if (onAnswer !== undefined) {
       onAnswer(decision, answers, response);
       return;
@@ -182,8 +200,18 @@ export function ApprovalCard({
     void approvalsStore.getState().answer(approval.approvalId, decision, answers, response);
   };
   const decide = (decision: ApprovalDecision): void => {
-    answer(decision, undefined, grants && (decision === "accept" || decision === "acceptForSession")
-      ? { updated_input: JSON.stringify({ permissions: grants, scope: decision === "acceptForSession" ? "session" : "turn" }) } : undefined);
+    answer(
+      decision,
+      undefined,
+      grants && (decision === "accept" || decision === "acceptForSession")
+        ? {
+            updated_input: JSON.stringify({
+              permissions: grants,
+              scope: decision === "acceptForSession" ? "session" : "turn",
+            }),
+          }
+        : undefined,
+    );
   };
   const cancel = (): void => {
     if (onCancel !== undefined) {
@@ -216,7 +244,9 @@ export function ApprovalCard({
           {context.command !== undefined ? (
             <pre className="approval-command">{context.command}</pre>
           ) : null}
-          {context.path !== undefined ? <span className="approval-path">{context.path}</span> : null}
+          {context.path !== undefined ? (
+            <span className="approval-path">{context.path}</span>
+          ) : null}
           {scopes !== undefined && scopes.length > 0 ? (
             <ul className="approval-scopes">
               {Array.from(new Set(scopes)).map((scope) => (
@@ -226,19 +256,57 @@ export function ApprovalCard({
           ) : null}
           {context.command === undefined &&
           context.path === undefined &&
-          context.scopes === undefined && approval.kind !== "user_input" && !plan && !elicitation ? (
+          context.scopes === undefined &&
+          approval.kind !== "user_input" &&
+          !plan &&
+          !elicitation ? (
             <span className="approval-summary">
-              {context.title && context.question && <><strong>{context.title}</strong><br /></>}
+              {context.title && context.question && (
+                <>
+                  <strong>{context.title}</strong>
+                  <br />
+                </>
+              )}
               {context.question ?? context.summary}
             </span>
           ) : null}
-          {approval.kind === "user_input" ? <NativeQuestions key={approval.approvalId} harness={approval.harness} raw={approval.raw} disabled={submitting} onAnswer={(answers) => answer(approval.harness === "codex" || approval.harness === "pi" ? "accept" : approval.harness === "opencode" ? "once" : "allow", answers)} /> : null}
+          {approval.kind === "user_input" ? (
+            <NativeQuestions
+              key={approval.approvalId}
+              harness={approval.harness}
+              raw={approval.raw}
+              disabled={submitting}
+              onAnswer={(answers) =>
+                answer(
+                  approval.harness === "codex" || approval.harness === "pi"
+                    ? "accept"
+                    : approval.harness === "opencode"
+                      ? "once"
+                      : "allow",
+                  answers,
+                )
+              }
+            />
+          ) : null}
           {approval.kind === "unknown" && !plan ? <NativeInputUnavailable /> : null}
-          {plan ? <ClaudePlanApproval approval={approval} disabled={submitting}
-            onApprove={(response) => answer("allow", undefined, response)} onReject={() => answer("deny")} /> : null}
-          {grants ? <pre className="approval-command">{JSON.stringify(grants, null, 2)}</pre> : null}
-          {elicitation ? <CodexElicitation raw={approval.raw} disabled={submitting}
-            onAccept={(updated_input) => answer("accept", undefined, { updated_input })} /> : null}
+          {plan ? (
+            <ClaudePlanApproval
+              approval={approval}
+              disabled={submitting}
+              onApprove={(response) => answer("allow", undefined, response)}
+              onReject={() => answer("deny")}
+            />
+          ) : null}
+          {grants ? (
+            <pre className="approval-command">{JSON.stringify(grants, null, 2)}</pre>
+          ) : null}
+          {elicitation ? (
+            <CodexElicitation
+              raw={approval.raw}
+              disabled={submitting}
+              onAccept={(updated_input) => answer("accept", undefined, { updated_input })}
+            />
+          ) : null}
         </div>
       ) : (
         <div className={`approval-resolved approval-resolved--${approval.status}`} role="status">
@@ -255,19 +323,28 @@ export function ApprovalCard({
       ) : null}
       {pending ? (
         <footer className="approval-actions">
-          {variants.filter((entry) => approval.kind !== "user_input" && approval.kind !== "unknown" && !plan
-            && (!elicitation || entry.decision === "decline" || entry.decision === "cancel")).map((variantEntry) => (
-            <button
-              key={variantEntry.decision}
-              type="button"
-              className={`approval-decision approval-decision--${variantEntry.decision}`}
-              disabled={submitting}
-              onClick={() => decide(variantEntry.decision)}
-            >
-              {t(variantEntry.labelKey)}
-            </button>
-          ))}
-          {approval.kind !== "user_input" && approval.kind !== "unknown" && variants.some((variantEntry) => variantEntry.decision === "cancel") ? null : (
+          {variants
+            .filter(
+              (entry) =>
+                approval.kind !== "user_input" &&
+                approval.kind !== "unknown" &&
+                !plan &&
+                (!elicitation || entry.decision === "decline" || entry.decision === "cancel"),
+            )
+            .map((variantEntry) => (
+              <button
+                key={variantEntry.decision}
+                type="button"
+                className={`approval-decision approval-decision--${variantEntry.decision}`}
+                disabled={submitting}
+                onClick={() => decide(variantEntry.decision)}
+              >
+                {t(variantEntry.labelKey)}
+              </button>
+            ))}
+          {approval.kind !== "user_input" &&
+          approval.kind !== "unknown" &&
+          variants.some((variantEntry) => variantEntry.decision === "cancel") ? null : (
             <button
               type="button"
               className="approval-decision approval-decision--cancel"

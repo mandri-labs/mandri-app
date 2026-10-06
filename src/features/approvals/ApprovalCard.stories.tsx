@@ -60,7 +60,9 @@ const claudeQuestionRaw = {
     subtype: "can_use_tool",
     tool_name: "AskUserQuestion",
     display_name: "AskUserQuestion",
-    input: { questions: [{ question: "Should the migration run now or during the next deploy window?" }] },
+    input: {
+      questions: [{ question: "Should the migration run now or during the next deploy window?" }],
+    },
   },
 };
 
@@ -82,7 +84,10 @@ const codexCommandRaw = {
 
 const codexPatchRaw = {
   method: "applyPatchApproval/request",
-  params: { patch: "*** Begin Patch\n*** Update File: src/main.ts\n*** End Patch", reason: "apply patch" },
+  params: {
+    patch: "*** Begin Patch\n*** Update File: src/main.ts\n*** End Patch",
+    reason: "apply patch",
+  },
 };
 
 const opencodeCommandRaw = {
@@ -109,7 +114,13 @@ const opencodeScopeRaw = {
   },
 };
 
-function view(overrides: Partial<ApprovalView> & { approvalId: string; raw: unknown; harness: ApprovalView["harness"] }): ApprovalView {
+function view(
+  overrides: Partial<ApprovalView> & {
+    approvalId: string;
+    raw: unknown;
+    harness: ApprovalView["harness"];
+  },
+): ApprovalView {
   return {
     sessionId: "session-1",
     kind: "command_execution",
@@ -119,12 +130,16 @@ function view(overrides: Partial<ApprovalView> & { approvalId: string; raw: unkn
   };
 }
 
-
 function QuestionDemo({ approval, ...props }: ApprovalCardProps) {
   const [current, setCurrent] = useState(approval);
-  return <ApprovalCard {...props} approval={current}
-    onAnswer={(decision) => setCurrent((value) => ({ ...value, status: "answered", decision }))}
-    onCancel={() => setCurrent((value) => ({ ...value, status: "cancelled" }))} />;
+  return (
+    <ApprovalCard
+      {...props}
+      approval={current}
+      onAnswer={(decision) => setCurrent((value) => ({ ...value, status: "answered", decision }))}
+      onCancel={() => setCurrent((value) => ({ ...value, status: "cancelled" }))}
+    />
+  );
 }
 
 const meta = {
@@ -340,14 +355,38 @@ export const MiniVariant: Story = {
 export const OpencodeMultipleQuestions: Story = {
   render: (args) => <QuestionDemo {...args} />,
   args: {
-    approval: view({ approvalId: "oc-questions", harness: "opencode", kind: "user_input", raw: {
-      type: "question.asked", properties: { id: "q-1", sessionID: "ses-1", questions: [
-        { header: "Destination", question: "Where should the command publish its report?", custom: false,
-          options: [{ label: "Workspace", description: "Keep it alongside the project" }, { label: "Temporary folder", description: "Discard it after review" }] },
-        { header: "Validation", question: "Which checks should run?", multiple: true,
-          options: [{ label: "Unit tests", description: "Fast checks for isolated behavior" }, { label: "Integration tests", description: "Check the connected components" }] },
-      ] },
-    } }),
+    approval: view({
+      approvalId: "oc-questions",
+      harness: "opencode",
+      kind: "user_input",
+      raw: {
+        type: "question.asked",
+        properties: {
+          id: "q-1",
+          sessionID: "ses-1",
+          questions: [
+            {
+              header: "Destination",
+              question: "Where should the command publish its report?",
+              custom: false,
+              options: [
+                { label: "Workspace", description: "Keep it alongside the project" },
+                { label: "Temporary folder", description: "Discard it after review" },
+              ],
+            },
+            {
+              header: "Validation",
+              question: "Which checks should run?",
+              multiple: true,
+              options: [
+                { label: "Unit tests", description: "Fast checks for isolated behavior" },
+                { label: "Integration tests", description: "Check the connected components" },
+              ],
+            },
+          ],
+        },
+      },
+    }),
     onAnswer: () => undefined,
     onCancel: () => undefined,
   },
@@ -356,12 +395,28 @@ export const OpencodeMultipleQuestions: Story = {
 export const CodexStructuredQuestion: Story = {
   render: (args) => <QuestionDemo {...args} />,
   args: {
-    approval: view({ approvalId: "cx-question", harness: "codex", kind: "user_input", raw: {
-      method: "item/tool/requestUserInput", params: { questions: [
-        { id: "strategy", header: "Strategy", question: "How should existing files be handled?", isOther: true,
-          options: [{ label: "Merge", description: "Preserve existing content" }, { label: "Replace", description: "Use the new version" }] },
-      ] },
-    } }),
+    approval: view({
+      approvalId: "cx-question",
+      harness: "codex",
+      kind: "user_input",
+      raw: {
+        method: "item/tool/requestUserInput",
+        params: {
+          questions: [
+            {
+              id: "strategy",
+              header: "Strategy",
+              question: "How should existing files be handled?",
+              isOther: true,
+              options: [
+                { label: "Merge", description: "Preserve existing content" },
+                { label: "Replace", description: "Use the new version" },
+              ],
+            },
+          ],
+        },
+      },
+    }),
     onAnswer: () => undefined,
     onCancel: () => undefined,
   },
@@ -370,7 +425,12 @@ export const CodexStructuredQuestion: Story = {
 export const UnsupportedQuestion: Story = {
   render: (args) => <QuestionDemo {...args} />,
   args: {
-    approval: view({ approvalId: "unsupported-question", harness: "codex", kind: "user_input", raw: { params: {} } }),
+    approval: view({
+      approvalId: "unsupported-question",
+      harness: "codex",
+      kind: "user_input",
+      raw: { params: {} },
+    }),
     onCancel: () => undefined,
   },
 };

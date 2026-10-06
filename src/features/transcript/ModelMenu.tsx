@@ -188,9 +188,7 @@ export function ModelMenu({
         rows.push({
           displayName,
           nativeProvider:
-            provider.kind === "native" && separator > 0
-              ? modelId.slice(0, separator)
-              : undefined,
+            provider.kind === "native" && separator > 0 ? modelId.slice(0, separator) : undefined,
           ref: `${name}/${modelId}`,
           score,
           modelHit: displayMatch?.indices ?? null,
@@ -441,9 +439,7 @@ export function ModelMenu({
               const models = provider?.modelCatalog ?? [];
               return (
                 <div key={name} className="model-menu-group">
-                  <div className="model-menu-provider">
-                    {providerLabel(name)}
-                  </div>
+                  <div className="model-menu-provider">{providerLabel(name)}</div>
                   {provider?.catalogState === "loading" ? (
                     <div className="model-menu-state">{t("core.providers.catalog.loading")}</div>
                   ) : null}

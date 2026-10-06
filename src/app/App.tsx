@@ -32,8 +32,8 @@ function RoutePlaceholder({ titleKey }: { titleKey: string }) {
 
 export function App() {
   const locationRoute = useHashRoute();
-  const [pageRoute, setPageRoute] = useState<Exclude<Route, { name: "settings" }>>(
-    () => locationRoute.name === "settings" ? { name: "dashboard" } : locationRoute,
+  const [pageRoute, setPageRoute] = useState<Exclude<Route, { name: "settings" }>>(() =>
+    locationRoute.name === "settings" ? { name: "dashboard" } : locationRoute,
   );
   // Settings is an overlay: keep the underlying page and its local state mounted.
   if (locationRoute.name !== "settings" && locationRoute !== pageRoute) {
@@ -48,15 +48,33 @@ export function App() {
   useEffect(() => registerWindowKeyboardShortcuts(), []);
   const content =
     route.name === "dashboard" ? (
-      <DashboardPage key={`${route.cwd ?? ""}:${route.worktree}:${route.surrogate}`} initialCwd={route.cwd} initialProtection={route.worktree ? (route.surrogate ? "worktree_surrogate" : "worktree") : undefined} />
+      <DashboardPage
+        key={`${route.cwd ?? ""}:${route.worktree}:${route.surrogate}`}
+        initialCwd={route.cwd}
+        initialProtection={
+          route.worktree ? (route.surrogate ? "worktree_surrogate" : "worktree") : undefined
+        }
+      />
     ) : route.name === "session" || route.name === "agent" ? (
-      <PaneManager target={{ kind: route.name, id: route.id }} workspace={route.workspace ?? null} onActivate={(target) => navigate({ name: target.kind, id: target.id })}>
-        {route.name === "session" ? <SessionView sessionId={route.id} /> : <AgentView key={route.id} agentId={route.id} />}
+      <PaneManager
+        target={{ kind: route.name, id: route.id }}
+        workspace={route.workspace ?? null}
+        onActivate={(target) => navigate({ name: target.kind, id: target.id })}
+      >
+        {route.name === "session" ? (
+          <SessionView sessionId={route.id} />
+        ) : (
+          <AgentView key={route.id} agentId={route.id} />
+        )}
       </PaneManager>
     ) : route.name === "providers" ? (
       <ProvidersPage />
     ) : route.name === "usage" ? (
-      <UsagePage key={`${route.sessionId ?? ""}|${route.projectPath ?? ""}`} sessionId={route.sessionId} projectPath={route.projectPath} />
+      <UsagePage
+        key={`${route.sessionId ?? ""}|${route.projectPath ?? ""}`}
+        sessionId={route.sessionId}
+        projectPath={route.projectPath}
+      />
     ) : route.name === "routes" ? (
       <RoutesPage />
     ) : (
@@ -67,7 +85,13 @@ export function App() {
       <Shell route={route}>
         <ErrorBoundary key={daemonGeneration}>{content}</ErrorBoundary>
       </Shell>
-      {locationRoute.name === "settings" && <SettingsModal open initialSection={locationRoute.section} onClose={() => navigate(pageRoute)} />}
+      {locationRoute.name === "settings" && (
+        <SettingsModal
+          open
+          initialSection={locationRoute.section}
+          onClose={() => navigate(pageRoute)}
+        />
+      )}
       <CommandPaletteHost />
       <ShortcutSheetHost />
     </ConnectionOverlay>

@@ -11,7 +11,9 @@ export interface NativeSessionUi {
 
 // Host-native extensions can publish small UI additions without introducing
 // harness-specific preferences or interpreting arbitrary terminal components.
-export const nativeSessionUiStore = createStore<{ sessions: Record<string, NativeSessionUi> }>(() => ({ sessions: {} }));
+export const nativeSessionUiStore = createStore<{ sessions: Record<string, NativeSessionUi> }>(
+  () => ({ sessions: {} }),
+);
 const latestSequence = new Map<string, number>();
 daemonIdentity.subscribe(() => {
   latestSequence.clear();
@@ -58,10 +60,11 @@ export function ingestNativeSessionUi(message: ServerMessage): void {
       else delete next.statuses[raw.statusKey];
     }
     if (raw.method === "setWidget" && typeof raw.widgetKey === "string") {
-      if (Array.isArray(raw.widgetLines)) next.widgets[raw.widgetKey] = {
-        lines: raw.widgetLines.filter((line): line is string => typeof line === "string"),
-        placement: raw.widgetPlacement === "belowEditor" ? "belowEditor" : "aboveEditor",
-      };
+      if (Array.isArray(raw.widgetLines))
+        next.widgets[raw.widgetKey] = {
+          lines: raw.widgetLines.filter((line): line is string => typeof line === "string"),
+          placement: raw.widgetPlacement === "belowEditor" ? "belowEditor" : "aboveEditor",
+        };
       else delete next.widgets[raw.widgetKey];
     }
     return { sessions: { ...state.sessions, [sessionId]: next } };

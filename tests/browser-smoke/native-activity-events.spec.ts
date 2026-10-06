@@ -68,12 +68,26 @@ try {
     socket = current;
     current.onMessage((data) => {
       const frame = JSON.parse(String(data));
-      if (frame.action === "command.catalogs" || frame.action === "command.catalog" || frame.action === "command.list") {
-        const result = frame.action === "command.list" ? { invocations: [] } : frame.action === "command.catalogs"
-          ? { default_cwd: "/mock-project", catalogs: [] }
-          : { ...frame.params, cwd: frame.params.cwd ?? "/mock-project", profile_id: null,
-              execution_backend: frame.params.execution_backend ?? "host", privacy_mode: frame.params.privacy_mode ?? "none",
-              state: "ready", commands: [], reason: null };
+      if (
+        frame.action === "command.catalogs" ||
+        frame.action === "command.catalog" ||
+        frame.action === "command.list"
+      ) {
+        const result =
+          frame.action === "command.list"
+            ? { invocations: [] }
+            : frame.action === "command.catalogs"
+              ? { default_cwd: "/mock-project", catalogs: [] }
+              : {
+                  ...frame.params,
+                  cwd: frame.params.cwd ?? "/mock-project",
+                  profile_id: null,
+                  execution_backend: frame.params.execution_backend ?? "host",
+                  privacy_mode: frame.params.privacy_mode ?? "none",
+                  state: "ready",
+                  commands: [],
+                  reason: null,
+                };
         current.send(JSON.stringify({ type: "response", op_id: frame.op_id, ok: true, result }));
         return;
       }

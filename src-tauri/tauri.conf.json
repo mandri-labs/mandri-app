@@ -27,15 +27,10 @@
   "bundle": {
     "active": true,
     "licenseFile": "../LICENSE",
-    "targets": [
-      "nsis"
-    ],
+    "targets": ["nsis"],
     "createUpdaterArtifacts": false,
     "resources": ["runtime/**/*"],
-    "icon": [
-      "icons/icon.ico",
-      "icons/icon.png"
-    ],
+    "icon": ["icons/icon.ico", "icons/icon.png"],
     "windows": {
       "nsis": {
         "installMode": "currentUser"

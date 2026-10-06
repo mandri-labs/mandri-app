@@ -3,7 +3,11 @@ import type { HarnessKind } from "@/daemon/types/ws";
 
 export type CommandPlacement = "all" | "composer" | "transcript";
 
-export function commandsForPlacement(records: CommandInvocation[], placement: CommandPlacement, harness?: HarnessKind): CommandInvocation[] {
+export function commandsForPlacement(
+  records: CommandInvocation[],
+  placement: CommandPlacement,
+  harness?: HarnessKind,
+): CommandInvocation[] {
   if (placement === "all") return records;
   const category = (record: CommandInvocation) => {
     const name = record.command.name.replace(/^\//, "").toLowerCase();
@@ -17,6 +21,8 @@ export function commandsForPlacement(records: CommandInvocation[], placement: Co
   }
   return records.filter((record) => {
     const name = category(record);
-    return placement === "composer" ? name !== undefined && latest.get(name) === record : name === undefined;
+    return placement === "composer"
+      ? name !== undefined && latest.get(name) === record
+      : name === undefined;
   });
 }

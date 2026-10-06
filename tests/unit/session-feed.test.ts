@@ -15,7 +15,10 @@ const SCENARIO = "tools-diff";
 
 type HistoryCall = { sessionId: string; cursor: string | null; limit: number };
 
-function createHistoryFetcher(pages: HistoryPage[]): { calls: HistoryCall[]; fetch: ReturnType<typeof makeFetcher> } {
+function createHistoryFetcher(pages: HistoryPage[]): {
+  calls: HistoryCall[];
+  fetch: ReturnType<typeof makeFetcher>;
+} {
   const calls: HistoryCall[] = [];
   return { calls, fetch: makeFetcher(pages, calls) };
 }
@@ -30,7 +33,10 @@ function makeFetcher(pages: HistoryPage[], calls: HistoryCall[]) {
   };
 }
 
-function makeService(pages: HistoryPage[] = []): { service: SessionFeedService; calls: HistoryCall[] } {
+function makeService(pages: HistoryPage[] = []): {
+  service: SessionFeedService;
+  calls: HistoryCall[];
+} {
   const { calls, fetch } = createHistoryFetcher(pages);
   return { service: new SessionFeedService({ fetchHistoryPage: fetch }), calls };
 }
@@ -139,10 +145,26 @@ const CODEX_PROMPT =
 
 const CLAUDE_EXPECTED = [
   { kind: "system", level: "warning", text: "API retry 1/10 (429): rate_limit" },
-  { kind: "thinking", text: "Simple task. Create two files, run test, refactor, rerun.", streaming: false },
+  {
+    kind: "thinking",
+    text: "Simple task. Create two files, run test, refactor, rerun.",
+    streaming: false,
+  },
   { kind: "assistant", text: "Create both files.", streaming: false },
-  { kind: "tool", tool: "Write", label: "Write", target: "__CWD__\\claude\\tools-diff\\calc.ts", status: "done" },
-  { kind: "tool", tool: "Write", label: "Write", target: "__CWD__\\claude\\tools-diff\\calc.test.ts", status: "done" },
+  {
+    kind: "tool",
+    tool: "Write",
+    label: "Write",
+    target: "__CWD__\\claude\\tools-diff\\calc.ts",
+    status: "done",
+  },
+  {
+    kind: "tool",
+    tool: "Write",
+    label: "Write",
+    target: "__CWD__\\claude\\tools-diff\\calc.test.ts",
+    status: "done",
+  },
   { kind: "system", level: "warning", text: "API retry 1/10 (429): rate_limit" },
   { kind: "system", level: "warning", text: "API retry 2/10 (429): rate_limit" },
   { kind: "system", level: "warning", text: "API retry 3/10 (429): rate_limit" },
@@ -161,7 +183,13 @@ const CLAUDE_EXPECTED = [
     text: "Tests pass. Now refactor — `sum` new function, `add` thin wrapper.",
     streaming: false,
   },
-  { kind: "tool", tool: "Write", label: "Write", target: "__CWD__\\claude\\tools-diff\\calc.ts", status: "done" },
+  {
+    kind: "tool",
+    tool: "Write",
+    label: "Write",
+    target: "__CWD__\\claude\\tools-diff\\calc.ts",
+    status: "done",
+  },
   {
     kind: "tool",
     tool: "Bash",
@@ -203,7 +231,7 @@ const CODEX_EXPECTED = [
 ];
 
 const OPENCODE_REASONING =
-  "User wants:\n1. Create calc.ts with add function\n2. Create calc.test.ts with three plain assertion checks\n3. Run with node --experimental-strip-types\n4. Refactor add into sum, keep add as wrapper\n5. Rerun tests\n\nSimple task. Working dir: __CWD__\\opencode\\tools-diff\n\nLet me create files. \"Plain assertion checks\" — use node:assert. Test file needs to run under node --experimental-strip-types, so TypeScript only, no imports from packages.\n\nLet me check node version maybe. --experimental-strip-types requires Node 22.6+. Let me just try.\n\nCreate calc.ts:\n```ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n```\n\ncalc.test.ts:\n```ts\nimport assert from \"node:assert\";\nimport { add } from \"./calc.ts\";\n\nassert.strictEqual(add(1, 2), 3);\nassert.strictEqual(add(-1, 1), 0);\nassert.strictEqual(add(0, 0), 0);\nconsole.log(\"all tests passed\");\n```\n\nNote: --experimental-strip-types requires explicit file extension in imports — \"./calc.ts\" works (actually with type stripping, importing \"./calc.ts\" is correct; \"./calc\" would fail).\n\nThen refactor:\n```ts\nexport function sum(a: number, b: number): number {\n  return a + b;\n}\n\nexport function add(a: number, b: number): number {\n  return sum(a, b);\n}\n```\n\nRerun tests.\n\nCaveman mode active but code normal. Keep responses terse.";
+  'User wants:\n1. Create calc.ts with add function\n2. Create calc.test.ts with three plain assertion checks\n3. Run with node --experimental-strip-types\n4. Refactor add into sum, keep add as wrapper\n5. Rerun tests\n\nSimple task. Working dir: __CWD__\\opencode\\tools-diff\n\nLet me create files. "Plain assertion checks" — use node:assert. Test file needs to run under node --experimental-strip-types, so TypeScript only, no imports from packages.\n\nLet me check node version maybe. --experimental-strip-types requires Node 22.6+. Let me just try.\n\nCreate calc.ts:\n```ts\nexport function add(a: number, b: number): number {\n  return a + b;\n}\n```\n\ncalc.test.ts:\n```ts\nimport assert from "node:assert";\nimport { add } from "./calc.ts";\n\nassert.strictEqual(add(1, 2), 3);\nassert.strictEqual(add(-1, 1), 0);\nassert.strictEqual(add(0, 0), 0);\nconsole.log("all tests passed");\n```\n\nNote: --experimental-strip-types requires explicit file extension in imports — "./calc.ts" works (actually with type stripping, importing "./calc.ts" is correct; "./calc" would fail).\n\nThen refactor:\n```ts\nexport function sum(a: number, b: number): number {\n  return a + b;\n}\n\nexport function add(a: number, b: number): number {\n  return sum(a, b);\n}\n```\n\nRerun tests.\n\nCaveman mode active but code normal. Keep responses terse.';
 
 const OPENCODE_EXPECTED = [
   { kind: "user", text: CODEX_PROMPT },
@@ -270,7 +298,9 @@ describe("session feed ingestion (fixture replay)", () => {
     await replayFixture(service, fixture, sessionId);
     const nodes = nodesOf(service, sessionId);
     expect(nodes.filter((node) => node.kind === "diff")).toHaveLength(3);
-    expect(serialized(nodes.filter((node) => node.kind !== "diff"))).toBe(JSON.stringify(CLAUDE_EXPECTED));
+    expect(serialized(nodes.filter((node) => node.kind !== "diff"))).toBe(
+      JSON.stringify(CLAUDE_EXPECTED),
+    );
     const toolNodes = nodes.filter((node) => node.kind === "tool");
     expect(toolNodes.every((node) => node.status === "done")).toBe(true);
     expect(toolNodes.length).toBe(5);
@@ -293,10 +323,19 @@ describe("session feed ingestion (fixture replay)", () => {
     service.ensureSession(sessionId, "opencode");
     await replayFixture(service, fixture, sessionId);
     const nodes = nodesOf(service, sessionId);
-    expect(nodes.filter((node) => node.kind === "file_snapshot")).toMatchObject([{ scope: "session", files: [] }]);
-    expect(nodes.filter((node) => node.kind === "raw").every((node) =>
-      ["step-start", "step-finish"].includes((node.payload as { type: string }).type))).toBe(true);
-    expect(serialized(nodes.filter((node) => node.kind !== "file_snapshot" && node.kind !== "raw"))).toBe(JSON.stringify(OPENCODE_EXPECTED));
+    expect(nodes.filter((node) => node.kind === "file_snapshot")).toMatchObject([
+      { scope: "session", files: [] },
+    ]);
+    expect(
+      nodes
+        .filter((node) => node.kind === "raw")
+        .every((node) =>
+          ["step-start", "step-finish"].includes((node.payload as { type: string }).type),
+        ),
+    ).toBe(true);
+    expect(
+      serialized(nodes.filter((node) => node.kind !== "file_snapshot" && node.kind !== "raw")),
+    ).toBe(JSON.stringify(OPENCODE_EXPECTED));
   });
 
   it("keeps buffers isolated per session", async () => {
@@ -376,7 +415,9 @@ describe("session feed ingestion (fixture replay)", () => {
     expect(nodes.length).toBeGreaterThan(beforeLive);
     expect(nodes[0]?.kind).toBe("user");
     expect(nodes.at(-1)?.kind).not.toBe("undefined");
-    const firstLiveIndex = nodes.findIndex((node) => node.kind === "assistant" && node.text === "Create both files.");
+    const firstLiveIndex = nodes.findIndex(
+      (node) => node.kind === "assistant" && node.text === "Create both files.",
+    );
     expect(firstLiveIndex).toBeGreaterThan(0);
     expect(nodes.slice(0, beforeLive).some((node) => node.kind === "raw")).toBe(true);
   });
@@ -444,9 +485,7 @@ describe("session feed ingestion (fixture replay)", () => {
       ts: 0,
     });
     const nodes = sessionFeed.getNodes("wired-session");
-    expect(nodes.some((node) => node.kind === "assistant" && node.text === "pipewired")).toBe(
-      true,
-    );
+    expect(nodes.some((node) => node.kind === "assistant" && node.text === "pipewired")).toBe(true);
     sessionFeed.closeSession("wired-session");
   });
 });

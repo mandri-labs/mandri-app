@@ -37,15 +37,22 @@ export function ToolLine({
   const title = activityToolTitle(entry, t);
   const summary = (
     <>
-      <Icon size={14} aria-hidden="true"  />
-      <span className={`tr-tool-summary${active && status === "running" ? " tr-shimmer" : ""}`} title={title}>
+      <Icon size={14} aria-hidden="true" />
+      <span
+        className={`tr-tool-summary${active && status === "running" ? " tr-shimmer" : ""}`}
+        title={title}
+      >
         {title}
       </span>
       {status === "failed" && (
         <span className="tr-tool-outcome">{t("core.transcript.failed")}</span>
       )}
-      {status === "cancelled" && <span className="tr-tool-outcome">{t("core.transcript.action_cancelled")}</span>}
-      {active && status === "running" && <span className="sr-only">{t("core.transcript.agent_active")}</span>}
+      {status === "cancelled" && (
+        <span className="tr-tool-outcome">{t("core.transcript.action_cancelled")}</span>
+      )}
+      {active && status === "running" && (
+        <span className="sr-only">{t("core.transcript.agent_active")}</span>
+      )}
       {durationMs !== undefined && durationMs >= 1000 && (
         <span className="tr-tool-duration">
           {(durationMs / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })} s

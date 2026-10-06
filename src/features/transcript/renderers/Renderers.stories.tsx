@@ -35,7 +35,7 @@ const sampleLines: DiffLine[] = [
   },
   {
     type: "add",
-    text: "  auditLog.record(\"session.refresh\", { ttlSeconds: 3600 });",
+    text: '  auditLog.record("session.refresh", { ttlSeconds: 3600 });',
     newNo: 43,
   },
   { type: "context", text: "}", oldNo: 43, newNo: 44 },
@@ -86,7 +86,8 @@ export const ToolLineDone: StoryObj<ToolLineProps> = {
     durationMs: 13000,
     additions: 12,
     deletions: 3,
-    detailText: "Applied 2 edits to src/auth/session.ts\n- replaced legacyRefresh call\n- added audit log record",
+    detailText:
+      "Applied 2 edits to src/auth/session.ts\n- replaced legacyRefresh call\n- added audit log record",
   },
   render: (props) => <ToolLine {...props} />,
 };

@@ -23,13 +23,16 @@ let socket: MandriSocket | null = null;
 let connectionAttempt = 0;
 
 connectionStore.subscribe((state, previous) => {
-  if (state.status === "online" && previous.status !== "online") void preloadCommandCatalogs(commandTransport, true);
+  if (state.status === "online" && previous.status !== "online")
+    void preloadCommandCatalogs(commandTransport, true);
 });
 
 export function buildWsUrl(baseUrl: string): string {
   const trimmed = baseUrl.trim().replace(/\/+$/, "");
   const withoutScheme = trimmed.replace(/^https?:\/\//, "");
-  const wsBase = trimmed.startsWith("https://") ? `wss://${withoutScheme}` : `ws://${withoutScheme}`;
+  const wsBase = trimmed.startsWith("https://")
+    ? `wss://${withoutScheme}`
+    : `ws://${withoutScheme}`;
   return wsBase.endsWith("/v1/ws") ? wsBase : `${wsBase}/v1/ws`;
 }
 
@@ -44,14 +47,16 @@ export function connectDaemon(): void {
   const endpoint = daemonBaseUrl.trim().replace(/\/+$/, "");
   if (isTauri() && ["http://127.0.0.1:8787", "http://localhost:8787"].includes(endpoint)) {
     connectionStore.getState().setStatus("connecting");
-    void ensureDesktopDaemon().then((url) => {
-      if (attempt === connectionAttempt) connectUrl(url);
-    }).catch((error: unknown) => {
-      if (attempt !== connectionAttempt) return;
-      void appLog("error", `Local daemon startup failed: ${String(error)}`);
-      connectionStore.getState().setStartupError(String(error));
-      connectionStore.getState().setStatus("offline");
-    });
+    void ensureDesktopDaemon()
+      .then((url) => {
+        if (attempt === connectionAttempt) connectUrl(url);
+      })
+      .catch((error: unknown) => {
+        if (attempt !== connectionAttempt) return;
+        void appLog("error", `Local daemon startup failed: ${String(error)}`);
+        connectionStore.getState().setStartupError(String(error));
+        connectionStore.getState().setStatus("offline");
+      });
     return;
   }
   connectUrl(daemonBaseUrl);
@@ -62,7 +67,10 @@ function connectUrl(daemonBaseUrl: string): void {
     socket?.close();
     invalidateSessionMetadata();
     resetCommandCatalogs();
-    for (const id of new Set([...Object.keys(sessionsStore.getState().sessions), ...Object.keys(transcriptStore.getState().transcripts)])) {
+    for (const id of new Set([
+      ...Object.keys(sessionsStore.getState().sessions),
+      ...Object.keys(transcriptStore.getState().transcripts),
+    ])) {
       keepAlive.forget(id);
       sessionFeed.closeSession(id);
     }
@@ -75,7 +83,11 @@ function connectUrl(daemonBaseUrl: string): void {
   setBaseUrl(daemonBaseUrl);
   const url = buildWsUrl(daemonBaseUrl);
   connectionStore.getState().setEndpoint(url);
-  log.info("connectDaemon invoked", { baseUrl: daemonBaseUrl, wsUrl: url, socketExists: socket !== null });
+  log.info("connectDaemon invoked", {
+    baseUrl: daemonBaseUrl,
+    wsUrl: url,
+    socketExists: socket !== null,
+  });
   try {
     if (typeof WebSocket === "undefined") {
       log.warn("WebSocket unavailable in this environment");
@@ -88,7 +100,9 @@ function connectUrl(daemonBaseUrl: string): void {
     }
     socket.connect(url);
   } catch (error) {
-    log.error("connectDaemon failed", { message: error instanceof Error ? error.message : String(error) });
+    log.error("connectDaemon failed", {
+      message: error instanceof Error ? error.message : String(error),
+    });
     connectionStore.getState().setStatus("offline");
   }
 }

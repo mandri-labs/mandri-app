@@ -21,7 +21,9 @@ it("renders a pending message immediately and before a response arriving ahead o
   store.setNodes("s", [...previous, { kind: "assistant", text: "New reply", key: "new-reply" }]);
   const state = transcriptStore.getState().transcripts.s!;
   expect(withPendingUsers(state.nodes, state.pendingUsers!)).toMatchObject([
-    ...previous, { kind: "user", text: "Retry" }, { kind: "assistant", text: "New reply" },
+    ...previous,
+    { kind: "user", text: "Retry" },
+    { kind: "assistant", text: "New reply" },
   ]);
 });
 
@@ -37,8 +39,12 @@ it("does not confuse older history or identical prompts with the new echo", () =
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(1);
   store.setNodes("s", [older, ...previous, { kind: "user", text: "Retry", key: "new" }]);
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(1);
-  store.setNodes("s", [older, ...previous, { kind: "user", text: "Retry", key: "new" },
-    { kind: "user", text: "Retry", key: "newer" }]);
+  store.setNodes("s", [
+    older,
+    ...previous,
+    { kind: "user", text: "Retry", key: "new" },
+    { kind: "user", text: "Retry", key: "newer" },
+  ]);
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(0);
 });
 
@@ -51,29 +57,50 @@ it("preserves a local message across flag updates and removes it on failure", ()
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(0);
 });
 
-
 it("reconciles the first image prompt with Codex live and persisted image wrappers", () => {
   const store = transcriptStore.getState();
   const path = "/workspace/attachments/session/files/image.png";
   const text = `Describe this\n\n[image.png](${path})`;
-  const key = store.addPendingUser("s", "Describe this", [{ source: "draft:image", name: "image.png" }]);
+  const key = store.addPendingUser("s", "Describe this", [
+    { source: "draft:image", name: "image.png" },
+  ]);
   store.updatePendingUser("s", key, text);
-  const live = parseFrame("codex", { method: "item/completed", params: {
-    turnId: "turn", item: { id: "message", type: "userMessage", content: [
-      { type: "text", text }, { type: "localImage", path },
-    ] },
-  } });
+  const live = parseFrame("codex", {
+    method: "item/completed",
+    params: {
+      turnId: "turn",
+      item: {
+        id: "message",
+        type: "userMessage",
+        content: [
+          { type: "text", text },
+          { type: "localImage", path },
+        ],
+      },
+    },
+  });
   store.setNodes("s", live);
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(0);
-  const persisted = parseHistoryLine("codex", JSON.stringify({ type: "response_item", payload: {
-    type: "message", role: "user", content: [
-      { type: "input_text", text },
-      { type: "input_text", text: `<image name=[Image #1] path="${path}">` },
-      { type: "input_image", image_url: "data:image/png;base64,iVBORw==" },
-      { type: "input_text", text: "</image>" },
-    ],
-    internal_chat_message_metadata_passthrough: { turn_id: "turn", content_item_kinds: ["user.text", "user.image"] },
-  } }));
+  const persisted = parseHistoryLine(
+    "codex",
+    JSON.stringify({
+      type: "response_item",
+      payload: {
+        type: "message",
+        role: "user",
+        content: [
+          { type: "input_text", text },
+          { type: "input_text", text: `<image name=[Image #1] path="${path}">` },
+          { type: "input_image", image_url: "data:image/png;base64,iVBORw==" },
+          { type: "input_text", text: "</image>" },
+        ],
+        internal_chat_message_metadata_passthrough: {
+          turn_id: "turn",
+          content_item_kinds: ["user.text", "user.image"],
+        },
+      },
+    }),
+  );
   store.setNodes("s", persisted, persisted);
   const state = transcriptStore.getState().transcripts.s!;
   expect(state.localUsers).toHaveLength(0);
@@ -84,7 +111,9 @@ it("reconciles the first image prompt with Codex live and persisted image wrappe
 it("does not consume a prompt carrying a different image with the same caption", () => {
   const store = transcriptStore.getState();
   store.addPendingUser("s", "Describe this\n\n[a.png](/files/a.png)");
-  store.setNodes("s", [{ kind: "user", text: "Describe this", images: [{ source: "/files/b.png" }] }]);
+  store.setNodes("s", [
+    { kind: "user", text: "Describe this", images: [{ source: "/files/b.png" }] },
+  ]);
   expect(transcriptStore.getState().transcripts.s?.pendingUsers).toHaveLength(1);
 });
 
@@ -97,7 +126,9 @@ it("keeps the original insertion boundary when upload completes after another ev
   store.updatePendingUser("s", key, "Describe this\n\n[image.png](/files/image.png)");
   const state = transcriptStore.getState().transcripts.s!;
   expect(withPendingUsers(state.nodes, state.pendingUsers!)).toMatchObject([
-    ...previous, { kind: "user", key }, response,
+    ...previous,
+    { kind: "user", key },
+    response,
   ]);
 });
 
@@ -106,14 +137,23 @@ it("reconciles a Windows two-image Codex echo with forward-slash attachment refe
     reference: `C:/Dev Drive/project/mandri-attachments/${name}/capture.png`,
     native: `c:\\Dev Drive\\project\\mandri-attachments\\${name}\\capture.png`,
   }));
-  const text = `Voici les captures en question\n\n${files.map(({reference}) => `[capture.png](${encodeURI(reference)})`).join("\n")}`;
+  const text = `Voici les captures en question\n\n${files.map(({ reference }) => `[capture.png](${encodeURI(reference)})`).join("\n")}`;
   const store = transcriptStore.getState();
   store.addPendingUser("s", text);
-  const live = parseFrame("codex", { method: "item/completed", params: {
-    turnId: "turn", item: { id: "message", type: "userMessage", content: [
-      { type: "text", text }, ...files.map(({native}) => ({ type: "localImage", path: native })),
-    ] },
-  } });
+  const live = parseFrame("codex", {
+    method: "item/completed",
+    params: {
+      turnId: "turn",
+      item: {
+        id: "message",
+        type: "userMessage",
+        content: [
+          { type: "text", text },
+          ...files.map(({ native }) => ({ type: "localImage", path: native })),
+        ],
+      },
+    },
+  });
   store.setNodes("s", live);
   const state = transcriptStore.getState().transcripts.s!;
   expect(state.pendingUsers).toHaveLength(0);

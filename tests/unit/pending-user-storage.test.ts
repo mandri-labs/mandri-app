@@ -6,7 +6,9 @@ import { readPendingUsers } from "@/features/transcript/pendingUserStorage";
 import { withPendingUsers } from "@/features/transcript/optimistic";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
 
-const history: TranscriptNode[] = [{ kind: "assistant", key: "previous", text: "Previous response" }];
+const history: TranscriptNode[] = [
+  { kind: "assistant", key: "previous", text: "Previous response" },
+];
 
 beforeEach(() => {
   localStorage.clear();
@@ -23,15 +25,23 @@ it("keeps two unechoed steerings after reload until persisted history confirms e
   store.setNodes("session", history, history);
   let transcript = transcriptStore.getState().transcripts.session!;
   expect(withPendingUsers(transcript.nodes, transcript.pendingUsers!)).toMatchObject([
-    ...history, { text: "Remove the spinner" }, { text: "Only change the sidebar" },
+    ...history,
+    { text: "Remove the spinner" },
+    { text: "Only change the sidebar" },
   ]);
-  const echoed: TranscriptNode[] = [...history, { kind: "user", key: "native-1", text: "Remove the spinner" }];
+  const echoed: TranscriptNode[] = [
+    ...history,
+    { kind: "user", key: "native-1", text: "Remove the spinner" },
+  ];
   store.setNodes("session", echoed);
   expect(readPendingUsers("session")).toHaveLength(2);
   store.setNodes("session", echoed, echoed);
   expect(readPendingUsers("session")).toHaveLength(1);
   store.resetTranscripts();
-  const persisted: TranscriptNode[] = [...echoed, { kind: "user", key: "native-2", text: "Only change the sidebar" }];
+  const persisted: TranscriptNode[] = [
+    ...echoed,
+    { kind: "user", key: "native-2", text: "Only change the sidebar" },
+  ];
   store.setNodes("session", persisted, persisted);
   transcript = transcriptStore.getState().transcripts.session!;
   expect(transcript.pendingUsers).toEqual([]);
@@ -65,8 +75,9 @@ it("stores history anchors without copying previous response bodies", () => {
 });
 
 it("ignores malformed saved messages", () => {
-  localStorage.setItem(composerStorageKey("pending", "session"), JSON.stringify([
-    null, { node: { kind: "user", text: 42, key: "bad" }, baseline: [] },
-  ]));
+  localStorage.setItem(
+    composerStorageKey("pending", "session"),
+    JSON.stringify([null, { node: { kind: "user", text: 42, key: "bad" }, baseline: [] }]),
+  );
   expect(readPendingUsers("session")).toEqual([]);
 });

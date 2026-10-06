@@ -6,13 +6,18 @@ type RecordOf = Record<string, unknown>;
 export function outputText(value: unknown): string | undefined {
   if (value === undefined || value === null) return undefined;
   if (typeof value === "string") return value;
-  if (Array.isArray(value)) return value.map((block) => outputText(asRecord(block)?.["text"] ?? block) ?? "").join("\n");
+  if (Array.isArray(value))
+    return value.map((block) => outputText(asRecord(block)?.["text"] ?? block) ?? "").join("\n");
   return JSON.stringify(value, null, 2);
 }
 
 export function parseArguments(value: unknown): RecordOf | undefined {
   if (typeof value !== "string") return asRecord(value);
-  try { return asRecord(JSON.parse(value)); } catch { return undefined; }
+  try {
+    return asRecord(JSON.parse(value));
+  } catch {
+    return undefined;
+  }
 }
 
 export function asRecord(value: unknown): RecordOf | undefined {
@@ -117,7 +122,13 @@ export function parseFileContents(content: string, type: "add" | "del") {
   const text = content.split(/\r?\n/);
   if (text.at(-1) === "") text.pop();
   const lines: TranscriptDiffLine[] = text.map((text, index) => ({
-    type, text, ...(type === "add" ? { newNo: index + 1 } : { oldNo: index + 1 }),
+    type,
+    text,
+    ...(type === "add" ? { newNo: index + 1 } : { oldNo: index + 1 }),
   }));
-  return { lines, additions: type === "add" ? lines.length : 0, deletions: type === "del" ? lines.length : 0 };
+  return {
+    lines,
+    additions: type === "add" ? lines.length : 0,
+    deletions: type === "del" ? lines.length : 0,
+  };
 }

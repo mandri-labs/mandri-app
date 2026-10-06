@@ -148,7 +148,8 @@ it("does not merge different OpenCode user messages", async () => {
 });
 
 it("renders Windows native paths and attachment references as the same two images", () => {
-  const text = "Voici les captures en question\n\n[one.png](C:/Dev%20Drive/mandri-attachments/one/one.png)\n[two.png](C:/Dev%20Drive/mandri-attachments/two/two.png)";
+  const text =
+    "Voici les captures en question\n\n[one.png](C:/Dev%20Drive/mandri-attachments/one/one.png)\n[two.png](C:/Dev%20Drive/mandri-attachments/two/two.png)";
   const images = [
     { source: "c:\\Dev Drive\\mandri-attachments\\one\\one.png" },
     { source: "C:\\Dev Drive\\mandri-attachments\\two\\two.png" },

@@ -8,7 +8,12 @@ export function modelSelection(ref: string): { model: string; model_source: "nat
     : { model: ref, model_source: "gateway" };
 }
 
-export function sessionModelRef(session: { model?: string | null; model_source?: string | null; harness: string }): string | undefined {
-  if (session.model_source === "native") return `native:${session.harness}/${session.model || "default"}`;
+export function sessionModelRef(session: {
+  model?: string | null;
+  model_source?: string | null;
+  harness: string;
+}): string | undefined {
+  if (session.model_source === "native")
+    return `native:${session.harness}/${session.model || "default"}`;
   return session.model || undefined;
 }

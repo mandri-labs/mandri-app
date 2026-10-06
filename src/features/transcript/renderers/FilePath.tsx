@@ -32,5 +32,9 @@ export function FilePath({ path }: { path: string }) {
     void document.fonts?.ready.then(measure);
     return () => observer.disconnect();
   }, [path]);
-  return <span ref={ref} className="tr-file-path" title={path} aria-label={path}>{label}</span>;
+  return (
+    <span ref={ref} className="tr-file-path" title={path} aria-label={path}>
+      {label}
+    </span>
+  );
 }

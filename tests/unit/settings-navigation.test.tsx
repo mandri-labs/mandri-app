@@ -37,7 +37,9 @@ vi.mock("@/features/transcript/SessionView", () => ({
 }));
 vi.mock("@/daemon/rest/runtime", () => ({ listRuntimes: vi.fn(async () => []) }));
 
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 afterEach(() => {
   cleanup();
   window.history.replaceState(null, "", "#/");
@@ -74,7 +76,8 @@ describe("settings navigation", () => {
       expect(screen.getByRole("textbox", { name: "Session current draft" })).toBe(draft);
       expect(screen.queryByRole("textbox", { name: "New conversation draft" })).toBeNull();
       if (closeMethod === "escape") fireEvent.keyDown(document, { key: "Escape" });
-      else if (closeMethod === "backdrop") fireEvent.click(container.querySelector(".settings-modal-overlay")!);
+      else if (closeMethod === "backdrop")
+        fireEvent.click(container.querySelector(".settings-modal-overlay")!);
       else fireEvent.click(screen.getByRole("button", { name: "Close" }));
       await expectClosedAt("#/session/current");
       expect(screen.getByRole("textbox", { name: "Session current draft" })).toBe(draft);

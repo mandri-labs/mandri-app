@@ -2,7 +2,8 @@ import { request } from "./client";
 import type { components } from "../types/rest.gen";
 
 // Keep HTTP query encoding and account snapshot shapes at the REST boundary.
-export type UsageScope = { kind: "global" } | { kind: "project"; id: string } | { kind: "session"; id: string };
+export type UsageScope =
+  { kind: "global" } | { kind: "project"; id: string } | { kind: "session"; id: string };
 export type UsageGroup = "model" | "session" | "project";
 export interface UsageQuery {
   scope: UsageScope;
@@ -31,10 +32,21 @@ export function usageParams(query: UsageQuery, now = new Date()) {
   };
 }
 export const usageApi = {
-  overview: (query: UsageQuery, signal: AbortSignal) => request<UsageOverview>("/v1/usage/overview", { query: usageParams(query), signal }),
+  overview: (query: UsageQuery, signal: AbortSignal) =>
+    request<UsageOverview>("/v1/usage/overview", { query: usageParams(query), signal }),
   accounts: (signal: AbortSignal) => request<UsageAccounts>("/v1/usage/accounts", { signal }),
-  capabilities: (signal: AbortSignal) => request<UsageCapabilities>("/v1/usage/capabilities", { signal }),
-  refresh: (signal: AbortSignal) => request<components["schemas"]["UsageRefreshOut"]>("/v1/usage/refresh", { method: "POST", signal, timeoutMs: 45000 }),
+  capabilities: (signal: AbortSignal) =>
+    request<UsageCapabilities>("/v1/usage/capabilities", { signal }),
+  refresh: (signal: AbortSignal) =>
+    request<components["schemas"]["UsageRefreshOut"]>("/v1/usage/refresh", {
+      method: "POST",
+      signal,
+      timeoutMs: 45000,
+    }),
 };
 
-export const eraseSessionUsage = (sessionId: string, signal: AbortSignal) => request<components["schemas"]["UsageEraseOut"]>(`/v1/usage/sessions/${encodeURIComponent(sessionId)}/erase`, { method: "POST", body: { confirmed: true }, signal });
+export const eraseSessionUsage = (sessionId: string, signal: AbortSignal) =>
+  request<components["schemas"]["UsageEraseOut"]>(
+    `/v1/usage/sessions/${encodeURIComponent(sessionId)}/erase`,
+    { method: "POST", body: { confirmed: true }, signal },
+  );

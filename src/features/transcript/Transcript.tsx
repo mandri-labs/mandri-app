@@ -32,7 +32,8 @@ import { approvalsStore } from "@/stores/approvals";
 import { turnCompleted, type TurnWork } from "./turns/types";
 import { turnAnchors as findTurnAnchors } from "./turns/anchors";
 
-type TranscriptRow = ActivityRow
+type TranscriptRow =
+  | ActivityRow
   | { kind: "commands"; key: string }
   | { kind: "turn"; turn: TurnWork; key: string }
   | { kind: "activity"; label: string; key: string }
@@ -106,7 +107,10 @@ function SessionTranscript({
   commands,
 }: TranscriptProps) {
   const { t } = useTranslation();
-  const commandRecords = useStore(commandsStore, useCallback((state) => state.sessions[sessionId] ?? EMPTY_COMMANDS, [sessionId]));
+  const commandRecords = useStore(
+    commandsStore,
+    useCallback((state) => state.sessions[sessionId] ?? EMPTY_COMMANDS, [sessionId]),
+  );
   const hasCommandHistory = commandsForPlacement(commandRecords, "transcript", harness).length > 0;
   const scrollRef = useTranscriptViewport();
   const followRef = useRef(true);
@@ -150,60 +154,103 @@ function SessionTranscript({
       [sessionId],
     ),
   );
-  const session = useStore(sessionsStore, useShallow((state) => {
-    const current = state.sessions[sessionId];
-    return {
-      turnWork: current?.turnWork ?? EMPTY_TURNS,
-      working: isSessionWorking(current),
-      fileSummaryAllowed: canShowFileSummary(current),
-      nativeTurnActive: current?.nativeTurnActive,
-      externalBusy: current?.externalBusy,
-      executionPhase: current?.executionPhase,
-      executionBackend: current?.executionBackend,
-      pendingApprovals: current?.pendingApprovals ?? 0,
-      awaitingResponse: current?.awaitingResponse,
-      nativeTurnNotice: current?.nativeTurnNotice,
-      nativeTurnCompacting: current?.nativeTurnCompacting,
-    };
-  }));
-  const awaitingInput = useStore(approvalsStore, useCallback((state) => Object.values(state.pending)
-    .some((approval) => approval.sessionId === sessionId && approval.kind === "user_input"), [sessionId]));
+  const session = useStore(
+    sessionsStore,
+    useShallow((state) => {
+      const current = state.sessions[sessionId];
+      return {
+        turnWork: current?.turnWork ?? EMPTY_TURNS,
+        working: isSessionWorking(current),
+        fileSummaryAllowed: canShowFileSummary(current),
+        nativeTurnActive: current?.nativeTurnActive,
+        externalBusy: current?.externalBusy,
+        executionPhase: current?.executionPhase,
+        executionBackend: current?.executionBackend,
+        pendingApprovals: current?.pendingApprovals ?? 0,
+        awaitingResponse: current?.awaitingResponse,
+        nativeTurnNotice: current?.nativeTurnNotice,
+        nativeTurnCompacting: current?.nativeTurnCompacting,
+      };
+    }),
+  );
+  const awaitingInput = useStore(
+    approvalsStore,
+    useCallback(
+      (state) =>
+        Object.values(state.pending).some(
+          (approval) => approval.sessionId === sessionId && approval.kind === "user_input",
+        ),
+      [sessionId],
+    ),
+  );
   const turns = session?.turnWork ?? EMPTY_TURNS;
   const currentTurn = turns.at(-1);
   const fileSummaryAllowed = session.fileSummaryAllowed;
-  const working = (session.nativeTurnActive === true || session.externalBusy === true) && session.working &&
+  const working =
+    (session.nativeTurnActive === true || session.externalBusy === true) &&
+    session.working &&
     (session?.externalBusy === true || currentTurn === undefined || !turnCompleted(currentTurn));
   const phase = session?.executionPhase;
-  const preparing = session?.executionBackend === "docker" && phase !== undefined && ["checking", "preparing_image", "preparing_state", "starting"].includes(phase);
+  const preparing =
+    session?.executionBackend === "docker" &&
+    phase !== undefined &&
+    ["checking", "preparing_image", "preparing_state", "starting"].includes(phase);
   const waiting = working && (awaitingInput || (session?.pendingApprovals ?? 0) > 0);
-  const turnAnchors = useMemo(() => findTurnAnchors(presentedNodes, turns), [presentedNodes, turns]);
+  const turnAnchors = useMemo(
+    () => findTurnAnchors(presentedNodes, turns),
+    [presentedNodes, turns],
+  );
   // A reconnect can confirm an active turn without supplying its start time.
   // Scope activity to the latest user message without inventing a duration.
-  const latestUserIndex = presentedNodes.reduce((last, node, index) => node.kind === "user" ? index : last, -1);
-  const turnStart = currentTurn && !(working && turnCompleted(currentTurn))
-    ? (turnAnchors.get(currentTurn.id) ?? (currentTurn.firstNodeKey ? latestUserIndex + 1 : presentedNodes.length))
-    : latestUserIndex + 1;
+  const latestUserIndex = presentedNodes.reduce(
+    (last, node, index) => (node.kind === "user" ? index : last),
+    -1,
+  );
+  const turnStart =
+    currentTurn && !(working && turnCompleted(currentTurn))
+      ? (turnAnchors.get(currentTurn.id) ??
+        (currentTurn.firstNodeKey ? latestUserIndex + 1 : presentedNodes.length))
+      : latestUserIndex + 1;
   const currentStart = Math.max(turnStart, latestUserIndex + 1);
   const activeNodes = currentStart < 0 ? [] : presentedNodes.slice(currentStart);
-  const latestContent = [...activeNodes].reverse().find((node) => ["tool", "thinking", "assistant"].includes(node.kind));
-  const runningTool = working && latestContent?.kind === "tool" &&
-    activeNodes.some((node) => node.kind === "tool" && ["running", "pending", "waiting"].includes(node.status));
-  const streamingKey = working && !waiting && latestContent?.kind === "assistant" && latestContent.streaming
-    ? presentationKey(latestContent) : undefined;
-  const thinkingKey = working && !waiting && !runningTool && latestContent?.kind === "thinking"
-    ? presentationKey(latestContent) : undefined;
+  const latestContent = [...activeNodes]
+    .reverse()
+    .find((node) => ["tool", "thinking", "assistant"].includes(node.kind));
+  const runningTool =
+    working &&
+    latestContent?.kind === "tool" &&
+    activeNodes.some(
+      (node) => node.kind === "tool" && ["running", "pending", "waiting"].includes(node.status),
+    );
+  const streamingKey =
+    working && !waiting && latestContent?.kind === "assistant" && latestContent.streaming
+      ? presentationKey(latestContent)
+      : undefined;
+  const thinkingKey =
+    working && !waiting && !runningTool && latestContent?.kind === "thinking"
+      ? presentationKey(latestContent)
+      : undefined;
   let activityLabel: string | undefined;
   if (preparing && !working) {
-    activityLabel = t(phase === "starting" && session?.executionBackend === "docker"
-      ? "core.transcript.preparation.starting_docker" : `core.transcript.preparation.${phase}`);
-
+    activityLabel = t(
+      phase === "starting" && session?.executionBackend === "docker"
+        ? "core.transcript.preparation.starting_docker"
+        : `core.transcript.preparation.${phase}`,
+    );
   } else if (session.nativeTurnCompacting && session.working && !waiting) {
     activityLabel = t("core.transcript.compacting");
   } else if (!working && session?.awaitingResponse) {
     activityLabel = t("core.transcript.thinking");
   } else if (waiting) {
-    activityLabel = t(awaitingInput ? "core.transcript.waiting_answer" : "core.transcript.waiting_approval");
-  } else if (working && !runningTool && !thinkingKey && !(latestContent?.kind === "assistant" && latestContent.streaming)) {
+    activityLabel = t(
+      awaitingInput ? "core.transcript.waiting_answer" : "core.transcript.waiting_approval",
+    );
+  } else if (
+    working &&
+    !runningTool &&
+    !thinkingKey &&
+    !(latestContent?.kind === "assistant" && latestContent.streaming)
+  ) {
     activityLabel = session?.nativeTurnNotice || t("core.transcript.thinking");
   }
   const nodes = useMemo<TranscriptRow[]>(() => {
@@ -217,12 +264,22 @@ function SessionTranscript({
       at.push(turn);
       turnsAt.set(index, at);
     }
-    const unknownStart = working && (!currentTurn || turnCompleted(currentTurn) ||
-      (currentTurn.firstNodeKey !== undefined && !turnAnchors.has(currentTurn.id)));
-    const grouped = groupActivities(presentedNodes, working, currentStart, new Set(turnAnchors.values()), fileSummaryAllowed);
+    const unknownStart =
+      working &&
+      (!currentTurn ||
+        turnCompleted(currentTurn) ||
+        (currentTurn.firstNodeKey !== undefined && !turnAnchors.has(currentTurn.id)));
+    const grouped = groupActivities(
+      presentedNodes,
+      working,
+      currentStart,
+      new Set(turnAnchors.values()),
+      fileSummaryAllowed,
+    );
     for (const row of grouped) {
       if (row.kind !== "files") {
-        if (unknownStart && row.index === latestUserIndex + 1) rows.push({ kind: "unknown-work", key: "unknown-work" });
+        if (unknownStart && row.index === latestUserIndex + 1)
+          rows.push({ kind: "unknown-work", key: "unknown-work" });
         for (const turn of turnsAt.get(row.index) ?? []) {
           rows.push({ kind: "turn", turn, key: `turn:${turn.id}` });
           anchored.add(turn.id);
@@ -233,13 +290,30 @@ function SessionTranscript({
     // An observed turn can precede its first visible content. Never invent timing
     // for older history that did not supply lifecycle timestamps.
     for (const turn of turns) {
-      if (!anchored.has(turn.id) && (!turn.firstNodeKey || turnAnchors.get(turn.id) === presentedNodes.length)) rows.push({ kind: "turn", turn, key: `turn:${turn.id}` });
+      if (
+        !anchored.has(turn.id) &&
+        (!turn.firstNodeKey || turnAnchors.get(turn.id) === presentedNodes.length)
+      )
+        rows.push({ kind: "turn", turn, key: `turn:${turn.id}` });
     }
-    if (unknownStart && latestUserIndex + 1 >= presentedNodes.length) rows.push({ kind: "unknown-work", key: "unknown-work" });
-    if (activityLabel && rows.at(-1)?.kind !== "group") rows.push({ kind: "activity", label: activityLabel, key: "current-activity" });
+    if (unknownStart && latestUserIndex + 1 >= presentedNodes.length)
+      rows.push({ kind: "unknown-work", key: "unknown-work" });
+    if (activityLabel && rows.at(-1)?.kind !== "group")
+      rows.push({ kind: "activity", label: activityLabel, key: "current-activity" });
     if (hasCommandHistory) rows.push({ kind: "commands", key: "native-command-history" });
     return rows;
-  }, [hasCommandHistory, presentedNodes, turns, turnAnchors, activityLabel, working, currentTurn, latestUserIndex, currentStart, fileSummaryAllowed]);
+  }, [
+    hasCommandHistory,
+    presentedNodes,
+    turns,
+    turnAnchors,
+    activityLabel,
+    working,
+    currentTurn,
+    latestUserIndex,
+    currentStart,
+    fileSummaryAllowed,
+  ]);
 
   const [viewportSize, setViewportSize] = useState(0);
   useLayoutEffect(() => {
@@ -284,15 +358,26 @@ function SessionTranscript({
     scrollEndThreshold: following ? FOLLOW_THRESHOLD_PX : -1,
   });
 
-  const refreshForRead = useCallback(() => feed.loadHistory(sessionId, { refresh: true, preserveOlder: true }), [feed, sessionId]);
-  useConversationRead({ sessionId, viewport: scrollRef, latestIndex: nodes.length - 1, refresh: refreshForRead });
+  const refreshForRead = useCallback(
+    () => feed.loadHistory(sessionId, { refresh: true, preserveOlder: true }),
+    [feed, sessionId],
+  );
+  useConversationRead({
+    sessionId,
+    viewport: scrollRef,
+    latestIndex: nodes.length - 1,
+    refresh: refreshForRead,
+  });
 
   const totalSize = virtualizer.getTotalSize();
   const viewportHeight = virtualizer.scrollRect?.height;
   useLayoutEffect(() => {
     if (!followRef.current) {
       const element = scrollRef.current;
-      if (element) setShowJump(totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX);
+      if (element)
+        setShowJump(
+          totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX,
+        );
       return;
     }
     // Reconcile after the sizer grows as well as after new nodes arrive. A
@@ -339,12 +424,18 @@ function SessionTranscript({
     resumeOnScroll.current = false;
     setFollowing(false);
     const element = scrollRef.current;
-    if (element) setShowJump(totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX);
+    if (element)
+      setShowJump(
+        totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX,
+      );
   }, [totalSize, endSpace]);
   const scrollTowardLatest = useCallback(() => {
     resumeOnScroll.current = true;
     const element = scrollRef.current;
-    if (element && element.scrollHeight - element.scrollTop - element.clientHeight <= FOLLOW_THRESHOLD_PX) {
+    if (
+      element &&
+      element.scrollHeight - element.scrollTop - element.clientHeight <= FOLLOW_THRESHOLD_PX
+    ) {
       followRef.current = true;
       setFollowing(true);
       setShowJump(false);
@@ -358,7 +449,10 @@ function SessionTranscript({
     const distanceFromEnd = element.scrollHeight - element.scrollTop - element.clientHeight;
     // Upward movement pauses immediately, even inside the end threshold.
     // Content growth/resize must never be mistaken for user intent to pause.
-    if (element.scrollTop < previousScrollTop.current - 1 && distanceFromEnd > FOLLOW_THRESHOLD_PX) {
+    if (
+      element.scrollTop < previousScrollTop.current - 1 &&
+      distanceFromEnd > FOLLOW_THRESHOLD_PX
+    ) {
       followRef.current = false;
     }
     if (!followRef.current && resumeOnScroll.current && distanceFromEnd <= FOLLOW_THRESHOLD_PX) {
@@ -368,7 +462,10 @@ function SessionTranscript({
     previousScrollTop.current = element.scrollTop;
     const follow = followRef.current;
     setFollowing(follow);
-    setShowJump(!follow && totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX);
+    setShowJump(
+      !follow &&
+        totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX,
+    );
     if (!follow && element.scrollTop < Math.max(TOP_THRESHOLD_PX, element.clientHeight * 1.5)) {
       requestHistory();
     }
@@ -420,7 +517,9 @@ function SessionTranscript({
             if (event.deltaY < 0) pauseFollow();
             else if (event.deltaY > 0) scrollTowardLatest();
           }}
-          onTouchStart={(event) => { touchY.current = event.touches[0]?.clientY ?? null; }}
+          onTouchStart={(event) => {
+            touchY.current = event.touches[0]?.clientY ?? null;
+          }}
           onTouchMove={(event) => {
             const y = event.touches[0]?.clientY;
             if (y !== undefined && touchY.current !== null) {
@@ -431,14 +530,28 @@ function SessionTranscript({
           }}
           onPointerDown={(event) => {
             const viewport = event.currentTarget;
-            if (event.target === viewport && event.clientX >= viewport.getBoundingClientRect().right - Math.max(16, viewport.offsetWidth - viewport.clientWidth)) {
-              pauseFollow(); resumeOnScroll.current = true;
+            if (
+              event.target === viewport &&
+              event.clientX >=
+                viewport.getBoundingClientRect().right -
+                  Math.max(16, viewport.offsetWidth - viewport.clientWidth)
+            ) {
+              pauseFollow();
+              resumeOnScroll.current = true;
             }
           }}
           onKeyDown={(event) => {
             if (event.target !== event.currentTarget) return;
-            if (["ArrowUp", "PageUp", "Home"].includes(event.key) || (event.key === " " && event.shiftKey)) pauseFollow();
-            if (["ArrowDown", "PageDown", "End"].includes(event.key) || (event.key === " " && !event.shiftKey)) scrollTowardLatest();
+            if (
+              ["ArrowUp", "PageUp", "Home"].includes(event.key) ||
+              (event.key === " " && event.shiftKey)
+            )
+              pauseFollow();
+            if (
+              ["ArrowDown", "PageDown", "End"].includes(event.key) ||
+              (event.key === " " && !event.shiftKey)
+            )
+              scrollTowardLatest();
           }}
           onClickCapture={(event) => {
             if (event.target instanceof Element && event.target.closest(".tr-disclosure-toggle")) {
@@ -469,20 +582,44 @@ function SessionTranscript({
                     transform: `translateY(${item.start}px)`,
                   }}
                 >
-                  {node.kind === "files" ? <ChangedFiles nodes={node.nodes} scope={node.key} />
-                    : node.kind === "group" ? <DisclosureKeyContext.Provider value={node.key}>
-                      <ActivityGroup nodes={node.nodes} sessionId={sessionId} completedSummary={node.summary} active={node.active && !waiting}
-                        label={node.active && waiting ? activityLabel : undefined} />
+                  {node.kind === "files" ? (
+                    <ChangedFiles nodes={node.nodes} scope={node.key} />
+                  ) : node.kind === "group" ? (
+                    <DisclosureKeyContext.Provider value={node.key}>
+                      <ActivityGroup
+                        nodes={node.nodes}
+                        sessionId={sessionId}
+                        completedSummary={node.summary}
+                        active={node.active && !waiting}
+                        label={node.active && waiting ? activityLabel : undefined}
+                      />
                     </DisclosureKeyContext.Provider>
-                    : node.kind === "turn" ? <WorkingIndicator turn={node.turn} running={working && node.turn === currentTurn} />
-                    : node.kind === "unknown-work" ? <WorkingIndicator />
-                    : node.kind === "activity" ? <ActivityIndicator label={node.label} />
-                    : node.kind === "commands" ? <CommandHistory sessionId={sessionId} transport={commands} placement="transcript" sync={false} />
-                    : <DisclosureKeyContext.Provider value={node.key}>
-                      <TranscriptNodeRenderer node={node.node} sessionId={sessionId}
+                  ) : node.kind === "turn" ? (
+                    <WorkingIndicator
+                      turn={node.turn}
+                      running={working && node.turn === currentTurn}
+                    />
+                  ) : node.kind === "unknown-work" ? (
+                    <WorkingIndicator />
+                  ) : node.kind === "activity" ? (
+                    <ActivityIndicator label={node.label} />
+                  ) : node.kind === "commands" ? (
+                    <CommandHistory
+                      sessionId={sessionId}
+                      transport={commands}
+                      placement="transcript"
+                      sync={false}
+                    />
+                  ) : (
+                    <DisclosureKeyContext.Provider value={node.key}>
+                      <TranscriptNodeRenderer
+                        node={node.node}
+                        sessionId={sessionId}
                         active={node.key === streamingKey}
-                        thinkingActive={node.key === thinkingKey} />
-                    </DisclosureKeyContext.Provider>}
+                        thinkingActive={node.key === thinkingKey}
+                      />
+                    </DisclosureKeyContext.Provider>
+                  )}
                 </div>
               );
             })}

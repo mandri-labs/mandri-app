@@ -9,7 +9,15 @@ import { rememberCommand } from "@/features/commands/store";
 import { sessionsStore } from "@/stores/sessions";
 import { startNewSession, type SessionStartInput } from "./lifecycle";
 
-export async function startCommandSession({ input, command, args, invocationId, acceptResult, onCreated, transport = commandTransport }: {
+export async function startCommandSession({
+  input,
+  command,
+  args,
+  invocationId,
+  acceptResult,
+  onCreated,
+  transport = commandTransport,
+}: {
   input: SessionStartInput;
   command: NativeCommand;
   args: string;
@@ -33,12 +41,15 @@ export async function startCommandSession({ input, command, args, invocationId, 
       invocation_id: invocationId,
       session_id: created.id,
       command,
-      state: error instanceof DaemonError && error.code === "delivery_unknown" ? "unknown" : "failed",
+      state:
+        error instanceof DaemonError && error.code === "delivery_unknown" ? "unknown" : "failed",
       error: error instanceof Error ? error.message : String(error),
       cancellable: false,
     };
     if (current() && record.state === "failed") {
-      sessionsStore.getState().setDraft(created.id, `/${command.name.replace(/^\//, "")}${args ? ` ${args}` : ""}`);
+      sessionsStore
+        .getState()
+        .setDraft(created.id, `/${command.name.replace(/^\//, "")}${args ? ` ${args}` : ""}`);
     }
   }
   if (current()) {

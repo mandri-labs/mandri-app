@@ -1,6 +1,15 @@
 {
   "core": {
-    "status": {"working":"En cours", "waiting":"En attente de votre réponse", "unknown":"Activité impossible à confirmer", "unread_completed":"Terminée · non lue", "unread_failed":"Échec · non lue", "unread_interrupted":"Interrompue · non lue", "mark_read":"Marquer comme lue", "read_error":"Impossible de marquer cette conversation comme lue"},
+    "status": {
+      "working": "En cours",
+      "waiting": "En attente de votre réponse",
+      "unknown": "Activité impossible à confirmer",
+      "unread_completed": "Terminée · non lue",
+      "unread_failed": "Échec · non lue",
+      "unread_interrupted": "Interrompue · non lue",
+      "mark_read": "Marquer comme lue",
+      "read_error": "Impossible de marquer cette conversation comme lue"
+    },
     "permissions": {
       "legacy": "Ancien profil : {{mode}}",
       "claude": {

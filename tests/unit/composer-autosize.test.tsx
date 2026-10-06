@@ -5,11 +5,22 @@ import { useComposerAutosize } from "@/features/transcript/useComposerAutosize";
 
 function Editor({ text = "", mounted = true, label = "Prompt" }) {
   const ref = useComposerAutosize();
-  return mounted ? <textarea ref={ref} aria-label={label} value={text} readOnly
-    style={{ boxSizing: "border-box", padding: "2px 6px", border: "0px solid", width: "400px" }} /> : null;
+  return mounted ? (
+    <textarea
+      ref={ref}
+      aria-label={label}
+      value={text}
+      readOnly
+      style={{ boxSizing: "border-box", padding: "2px 6px", border: "0px solid", width: "400px" }}
+    />
+  ) : null;
 }
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 it("uses native sizing without measuring or observing the field", () => {
   vi.stubGlobal("CSS", { supports: () => true });
@@ -27,14 +38,21 @@ it("grows and shrinks the fallback without collapsing the live input or recreati
   vi.stubGlobal("CSS", { supports: () => false });
   const disconnect = vi.fn();
   const observe = vi.fn();
-  const observer = vi.fn(class { disconnect = disconnect; observe = observe; });
+  const observer = vi.fn(
+    class {
+      disconnect = disconnect;
+      observe = observe;
+    },
+  );
   vi.stubGlobal("ResizeObserver", observer);
   vi.spyOn(HTMLTextAreaElement.prototype, "clientWidth", "get").mockReturnValue(400);
-  const measure = vi.spyOn(HTMLTextAreaElement.prototype, "scrollHeight", "get").mockImplementation(function (this: HTMLTextAreaElement) {
-    // Layout is browser-tested; emulate line metrics to check resizing lifecycle.
-    expect(this.style.height).not.toBe("auto");
-    return this.value.split("\n").length * 21 + 4;
-  });
+  const measure = vi
+    .spyOn(HTMLTextAreaElement.prototype, "scrollHeight", "get")
+    .mockImplementation(function (this: HTMLTextAreaElement) {
+      // Layout is browser-tested; emulate line metrics to check resizing lifecycle.
+      expect(this.style.height).not.toBe("auto");
+      return this.value.split("\n").length * 21 + 4;
+    });
   const view = render(<Editor />);
   const input = screen.getByRole("textbox") as HTMLTextAreaElement;
   expect(input.style.height).toBe("25px");
@@ -61,8 +79,12 @@ it("grows and shrinks the fallback without collapsing the live input or recreati
 
 it("cleans up fallback mirrors and listeners in StrictMode", () => {
   vi.stubGlobal("CSS", { supports: () => false });
-  const view = render(<StrictMode><Editor text="Draft" /></StrictMode>);
+  const view = render(
+    <StrictMode>
+      <Editor text="Draft" />
+    </StrictMode>,
+  );
   expect(document.querySelectorAll('textarea[aria-hidden="true"]')).toHaveLength(1);
   view.unmount();
-  expect(document.querySelectorAll('textarea')).toHaveLength(0);
+  expect(document.querySelectorAll("textarea")).toHaveLength(0);
 });

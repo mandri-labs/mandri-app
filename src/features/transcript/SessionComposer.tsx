@@ -8,15 +8,23 @@ import "./session-view.css";
 
 export function SessionComposer(props: ComposerProps & { sessionId: string }) {
   const session = useStore(sessionsStore, (state) => state.sessions[props.sessionId]);
-  return <div className="session-view-composer">
-    {session?.worktree ? <WorktreeIntegration session={session} /> : null}
-    {session?.worktree?.state !== "closed" ? <>
-    <div className="session-command-dock">
-      <CommandHistory sessionId={props.sessionId} transport={props.commands} placement="composer" />
+  return (
+    <div className="session-view-composer">
+      {session?.worktree ? <WorktreeIntegration session={session} /> : null}
+      {session?.worktree?.state !== "closed" ? (
+        <>
+          <div className="session-command-dock">
+            <CommandHistory
+              sessionId={props.sessionId}
+              transport={props.commands}
+              placement="composer"
+            />
+          </div>
+          <NativeSessionExtras sessionId={props.sessionId} placement="aboveEditor" />
+          <Composer {...props} />
+          <NativeSessionExtras sessionId={props.sessionId} placement="belowEditor" />
+        </>
+      ) : null}
     </div>
-    <NativeSessionExtras sessionId={props.sessionId} placement="aboveEditor" />
-    <Composer {...props} />
-    <NativeSessionExtras sessionId={props.sessionId} placement="belowEditor" />
-    </> : null}
-  </div>;
+  );
 }

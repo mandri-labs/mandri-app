@@ -1,7 +1,13 @@
 import { getDaemonSocket } from "@/app/connection";
 import { alignCodexUsers } from "./codexUserIdentity";
 import { parseStoredLine } from "./storedLine";
-import { historyTurnEvents, historyTurnWork, mergeHistoryTurnEvents, turnNodeAnchor, turnNodeIdentities } from "./historyWork";
+import {
+  historyTurnEvents,
+  historyTurnWork,
+  mergeHistoryTurnEvents,
+  turnNodeAnchor,
+  turnNodeIdentities,
+} from "./historyWork";
 import { mergeTurnWork } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnEvent } from "@/features/transcript/turns/types";
 import { stoppedNodes } from "@/features/transcript/stoppedNodes";
@@ -20,7 +26,11 @@ import type {
   ServerMessage,
   WsTopic,
 } from "@/daemon/types/ws";
-import { createAgyHistoryContext, createClaudeStreamState, parseFrame } from "@/features/transcript/parse";
+import {
+  createAgyHistoryContext,
+  createClaudeStreamState,
+  parseFrame,
+} from "@/features/transcript/parse";
 import type { ParseContext, TranscriptNode } from "@/features/transcript/parse";
 import { connectionStore } from "@/stores/connection";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
@@ -200,7 +210,9 @@ export class SessionFeedService {
       });
     }
     const retained = transcriptStore.getState().transcripts[sessionId];
-    transcriptStore.getState().setNodes(sessionId, retained?.localUsers?.length ? retained.nodes : []);
+    transcriptStore
+      .getState()
+      .setNodes(sessionId, retained?.localUsers?.length ? retained.nodes : []);
     this.syncFlags(buffer);
   }
 
@@ -311,7 +323,9 @@ export class SessionFeedService {
         buffer.cancelHistoryRetry?.();
         this.buffers.delete(sessionId);
         transcriptStore.getState().setNodes(sessionId, []);
-        sessionsStore.getState().applySessionPatch(sessionId, { turnWork: [], nativeTurnActive: false });
+        sessionsStore
+          .getState()
+          .applySessionPatch(sessionId, { turnWork: [], nativeTurnActive: false });
         this.ensureSession(sessionId, harness);
         this.buffers.get(sessionId)!.tracker = buffer.tracker;
         void this.loadHistory(sessionId, { refresh: true });
@@ -397,7 +411,8 @@ export class SessionFeedService {
     const unsubscribeActivity = sessionsStore.subscribe((state, previous) => {
       const current = state.sessions[sessionId];
       const before = previous.sessions[sessionId];
-      externalActivityChanged ||= current?.externalBusy !== before?.externalBusy ||
+      externalActivityChanged ||=
+        current?.externalBusy !== before?.externalBusy ||
         current?.externalUnavailable !== before?.externalUnavailable;
       externalModelChanged ||= current?.externalModel !== before?.externalModel;
       if (
@@ -426,7 +441,9 @@ export class SessionFeedService {
         session?.stopRevision === lifecycle?.stopRevision &&
         session?.state === lifecycle?.state &&
         !session?.stopping &&
-        (page.turn_active === false || session?.state !== "stopped" || page.external_busy === true) &&
+        (page.turn_active === false ||
+          session?.state !== "stopped" ||
+          page.external_busy === true) &&
         !session?.sending &&
         !session?.awaitingResponse
       ) {
@@ -444,7 +461,10 @@ export class SessionFeedService {
           .getState()
           .applySessionPatch(sessionId, { externalBusy: undefined, externalUnavailable: true });
       }
-      if (!externalModelChanged && (typeof page.external_model === "string" || page.external_model === null)) {
+      if (
+        !externalModelChanged &&
+        (typeof page.external_model === "string" || page.external_model === null)
+      ) {
         sessionsStore
           .getState()
           .applySessionPatch(sessionId, { externalModel: page.external_model ?? undefined });
@@ -452,7 +472,8 @@ export class SessionFeedService {
       const preserve = refresh && options.preserveOlder === true && buffer.historyCount > 0;
       if (buffer.harness === "agy") {
         buffer.agyHistory = mergeAgyHistory(
-          !refresh || preserve ? buffer.agyHistory : [], page.entries,
+          !refresh || preserve ? buffer.agyHistory : [],
+          page.entries,
         );
       }
       const entries = buffer.harness === "agy" ? buffer.agyHistory : page.entries;
@@ -473,7 +494,8 @@ export class SessionFeedService {
         return parseStoredLine(buffer.harness, line, context);
       });
       const currentSession = sessionsStore.getState().sessions[sessionId];
-      if (currentSession?.state === "stopped" && currentSession.externalBusy !== true) pageNodes = stoppedNodes(pageNodes);
+      if (currentSession?.state === "stopped" && currentSession.externalBusy !== true)
+        pageNodes = stoppedNodes(pageNodes);
       if (buffer.harness === "opencode") {
         // A reconnect may start in the middle of a message, after its role and
         // part type were announced. The following live deltas need those hints.
@@ -497,12 +519,15 @@ export class SessionFeedService {
         const cached = node.key === undefined ? undefined : buffer.liveNodes.get(node.key);
         return !historyIds.has(node.key ?? node) || cached ? [cached ?? node] : [];
       });
-      const history = buffer.harness === "agy" ? appendTranscriptNodes([], pageNodes) : preserve
-        ? mergeHistoryAndLive(buffer.historyNodes, pageNodes)
-        : appendTranscriptNodes(
-            [],
-            refresh ? pageNodes : [...pageNodes, ...buffer.historyNodes],
-          );
+      const history =
+        buffer.harness === "agy"
+          ? appendTranscriptNodes([], pageNodes)
+          : preserve
+            ? mergeHistoryAndLive(buffer.historyNodes, pageNodes)
+            : appendTranscriptNodes(
+                [],
+                refresh ? pageNodes : [...pageNodes, ...buffer.historyNodes],
+              );
       const persisted = new Map(pageNodes.map((node) => [node.key, node]));
       for (const [key, node] of buffer.liveNodes) {
         const stored = persisted.get(key);
@@ -527,13 +552,16 @@ export class SessionFeedService {
       const observed = sessionsStore.getState().sessions[sessionId];
       buffer.turnHistory = mergeHistoryTurnEvents(
         refresh && !preserve ? [] : buffer.turnHistory,
-        historyTurnEvents(buffer.harness, entries, context, observed?.nativeId), refresh,
+        historyTurnEvents(buffer.harness, entries, context, observed?.nativeId),
+        refresh,
       );
       if (observed) {
         const turns = mergeTurnWork(observed.turnWork ?? [], historyTurnWork(buffer.turnHistory));
         sessionsStore.getState().applySessionPatch(sessionId, {
-          turnWork: observed.state === "stopped" && observed.externalBusy !== true
-            ? turns.map((turn) => turnCompleted(turn) ? turn : { ...turn, outcome: "stopped" }) : turns,
+          turnWork:
+            observed.state === "stopped" && observed.externalBusy !== true
+              ? turns.map((turn) => (turnCompleted(turn) ? turn : { ...turn, outcome: "stopped" }))
+              : turns,
         });
       }
       if (
@@ -547,10 +575,11 @@ export class SessionFeedService {
         totalNodes: merged.length,
       });
       this.syncFlags(buffer);
-      if (cursor === null) transcriptStore.getState().setFlags(sessionId, {
-        loadedCompletionRevision: page.entries.length ? page.completion_revision ?? null : null,
-        loadedCompletionTarget: page.completion_target ?? null,
-      });
+      if (cursor === null)
+        transcriptStore.getState().setFlags(sessionId, {
+          loadedCompletionRevision: page.entries.length ? (page.completion_revision ?? null) : null,
+          loadedCompletionTarget: page.completion_target ?? null,
+        });
     } catch (error) {
       if (this.buffers.get(sessionId) !== buffer) return;
       if (
@@ -595,20 +624,32 @@ export class SessionFeedService {
     }
   }
 
-  private async readHistoryPage(buffer: SessionBuffer, cursor: string | null): Promise<HistoryPage> {
+  private async readHistoryPage(
+    buffer: SessionBuffer,
+    cursor: string | null,
+  ): Promise<HistoryPage> {
     let attempt = 0;
     for (;;) {
       try {
         return await this.deps.fetchHistoryPage(buffer.sessionId, cursor, HISTORY_PAGE_LIMIT);
       } catch (error) {
-        if (!(error instanceof DaemonError) ||
+        if (
+          !(error instanceof DaemonError) ||
           (error.code !== "delivery_unknown" && error.code !== "service_unavailable") ||
-          this.buffers.get(buffer.sessionId) !== buffer) throw error;
-        const delayMs = Math.min(HISTORY_RETRY_MAX_MS, HISTORY_RETRY_BASE_MS * 2 ** Math.min(attempt++, 4));
+          this.buffers.get(buffer.sessionId) !== buffer
+        )
+          throw error;
+        const delayMs = Math.min(
+          HISTORY_RETRY_MAX_MS,
+          HISTORY_RETRY_BASE_MS * 2 ** Math.min(attempt++, 4),
+        );
         log.debug("history read interrupted; retry scheduled", {
-          sessionId: buffer.sessionId, code: error.code, cursor, delayMs,
+          sessionId: buffer.sessionId,
+          code: error.code,
+          cursor,
+          delayMs,
         });
-        if (!await this.waitForHistoryRetry(buffer, delayMs)) throw error;
+        if (!(await this.waitForHistoryRetry(buffer, delayMs))) throw error;
       }
     }
   }
@@ -659,13 +700,21 @@ export class SessionFeedService {
     }
   }
 
-  async sendPrompt(sessionId: string, content: string, attachments?: string[]): Promise<PromptOutcome> {
+  async sendPrompt(
+    sessionId: string,
+    content: string,
+    attachments?: string[],
+  ): Promise<PromptOutcome> {
     log.info("sendPrompt dispatching ws request", {
       sessionId,
       contentLength: content.length,
       socketOpen: this.deps.getSocket() !== null,
     });
-    const result = await this.request("session.prompt", { session_id: sessionId, content, ...(attachments?.length ? { attachments } : {}) });
+    const result = await this.request("session.prompt", {
+      session_id: sessionId,
+      content,
+      ...(attachments?.length ? { attachments } : {}),
+    });
     log.info("sendPrompt result", { sessionId, state: result.state, code: result.code });
     const outcome: PromptOutcome = { state: result.state, code: result.code };
     this.promptOutcomes.set(sessionId, outcome);
@@ -678,8 +727,9 @@ export class SessionFeedService {
       const session = sessionsStore.getState().sessions[sessionId];
       sessionsStore.getState().applySessionPatch(sessionId, {
         nativeTurnActive: false,
-        turnWork: session?.turnWork?.map((turn) => !turnCompleted(turn)
-          ? { ...turn, endedAt: Date.now(), outcome: "stopped" } : turn),
+        turnWork: session?.turnWork?.map((turn) =>
+          !turnCompleted(turn) ? { ...turn, endedAt: Date.now(), outcome: "stopped" } : turn,
+        ),
       });
     }
     return result.interrupted;
@@ -712,7 +762,13 @@ export class SessionFeedService {
   }
 
   private buildContext(buffer: SessionBuffer): ParseContext {
-    return { sessionId: buffer.sessionId, messageRoles: buffer.messageRoles, partKinds: buffer.partKinds, piStream: buffer.piStream, claudeStream: buffer.claudeStream };
+    return {
+      sessionId: buffer.sessionId,
+      messageRoles: buffer.messageRoles,
+      partKinds: buffer.partKinds,
+      piStream: buffer.piStream,
+      claudeStream: buffer.claudeStream,
+    };
   }
 
   private enableHistory(buffer: SessionBuffer): void {
@@ -724,7 +780,10 @@ export class SessionFeedService {
     buffer.stopHistoryDeferral = undefined;
   }
 
-  private updateOpenCodeHints(buffer: Pick<SessionBuffer, "messageRoles" | "partKinds">, raw: unknown): void {
+  private updateOpenCodeHints(
+    buffer: Pick<SessionBuffer, "messageRoles" | "partKinds">,
+    raw: unknown,
+  ): void {
     const record = asRecord(raw);
     const type = record?.["type"];
     const properties = asRecord(record?.["properties"]);
@@ -755,13 +814,17 @@ export class SessionFeedService {
       return;
     }
     const currentSession = sessionsStore.getState().sessions[buffer.sessionId];
-    if (currentSession?.state === "stopped" && currentSession.externalBusy !== true) nodes = stoppedNodes(nodes);
+    if (currentSession?.state === "stopped" && currentSession.externalBusy !== true)
+      nodes = stoppedNodes(nodes);
     const previous = this.getNodes(buffer.sessionId);
     const merged = appendTranscriptNodes(previous, nodes);
     const turnNodes = merged.slice(previous.length);
     for (const [index, node] of merged.entries()) {
       if (node.key !== undefined && node !== previous[index]) {
-        buffer.liveNodes.set(node.key, node.kind === "assistant" || node.kind === "thinking" ? { ...node, delta: false } : node);
+        buffer.liveNodes.set(
+          node.key,
+          node.kind === "assistant" || node.kind === "thinking" ? { ...node, delta: false } : node,
+        );
       }
     }
     transcriptStore.getState().setNodes(buffer.sessionId, merged);
@@ -770,18 +833,25 @@ export class SessionFeedService {
     if (current) {
       const anchor = turnNodeAnchor(turnNodes);
       const identities = turnNodeIdentities(turnNodes);
-      if (identities.every((id) => current.identities?.includes(id)) &&
+      if (
+        identities.every((id) => current.identities?.includes(id)) &&
         (current.userNodeKey || !anchor.userNodeKey) &&
-        (current.firstNodeKey || !anchor.firstNodeKey)) return;
+        (current.firstNodeKey || !anchor.firstNodeKey)
+      )
+        return;
       sessionsStore.getState().applySessionPatch(buffer.sessionId, {
-        turnWork: session!.turnWork!.map((turn) => turn === current ? {
-          ...turn,
-          identities: [...new Set([...(turn.identities ?? []), ...identities])],
-          userNodeKey: turn.userNodeKey ?? anchor.userNodeKey,
-          firstNodeKey: turn.firstNodeKey ?? anchor.firstNodeKey,
-          firstNodeKind: turn.firstNodeKind ?? anchor.firstNodeKind,
-          firstNodeText: turn.firstNodeText ?? anchor.firstNodeText,
-        } : turn),
+        turnWork: session!.turnWork!.map((turn) =>
+          turn === current
+            ? {
+                ...turn,
+                identities: [...new Set([...(turn.identities ?? []), ...identities])],
+                userNodeKey: turn.userNodeKey ?? anchor.userNodeKey,
+                firstNodeKey: turn.firstNodeKey ?? anchor.firstNodeKey,
+                firstNodeKind: turn.firstNodeKind ?? anchor.firstNodeKind,
+                firstNodeText: turn.firstNodeText ?? anchor.firstNodeText,
+              }
+            : turn,
+        ),
       });
     }
   }

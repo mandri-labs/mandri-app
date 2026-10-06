@@ -110,9 +110,7 @@ export class KeepAliveManager {
 
   isHeld(sessionId: string): boolean {
     return (
-      this.refs.has(sessionId) ||
-      this.pendingRelease.has(sessionId) ||
-      this.pins.has(sessionId)
+      this.refs.has(sessionId) || this.pendingRelease.has(sessionId) || this.pins.has(sessionId)
     );
   }
 

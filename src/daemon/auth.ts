@@ -6,6 +6,7 @@ export function setDaemonCredentials(baseUrl: string, token: string): void {
 
 export function daemonToken(url: string): string | undefined {
   const target = new URL(url);
-  target.protocol = target.protocol === "ws:" ? "http:" : target.protocol === "wss:" ? "https:" : target.protocol;
+  target.protocol =
+    target.protocol === "ws:" ? "http:" : target.protocol === "wss:" ? "https:" : target.protocol;
   return credentials?.origin === target.origin ? credentials.token : undefined;
 }

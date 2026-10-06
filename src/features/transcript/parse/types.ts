@@ -1,4 +1,5 @@
-export type TranscriptToolStatus = "pending" | "running" | "waiting" | "done" | "failed" | "cancelled";
+export type TranscriptToolStatus =
+  "pending" | "running" | "waiting" | "done" | "failed" | "cancelled";
 
 export type TranscriptDiffLineType = "add" | "del" | "context";
 
@@ -51,12 +52,41 @@ export interface NativeToolIdentity {
 export type TranscriptDiff = Extract<TranscriptNode, { kind: "diff" }>;
 
 export type TranscriptNode =
-  | { kind: "record"; preview?: string; byteLength: number; key?: string; eventKind?: "compaction" | "command" | "file_change" }
-  | { kind: "user"; text: string; codexUser?: { turnId: string; itemId?: string }; messageId?: string; images?: import("./images").TranscriptImage[]; key?: string;
+  | {
+      kind: "record";
+      preview?: string;
+      byteLength: number;
+      key?: string;
+      eventKind?: "compaction" | "command" | "file_change";
+    }
+  | {
+      kind: "user";
+      text: string;
+      codexUser?: { turnId: string; itemId?: string };
+      messageId?: string;
+      images?: import("./images").TranscriptImage[];
+      key?: string;
       // Keep local DOM identity and decoded previews separate from native content.
-      localPresentation?: { key: string; images?: import("./images").TranscriptImage[] } }
-  | { kind: "assistant"; questions?: AsyncQuestion[]; claude?: ClaudeBlockIdentity; text: string; streaming?: boolean; delta?: boolean; key?: string }
-  | { kind: "thinking"; claude?: ClaudeBlockIdentity; text: string; summary?: string; streaming?: boolean; delta?: boolean; key?: string }
+      localPresentation?: { key: string; images?: import("./images").TranscriptImage[] };
+    }
+  | {
+      kind: "assistant";
+      questions?: AsyncQuestion[];
+      claude?: ClaudeBlockIdentity;
+      text: string;
+      streaming?: boolean;
+      delta?: boolean;
+      key?: string;
+    }
+  | {
+      kind: "thinking";
+      claude?: ClaudeBlockIdentity;
+      text: string;
+      summary?: string;
+      streaming?: boolean;
+      delta?: boolean;
+      key?: string;
+    }
   | {
       kind: "tool";
       tool: string;
@@ -101,8 +131,20 @@ export type TranscriptNode =
       messageKey?: string;
       values?: Record<string, string | number>;
     }
-  | { kind: "activity_summary"; text: string; callIds: string[]; parentCallId?: string; key?: string }
-  | { kind: "file_snapshot"; files: TranscriptDiff[]; scope: "turn" | "session"; turnId?: string; key?: string }
+  | {
+      kind: "activity_summary";
+      text: string;
+      callIds: string[];
+      parentCallId?: string;
+      key?: string;
+    }
+  | {
+      kind: "file_snapshot";
+      files: TranscriptDiff[];
+      scope: "turn" | "session";
+      turnId?: string;
+      key?: string;
+    }
   | { kind: "raw"; harness: string; payload: unknown; key?: string };
 
 export interface ParseContext {

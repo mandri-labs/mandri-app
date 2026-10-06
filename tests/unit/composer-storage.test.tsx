@@ -1,10 +1,21 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
-import { composerStorageKey, readSessionDrafts, writeComposerStorage, writeSessionDraft } from "@/lib/composerStorage";
+import {
+  composerStorageKey,
+  readSessionDrafts,
+  writeComposerStorage,
+  writeSessionDraft,
+} from "@/lib/composerStorage";
 import { selectDaemon } from "@/daemon/identity";
 import { sessionsStore } from "@/stores/sessions";
 import { Composer } from "@/features/transcript/Composer";
-import { attachmentDrafts, filesFor, removeFiles, restoreFiles, setFiles } from "@/features/transcript/attachments";
+import {
+  attachmentDrafts,
+  filesFor,
+  removeFiles,
+  restoreFiles,
+  setFiles,
+} from "@/features/transcript/attachments";
 import { initI18n } from "@/i18n";
 
 beforeAll(() => initI18n("en"));
@@ -14,17 +25,24 @@ beforeEach(() => {
   sessionsStore.setState({ drafts: {}, sessions: {} });
   attachmentDrafts.setState({ drafts: {}, errors: {} });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+});
 
 function mockStorageWrite(setItem: Storage["setItem"]) {
   const storage = localStorage;
-  vi.stubGlobal("localStorage", new Proxy(storage, {
-    get(target, key) {
-      if (key === "setItem") return setItem;
-      const value = Reflect.get(target, key, target);
-      return typeof value === "function" ? value.bind(target) : value;
-    },
-  }));
+  vi.stubGlobal(
+    "localStorage",
+    new Proxy(storage, {
+      get(target, key) {
+        if (key === "setItem") return setItem;
+        const value = Reflect.get(target, key, target);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    }),
+  );
 }
 
 it("restores text after navigation and a storage reload, isolated by session and daemon", () => {
@@ -46,16 +64,23 @@ it("restores text after navigation and a storage reload, isolated by session and
 });
 
 it("restores image bytes and metadata from storage and persists removal", async () => {
-  const file = new File([new Uint8Array([0, 1, 128, 255])], "picture.png", { type: "image/png", lastModified: 1234 });
+  const file = new File([new Uint8Array([0, 1, 128, 255])], "picture.png", {
+    type: "image/png",
+    lastModified: 1234,
+  });
   setFiles("one", [{ key: "image", file }]);
-  await waitFor(() => expect(localStorage.getItem(composerStorageKey("files", "one"))).not.toBeNull());
+  await waitFor(() =>
+    expect(localStorage.getItem(composerStorageKey("files", "one"))).not.toBeNull(),
+  );
   attachmentDrafts.setState({ drafts: {} });
   restoreFiles("one");
   const restored = filesFor("one")[0]!;
   expect(restored.file.name).toBe(file.name);
   expect(restored.file.type).toBe(file.type);
   expect(restored.file.lastModified).toBe(1234);
-  expect(new Uint8Array(await restored.file.arrayBuffer())).toEqual(new Uint8Array([0, 1, 128, 255]));
+  expect(new Uint8Array(await restored.file.arrayBuffer())).toEqual(
+    new Uint8Array([0, 1, 128, 255]),
+  );
   expect(filesFor("two")).toEqual([]);
   removeFiles("one", [restored]);
   attachmentDrafts.setState({ drafts: {} });
@@ -73,17 +98,29 @@ it("does not resurrect an image removed while its serialization is pending", asy
 it("tolerates corrupt or unavailable storage", () => {
   localStorage.setItem(composerStorageKey("text"), "invalid JSON");
   expect(readSessionDrafts()).toEqual({});
-  mockStorageWrite(() => { throw new Error("Quota exceeded"); });
+  mockStorageWrite(() => {
+    throw new Error("Quota exceeded");
+  });
   expect(() => sessionsStore.getState().setDraft("one", "Still editable")).not.toThrow();
   expect(sessionsStore.getState().drafts.one).toBe("Still editable");
 });
 
 it("saves only the edited session even with many other drafts", () => {
-  sessionsStore.setState({ drafts: Object.fromEntries(Array.from({ length: 150 }, (_, index) => [String(index), "Large unrelated draft".repeat(500)])) });
+  sessionsStore.setState({
+    drafts: Object.fromEntries(
+      Array.from({ length: 150 }, (_, index) => [
+        String(index),
+        "Large unrelated draft".repeat(500),
+      ]),
+    ),
+  });
   const write = vi.fn(localStorage.setItem.bind(localStorage));
   mockStorageWrite(write);
   sessionsStore.getState().setDraft("one", "Edited text");
-  expect(write).toHaveBeenCalledExactlyOnceWith(composerStorageKey("draft", "one"), JSON.stringify("Edited text"));
+  expect(write).toHaveBeenCalledExactlyOnceWith(
+    composerStorageKey("draft", "one"),
+    JSON.stringify("Edited text"),
+  );
   expect(sessionsStore.getState().drafts["149"]).toBe("Large unrelated draft".repeat(500));
 });
 

@@ -1,5 +1,13 @@
-import { deliveryUncertain, markDelivery, restoreDelivery } from "@/features/transcript/promptDelivery";
-import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@/lib/composerStorage";
+import {
+  deliveryUncertain,
+  markDelivery,
+  restoreDelivery,
+} from "@/features/transcript/promptDelivery";
+import {
+  composerStorageKey,
+  readComposerStorage,
+  writeComposerStorage,
+} from "@/lib/composerStorage";
 import { useTranscriptViewport } from "@/features/transcript/useTranscriptViewport";
 import { useComposerAutosize } from "@/features/transcript/useComposerAutosize";
 import { useCommands } from "@/features/commands/useCommands";
@@ -24,7 +32,12 @@ import {
 } from "@/features/transcript/attachments";
 import { useModelProviders } from "@/features/providers/nativeModels";
 import { nativeHarness } from "@/daemon/modelSelection";
-import { choicePolicy, permitsModel, PROTECTION_CHOICES, type ProtectionChoice } from "@/daemon/protection";
+import {
+  choicePolicy,
+  permitsModel,
+  PROTECTION_CHOICES,
+  type ProtectionChoice,
+} from "@/daemon/protection";
 import { PermissionModeIcon } from "./PermissionModeIcon";
 import { PermissionMenu } from "./PermissionMenu";
 import { ProtectionMenu } from "./ProtectionMenu";
@@ -88,12 +101,26 @@ interface WelcomeDraft {
   cwd: string | null;
 }
 
-export function WelcomeComposer(props: { initialCwd?: string; initialProtection?: ProtectionChoice; commands?: CommandTransport } = {}) {
+export function WelcomeComposer(
+  props: {
+    initialCwd?: string;
+    initialProtection?: ProtectionChoice;
+    commands?: CommandTransport;
+  } = {},
+) {
   const endpoint = useStore(daemonIdentity, (state) => state.baseUrl);
   return <WelcomeComposerContent key={endpoint} {...props} />;
 }
 
-function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { initialCwd?: string; initialProtection?: ProtectionChoice; commands?: CommandTransport } = {}) {
+function WelcomeComposerContent({
+  initialCwd,
+  initialProtection,
+  commands,
+}: {
+  initialCwd?: string;
+  initialProtection?: ProtectionChoice;
+  commands?: CommandTransport;
+} = {}) {
   const { t } = useTranslation();
   const defaultHarness = useStore(preferencesStore, (state) => state.defaultHarness);
   const defaultModel = useStore(preferencesStore, (state) => state.defaultModel);
@@ -104,19 +131,41 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
     return value && typeof value === "object" ? value : {};
   });
   const [runtimes, setRuntimes] = useState<RuntimeOut[]>([]);
-  const initializedHarness = useRef<{ preference: typeof defaultHarness } | null>(saved.harness && isHarnessKind(saved.harness) ? { preference: defaultHarness } : null);
-  const [harness, setHarness] = useState(typeof saved.harness === "string" && isHarnessKind(saved.harness) ? saved.harness : "");
+  const initializedHarness = useRef<{ preference: typeof defaultHarness } | null>(
+    saved.harness && isHarnessKind(saved.harness) ? { preference: defaultHarness } : null,
+  );
+  const [harness, setHarness] = useState(
+    typeof saved.harness === "string" && isHarnessKind(saved.harness) ? saved.harness : "",
+  );
   const [mode, setMode] = useState(typeof saved.mode === "string" ? saved.mode : "");
-  const [protection, setProtection] = useState<ProtectionChoice>(initialProtection ?? (saved.protection && PROTECTION_CHOICES.includes(saved.protection) ? saved.protection : "standard"));
-  const [worktreeId, setWorktreeId] = useState(typeof saved.worktreeId === "string" ? saved.worktreeId : "");
+  const [protection, setProtection] = useState<ProtectionChoice>(
+    initialProtection ??
+      (saved.protection && PROTECTION_CHOICES.includes(saved.protection)
+        ? saved.protection
+        : "standard"),
+  );
+  const [worktreeId, setWorktreeId] = useState(
+    typeof saved.worktreeId === "string" ? saved.worktreeId : "",
+  );
   const policy = useMemo(() => {
     const selected = choicePolicy(protection);
-    return { ...selected, ...(selected.worktree && worktreeId.trim() ? { worktree_id: worktreeId.trim() } : {}) };
+    return {
+      ...selected,
+      ...(selected.worktree && worktreeId.trim() ? { worktree_id: worktreeId.trim() } : {}),
+    };
   }, [protection, worktreeId]);
   const allowNative = policy.privacy_mode === "none" && policy.execution_backend === "host";
-  const [model, setModel] = useState(typeof saved.model === "string" ? saved.model : defaultModel ?? "");
-  const [effort, setEffort] = useState<string | null>(saved.effort === null || typeof saved.effort === "string" ? saved.effort : defaultEffort ?? null);
-  const [cwd, setCwd] = useState<string | null>(initialCwd ?? (typeof saved.cwd === "string" ? saved.cwd : null));
+  const [model, setModel] = useState(
+    typeof saved.model === "string" ? saved.model : (defaultModel ?? ""),
+  );
+  const [effort, setEffort] = useState<string | null>(
+    saved.effort === null || typeof saved.effort === "string"
+      ? saved.effort
+      : (defaultEffort ?? null),
+  );
+  const [cwd, setCwd] = useState<string | null>(
+    initialCwd ?? (typeof saved.cwd === "string" ? saved.cwd : null),
+  );
   const [text, setText] = useState(typeof saved.text === "string" ? saved.text : "");
   const [submitting, setSubmitting] = useState(false);
   const startupViewportRef = useTranscriptViewport(submitting);
@@ -138,14 +187,19 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
     if (connectionStatus !== "online") return;
     let cancelled = false;
     // Desktop startup must finish before querying the daemon.
-    listRuntimes({ shouldRetry: () => !cancelled && connectionStore.getState().status === "online" })
+    listRuntimes({
+      shouldRetry: () => !cancelled && connectionStore.getState().status === "online",
+    })
       .then((rows) => {
         if (cancelled) {
           return;
         }
         setRuntimes(rows);
         // Refresh availability without overwriting a draft's harness or permissions.
-        if (initializedHarness.current === null || initializedHarness.current.preference !== defaultHarness) {
+        if (
+          initializedHarness.current === null ||
+          initializedHarness.current.preference !== defaultHarness
+        ) {
           const chosen = resolveDefaultHarness(rows, defaultHarness);
           initializedHarness.current = chosen ? { preference: defaultHarness } : null;
           setHarness(chosen);
@@ -165,14 +219,27 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
 
   const previousDefaults = useRef({ defaultModel, defaultEffort });
   useEffect(() => {
-    if (previousDefaults.current.defaultModel === defaultModel && previousDefaults.current.defaultEffort === defaultEffort) return;
+    if (
+      previousDefaults.current.defaultModel === defaultModel &&
+      previousDefaults.current.defaultEffort === defaultEffort
+    )
+      return;
     previousDefaults.current = { defaultModel, defaultEffort };
     setModel(defaultModel ?? "");
     setEffort(defaultEffort ?? null);
   }, [defaultModel, defaultEffort]);
 
   useEffect(() => {
-    writeComposerStorage(storageKey, { text, harness, mode, protection, worktreeId, model, effort, cwd });
+    writeComposerStorage(storageKey, {
+      text,
+      harness,
+      mode,
+      protection,
+      worktreeId,
+      model,
+      effort,
+      cwd,
+    });
   }, [storageKey, text, harness, mode, protection, worktreeId, model, effort, cwd]);
 
   const providers = useModelProviders(harness, cwd ?? undefined, false, allowNative);
@@ -238,10 +305,7 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
     closeMenu();
   };
 
-  const attachmentInput = useAttachmentInput(
-    "welcome",
-    harness === "agy" || submitting,
-  );
+  const attachmentInput = useAttachmentInput("welcome", harness === "agy" || submitting);
   const canSubmit =
     (text.trim().length > 0 || attachmentInput.files.length > 0) &&
     !(harness === "agy" && attachmentInput.files.length > 0) &&
@@ -301,7 +365,16 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
           acceptResult: () => startOperation.current === operation,
           onCreated: (sessionId) => {
             setCommandStarted(true);
-            writeComposerStorage(storageKey, { text: "", harness, mode, protection, worktreeId, model, effort, cwd });
+            writeComposerStorage(storageKey, {
+              text: "",
+              harness,
+              mode,
+              protection,
+              worktreeId,
+              model,
+              effort,
+              cwd,
+            });
             setFiles(sessionId, selected);
             removeFiles("welcome", selected);
           },
@@ -344,27 +417,46 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
       () => startOperation.current === operation,
     )
       .then(async (created) => {
-        if (startOperation.current !== operation || generation !== daemonIdentity.getState().generation) return;
+        if (
+          startOperation.current !== operation ||
+          generation !== daemonIdentity.getState().generation
+        )
+          return;
         if (isHarnessKind(created.harness)) {
           sessionFeed.ensureSession(created.id, created.harness, { newSession: true });
           sessionFeed.subscribeSession(created.id);
         }
         const filesKey = selected.length ? `delivery:${crypto.randomUUID()}` : undefined;
-        if (filesKey && !await persistFiles(filesKey, selected)) throw new DaemonError({
-          code: "composer_storage_unavailable", message: "Unable to retain message attachments",
-        });
+        if (filesKey && !(await persistFiles(filesKey, selected)))
+          throw new DaemonError({
+            code: "composer_storage_unavailable",
+            message: "Unable to retain message attachments",
+          });
         if (generation !== daemonIdentity.getState().generation) return;
         const preview = draftMessage(composed, selected);
         let pendingKey: string;
         try {
-          pendingKey = transcriptStore.getState().addPendingUser(created.id, preview.text, preview.images, {
-            content: composed, state: "preparing", filesKey,
-          });
+          pendingKey = transcriptStore
+            .getState()
+            .addPendingUser(created.id, preview.text, preview.images, {
+              content: composed,
+              state: "preparing",
+              filesKey,
+            });
         } catch (error) {
           if (filesKey) setFiles(filesKey, []);
           throw error;
         }
-        writeComposerStorage(storageKey, { text: "", harness, mode, protection, worktreeId, model, effort, cwd });
+        writeComposerStorage(storageKey, {
+          text: "",
+          harness,
+          mode,
+          protection,
+          worktreeId,
+          model,
+          effort,
+          cwd,
+        });
         setFiles(created.id, selected);
         removeFiles("welcome", selected);
         let submitted = false;
@@ -385,10 +477,15 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
             .then((uploaded) => {
               if (generation !== daemonIdentity.getState().generation) return;
               if (stopRevision !== sessionsStore.getState().sessions[created.id]?.stopRevision) {
-                throw new DaemonError({ code: "operation_cancelled", message: "Delivery interrupted" });
+                throw new DaemonError({
+                  code: "operation_cancelled",
+                  message: "Delivery interrupted",
+                });
               }
               if (uploaded.length) {
-                transcriptStore.getState().updatePendingUser(created.id, pendingKey, attachmentMessage(composed, uploaded));
+                transcriptStore
+                  .getState()
+                  .updatePendingUser(created.id, pendingKey, attachmentMessage(composed, uploaded));
               }
               markDelivery(created.id, pendingKey, "sending");
               submitted = true;
@@ -415,12 +512,10 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
                 );
               if (submitted && deliveryUncertain(promptError)) {
                 transcriptStore.getState().setDeliveryState(created.id, pendingKey, "unknown");
-                sessionsStore
-                  .getState()
-                  .applySessionPatch(created.id, {
-                    awaitingResponse: false,
-                    promptError: "error.delivery_unknown",
-                  });
+                sessionsStore.getState().applySessionPatch(created.id, {
+                  awaitingResponse: false,
+                  promptError: "error.delivery_unknown",
+                });
                 return;
               }
               transcriptStore.getState().setDeliveryState(created.id, pendingKey, "not_sent");
@@ -436,8 +531,10 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
               });
             })
             .finally(() => {
-              if (generation === daemonIdentity.getState().generation &&
-                stopRevision === sessionsStore.getState().sessions[created.id]?.stopRevision)
+              if (
+                generation === daemonIdentity.getState().generation &&
+                stopRevision === sessionsStore.getState().sessions[created.id]?.stopRevision
+              )
                 sessionsStore.getState().applySessionPatch(created.id, { sending: false });
             });
         }
@@ -467,8 +564,13 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
                 </div>
                 <div className="transcript-item transcript-item--static">
                   <ActivityIndicator
-                    label={t(commandStarted ? "commands.running" : policy.execution_backend === "docker"
-                      ? "core.protection.preparing" : "core.transcript.thinking")}
+                    label={t(
+                      commandStarted
+                        ? "commands.running"
+                        : policy.execution_backend === "docker"
+                          ? "core.protection.preparing"
+                          : "core.transcript.thinking",
+                    )}
                   />
                 </div>
               </div>
@@ -691,7 +793,11 @@ function WelcomeComposerContent({ initialCwd, initialProtection, commands }: { i
             </ChipPopover>
           ) : null}
         </div>
-        {isHarnessKind(harness) && (parseRuntimeCapabilities(selectedRuntime?.capabilities)?.permissionModes ?? HARNESS_MODES[harness]).length > 0 ? (
+        {isHarnessKind(harness) &&
+        (
+          parseRuntimeCapabilities(selectedRuntime?.capabilities)?.permissionModes ??
+          HARNESS_MODES[harness]
+        ).length > 0 ? (
           <div className="composer-chip-anchor" ref={permissionsAnchorRef}>
             <button
               type="button"

@@ -22,7 +22,11 @@ export function applyAvailability(id: string, availability: SessionAvailability)
     return;
   }
   revisions.set(id, (revisions.get(id) ?? 0) + 1);
-  sessionsStore.getState().applySessionPatch(id, { availability, availabilityStatus: "ready", availabilityUpdatedAt: Date.now() });
+  sessionsStore.getState().applySessionPatch(id, {
+    availability,
+    availabilityStatus: "ready",
+    availabilityUpdatedAt: Date.now(),
+  });
 }
 
 export function invalidateAvailability(id: string): void {
@@ -30,14 +34,19 @@ export function invalidateAvailability(id: string): void {
   const key = `${daemonIdentity.getState().generation}:${id}`;
   pending.delete(key);
   retries.delete(key);
-  sessionsStore.getState().applySessionPatch(id, { availabilityStatus: "stale", availabilityUpdatedAt: undefined });
+  sessionsStore
+    .getState()
+    .applySessionPatch(id, { availabilityStatus: "stale", availabilityUpdatedAt: undefined });
 }
 
 sessionsStore.subscribe((state, previous) => {
   if (state.sessions === previous.sessions) return;
   for (const [id, session] of Object.entries(state.sessions)) {
     const before = previous.sessions[id];
-    if (before && (session.state !== before.state || session.stopRevision !== before.stopRevision)) {
+    if (
+      before &&
+      (session.state !== before.state || session.stopRevision !== before.stopRevision)
+    ) {
       invalidateAvailability(id);
     }
   }
@@ -53,7 +62,8 @@ export function refreshAvailability(id: string, polling = false): Promise<void> 
   if (existing) return existing;
   if (polling && Date.now() < (retries.get(key)?.nextAt ?? 0)) return Promise.resolve();
   sessionsStore.getState().applySessionPatch(id, { availabilityStatus: "checking" });
-  const current = () => generation === daemonIdentity.getState().generation &&
+  const current = () =>
+    generation === daemonIdentity.getState().generation &&
     revision === (revisions.get(id) ?? 0) &&
     lifecycle?.state === sessionsStore.getState().sessions[id]?.state &&
     lifecycle?.stopRevision === sessionsStore.getState().sessions[id]?.stopRevision;
@@ -99,7 +109,9 @@ export function useSessionAvailability(id: string, enabled = true): void {
       const delay = Math.max(5000, (retries.get(`${generation}:${id}`)?.nextAt ?? 0) - Date.now());
       timer = setTimeout(() => void poll(), delay);
     };
-    const visible = () => { if (document.visibilityState !== "hidden") void poll(true); };
+    const visible = () => {
+      if (document.visibilityState !== "hidden") void poll(true);
+    };
     document.addEventListener("visibilitychange", visible);
     void poll(true);
     return () => {

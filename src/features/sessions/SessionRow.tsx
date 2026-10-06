@@ -16,8 +16,12 @@ export function lastSegment(path: string): string {
 }
 
 export function SessionDot({ session }: { session: SessionView }) {
-  return <ConversationIndicator target={`session:${session.id}`}
-    fallback={session.nativeTurnActive || session.externalBusy ? "working" : undefined} />;
+  return (
+    <ConversationIndicator
+      target={`session:${session.id}`}
+      fallback={session.nativeTurnActive || session.externalBusy ? "working" : undefined}
+    />
+  );
 }
 
 export interface SessionRowProps {

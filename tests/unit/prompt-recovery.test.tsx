@@ -76,15 +76,13 @@ it("retains a transmitted message through stop and lost acknowledgement, includi
   const view = render(<Composer sessionId="s1" feed={feed} />);
   fireEvent.click(screen.getByRole("button", { name: "Send" }));
   act(() =>
-    sessionsStore
-      .getState()
-      .ingestFrame({
-        topic: "sessions.all",
-        seq: 1,
-        ts: 1,
-        source: "mandri",
-        raw: { type: "session_stopped", session_id: "s1", cause: "crash" },
-      }),
+    sessionsStore.getState().ingestFrame({
+      topic: "sessions.all",
+      seq: 1,
+      ts: 1,
+      source: "mandri",
+      raw: { type: "session_stopped", session_id: "s1", cause: "crash" },
+    }),
   );
   await act(async () =>
     reject(new DaemonError({ code: "delivery_unknown", message: "lost acknowledgement" })),
@@ -96,7 +94,9 @@ it("retains a transmitted message through stop and lost acknowledgement, includi
   render(<Composer sessionId="s1" feed={feed} />);
   expect(screen.queryByText(/Delivery is not confirmed/)).toBeNull();
   expect(screen.queryByRole("button", { name: "Restore to composer" })).toBeNull();
-  expect(transcriptStore.getState().transcripts.s1?.pendingUsers?.[0]?.node.text).toBe("Keep this message");
+  expect(transcriptStore.getState().transcripts.s1?.pendingUsers?.[0]?.node.text).toBe(
+    "Keep this message",
+  );
   expect(feed.sendPrompt).toHaveBeenCalledTimes(1);
   expect(readPendingUsers("s1")).toHaveLength(1);
 });
@@ -123,13 +123,11 @@ it("does not discard the retained copy if draft restoration cannot be saved", as
 it("restores retained attachment bytes after acknowledgement and reload without replaying", async () => {
   const file = new File([new Uint8Array([0, 1, 255])], "capture.png", { type: "image/png" });
   await persistFiles("delivery:retained", [{ key: "image", file }]);
-  const key = transcriptStore
-    .getState()
-    .addPendingUser("s1", "Caption", undefined, {
-      content: "Caption",
-      filesKey: "delivery:retained",
-      state: "accepted",
-    });
+  const key = transcriptStore.getState().addPendingUser("s1", "Caption", undefined, {
+    content: "Caption",
+    filesKey: "delivery:retained",
+    state: "accepted",
+  });
   sessionsStore.getState().setDraft("s1", "New draft");
   transcriptStore.getState().resetTranscripts();
   attachmentDrafts.setState({ drafts: {} });
@@ -157,7 +155,9 @@ it("releases retained files when persisted history confirms a message after relo
   const filesKey = "delivery:confirmed";
   await persistFiles(filesKey, [{ key: "file", file: new File(["notes"], "notes.txt") }]);
   transcriptStore.getState().addPendingUser("s1", "Caption", undefined, {
-    content: "Caption", filesKey, state: "accepted",
+    content: "Caption",
+    filesKey,
+    state: "accepted",
   });
   transcriptStore.getState().resetTranscripts();
   const history = [{ kind: "user" as const, key: "native", text: "Caption" }];

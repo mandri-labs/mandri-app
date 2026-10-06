@@ -61,8 +61,13 @@ export function errorKey(error: unknown): string {
   return daemonErrorKey(error);
 }
 
-export function isSessionResumable(session: Pick<SessionView, "state" | "nativeId" | "worktree">): Resumability {
-  if (session.worktree?.state === "closed" || (session.state !== "stopped" && session.state !== "discovered")) {
+export function isSessionResumable(
+  session: Pick<SessionView, "state" | "nativeId" | "worktree">,
+): Resumability {
+  if (
+    session.worktree?.state === "closed" ||
+    (session.state !== "stopped" && session.state !== "discovered")
+  ) {
     return { resumable: false, reason: "state" };
   }
   if (
@@ -208,7 +213,8 @@ export async function stopSessionAction(sessionId: string): Promise<void> {
     if (generation !== daemonIdentity.getState().generation) return;
     sessionsStore.getState().applySessionPatch(sessionId, {
       ...(sessionsStore.getState().sessions[sessionId]
-        ? stoppedPatch(sessionsStore.getState().sessions[sessionId]!, Date.now()) : {}),
+        ? stoppedPatch(sessionsStore.getState().sessions[sessionId]!, Date.now())
+        : {}),
       state: "stopped",
       activity: "idle",
       nativeTurnActive: false,

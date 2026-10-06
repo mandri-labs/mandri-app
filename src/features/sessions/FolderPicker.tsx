@@ -41,19 +41,22 @@ export function FolderPicker({ value, onSelect }: FolderPickerProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDir = useCallback(async (path: string | null): Promise<void> => {
-    setLoading(true);
-    setError(null);
-    try {
-      const rows = path === null ? await listFsRoots() : await listFsDir(path);
-      setCurrent(path);
-      setEntries(rows.filter((row) => row.is_dir));
-    } catch (caught) {
-      setError(t(errorKey(caught)));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
+  const loadDir = useCallback(
+    async (path: string | null): Promise<void> => {
+      setLoading(true);
+      setError(null);
+      try {
+        const rows = path === null ? await listFsRoots() : await listFsDir(path);
+        setCurrent(path);
+        setEntries(rows.filter((row) => row.is_dir));
+      } catch (caught) {
+        setError(t(errorKey(caught)));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     void loadDir(null);

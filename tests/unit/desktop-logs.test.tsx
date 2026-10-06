@@ -7,7 +7,9 @@ import { initI18n } from "@/i18n";
 
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 
 afterEach(() => {
   cleanup();

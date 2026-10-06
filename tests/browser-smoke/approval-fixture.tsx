@@ -13,25 +13,23 @@ const command =
 
 export function seed() {
   approvalsStore.getState().reset();
-  approvalsStore
-    .getState()
-    .ingestFrame({
-      type: "approval.pending",
-      topic: "session.preview",
-      seq: 1,
-      source: "claude",
-      ts: Date.now(),
-      approval_id: "approval-preview",
-      deadline: Date.now() + 120000,
-      status: "pending",
-      raw: {
-        request: {
-          tool_name: "Bash",
-          input: { command },
-          permission_suggestions: [{ rules: [{ ruleContent: command }] }],
-        },
+  approvalsStore.getState().ingestFrame({
+    type: "approval.pending",
+    topic: "session.preview",
+    seq: 1,
+    source: "claude",
+    ts: Date.now(),
+    approval_id: "approval-preview",
+    deadline: Date.now() + 120000,
+    status: "pending",
+    raw: {
+      request: {
+        tool_name: "Bash",
+        input: { command },
+        permission_suggestions: [{ rules: [{ ruleContent: command }] }],
       },
-    });
+    },
+  });
 }
 
 export async function mount() {

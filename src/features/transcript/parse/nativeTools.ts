@@ -55,7 +55,15 @@ const codex: Record<string, ActivityKind> = {
   shell_command: "command",
   exec_command: "command",
 };
-const pi: Record<string, ActivityKind> = { read: "read", write: "edit", edit: "edit", bash: "command", grep: "search", find: "list", ls: "list" };
+const pi: Record<string, ActivityKind> = {
+  read: "read",
+  write: "edit",
+  edit: "edit",
+  bash: "command",
+  grep: "search",
+  find: "list",
+  ls: "list",
+};
 const legacy = { ...claude, ...opencode, ...agy, ...codex };
 const providers = { pi, claude, opencode, agy, codex, legacy };
 

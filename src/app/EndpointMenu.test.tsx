@@ -14,7 +14,11 @@ vi.mock("./useHashRoute", () => ({ navigate: vi.fn() }));
 beforeAll(() => initI18n("en"));
 beforeEach(() => {
   vi.clearAllMocks();
-  preferencesStore.setState({ endpoints: [LOCAL_ENDPOINT, { id: "studio", name: "Studio", url: "https://studio.example" }], selectedEndpointId: "local", daemonBaseUrl: LOCAL_ENDPOINT.url });
+  preferencesStore.setState({
+    endpoints: [LOCAL_ENDPOINT, { id: "studio", name: "Studio", url: "https://studio.example" }],
+    selectedEndpointId: "local",
+    daemonBaseUrl: LOCAL_ENDPOINT.url,
+  });
   connectionStore.getState().setStatus("online");
 });
 afterEach(cleanup);
@@ -27,7 +31,9 @@ describe("EndpointMenu", () => {
     expect(trigger.querySelector(".status-dot--online")).toBeTruthy();
     fireEvent.click(trigger);
     const dialog = screen.getByRole("dialog");
-    expect(within(dialog).getByRole("button", { name: /Local/ }).getAttribute("aria-pressed")).toBe("true");
+    expect(within(dialog).getByRole("button", { name: /Local/ }).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
     expect(navigate).not.toHaveBeenCalled();
     expect(connectDaemon).not.toHaveBeenCalled();
   });
@@ -40,7 +46,9 @@ describe("EndpointMenu", () => {
     expect(connectDaemon).toHaveBeenCalledOnce();
     expect(navigate).toHaveBeenCalledWith({ name: "dashboard" });
     expect(screen.queryByRole("dialog")).toBeNull();
-    expect(screen.getByRole("button", { name: "Connection: Studio" }).querySelector(".lucide-server")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Connection: Studio" }).querySelector(".lucide-server"),
+    ).toBeTruthy();
   });
 
   it("preserves the current session when choosing the active endpoint", () => {

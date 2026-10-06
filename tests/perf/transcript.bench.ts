@@ -25,18 +25,9 @@ const feed = { ensureSession: () => {}, loadHistory: async () => {} };
 
 const originalRect = Element.prototype.getBoundingClientRect;
 const originalScrollHeight = Object.getOwnPropertyDescriptor(Element.prototype, "scrollHeight");
-const originalClientHeight = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "clientHeight",
-);
-const originalOffsetHeight = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "offsetHeight",
-);
-const originalOffsetWidth = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "offsetWidth",
-);
+const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight");
+const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
+const originalOffsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
 
 function patchMetrics(): void {
   Object.defineProperty(Element.prototype, "scrollHeight", {
@@ -255,15 +246,28 @@ describe("transcript virtualization benchmark", () => {
   it("keeps streaming appends under budget and anchored to the end", async () => {
     transcriptStore.getState().setNodes(SESSION_ID, makeNodes(INITIAL_COUNT));
     transcriptStore.getState().setFlags(SESSION_ID, { historyExhausted: true });
-    sessionsStore.setState({ sessions: { [SESSION_ID]: {
-      id: SESSION_ID, harness: "claude", state: "live", title: "Benchmark", deleted: false,
-      pendingApprovals: 0, nativeTurnActive: true,
-      turnWork: Array.from({ length: INITIAL_COUNT / 20 }, (_, index) => ({
-        id: `turn-${index}`, startedAt: index * 1000,
-        ...(index < INITIAL_COUNT / 20 - 1 ? { endedAt: index * 1000 + 500, outcome: "worked" as const } : {}),
-        userNodeKey: `user:bench-${index * 20}`, firstNodeKey: `assistant:bench-${index * 20 + 1}`,
-      })),
-    } } });
+    sessionsStore.setState({
+      sessions: {
+        [SESSION_ID]: {
+          id: SESSION_ID,
+          harness: "claude",
+          state: "live",
+          title: "Benchmark",
+          deleted: false,
+          pendingApprovals: 0,
+          nativeTurnActive: true,
+          turnWork: Array.from({ length: INITIAL_COUNT / 20 }, (_, index) => ({
+            id: `turn-${index}`,
+            startedAt: index * 1000,
+            ...(index < INITIAL_COUNT / 20 - 1
+              ? { endedAt: index * 1000 + 500, outcome: "worked" as const }
+              : {}),
+            userNodeKey: `user:bench-${index * 20}`,
+            firstNodeKey: `assistant:bench-${index * 20 + 1}`,
+          })),
+        },
+      },
+    });
     const viewport = renderTranscript();
     await act(async () => {
       await Promise.resolve();
@@ -276,9 +280,7 @@ describe("transcript virtualization benchmark", () => {
       const appended = makeAppendBatch(batch);
       const started = performance.now();
       act(() => {
-        transcriptStore
-          .getState()
-          .setNodes(SESSION_ID, [...currentNodes(), ...appended]);
+        transcriptStore.getState().setNodes(SESSION_ID, [...currentNodes(), ...appended]);
       });
       act(() => {
         dispatchScroll(viewport);

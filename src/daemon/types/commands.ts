@@ -55,7 +55,12 @@ export interface CommandParams {
   "command.catalogs": Record<string, never>;
   "command.catalog": CommandCatalogScope & { force_refresh?: boolean };
   "session.commands": { session_id: string };
-  "command.invoke": { session_id: string; invocation_id: string; command_id: string; arguments: string };
+  "command.invoke": {
+    session_id: string;
+    invocation_id: string;
+    command_id: string;
+    arguments: string;
+  };
   "command.get": { session_id: string; invocation_id: string };
   "command.list": { session_id: string };
   "command.cancel": { session_id: string; invocation_id: string };
@@ -72,5 +77,10 @@ export interface CommandResults {
 }
 
 export type CommandRequest = {
-  [A in keyof CommandParams]: { type: "request"; op_id: string; action: A; params: CommandParams[A] };
+  [A in keyof CommandParams]: {
+    type: "request";
+    op_id: string;
+    action: A;
+    params: CommandParams[A];
+  };
 }[keyof CommandParams];

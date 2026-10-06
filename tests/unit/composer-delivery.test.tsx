@@ -55,24 +55,20 @@ it("retains the composer through unknown availability and disables delivery unti
   );
   expect(screen.getByRole("textbox")).toBe(input);
   act(() =>
-    sessionsStore
-      .getState()
-      .applySessionPatch("s1", {
-        externalBusy: undefined,
-        availability: { ...unowned, owner: "unknown", can_resume: false },
-      }),
+    sessionsStore.getState().applySessionPatch("s1", {
+      externalBusy: undefined,
+      availability: { ...unowned, owner: "unknown", can_resume: false },
+    }),
   );
   expect(screen.getByRole("textbox")).toBe(input);
   expect(document.querySelector(".composer-availability-hint")).toBeNull();
   expect((screen.getByRole("button", { name: "Send" }) as HTMLButtonElement).disabled).toBe(true);
   act(() =>
-    sessionsStore
-      .getState()
-      .applySessionPatch("s1", {
-        state: "live",
-        externalBusy: true,
-        availability: { ...unowned, owner: "mandri" },
-      }),
+    sessionsStore.getState().applySessionPatch("s1", {
+      state: "live",
+      externalBusy: true,
+      availability: { ...unowned, owner: "mandri" },
+    }),
   );
   expect(screen.getByRole("textbox")).toBe(input);
   act(() =>
@@ -82,12 +78,10 @@ it("retains the composer through unknown availability and disables delivery unti
   );
   expect(screen.getByRole("textbox")).toBe(input);
   act(() =>
-    sessionsStore
-      .getState()
-      .applySessionPatch("s1", {
-        externalBusy: false,
-        availability: { ...unowned, owner: "external", can_resume: false },
-      }),
+    sessionsStore.getState().applySessionPatch("s1", {
+      externalBusy: false,
+      availability: { ...unowned, owner: "external", can_resume: false },
+    }),
   );
   expect(screen.queryByRole("textbox")).toBeNull();
 });
@@ -100,24 +94,27 @@ it("never shows an availability warning in the provisional composer before a ses
   expect((screen.getByRole("button", { name: "Send" }) as HTMLButtonElement).disabled).toBe(true);
 });
 
-it.each(["unknown-first", "live-first"])("keeps startup stable when availability arrives %s", (order) => {
-  sessionsStore.getState().applySessionPatch("s1", { state: "discovered", promptError: null });
-  const feed = { sendPrompt: vi.fn(), interrupt: vi.fn() };
-  render(<Composer sessionId="s1" feed={feed} />);
-  const input = screen.getByRole("textbox");
-  const states = [
-    { availability: { ...unowned, owner: "unknown" as const, can_resume: false } },
-    { state: "live" as const },
-  ];
-  if (order === "live-first") states.reverse();
-  for (const patch of states) {
-    act(() => sessionsStore.getState().applySessionPatch("s1", patch));
-    expect(screen.getByRole("textbox")).toBe(input);
-    expect(screen.queryByRole("status")).toBeNull();
-    expect(screen.queryByRole("alert")).toBeNull();
-  }
-  expect(feed.sendPrompt).not.toHaveBeenCalled();
-});
+it.each(["unknown-first", "live-first"])(
+  "keeps startup stable when availability arrives %s",
+  (order) => {
+    sessionsStore.getState().applySessionPatch("s1", { state: "discovered", promptError: null });
+    const feed = { sendPrompt: vi.fn(), interrupt: vi.fn() };
+    render(<Composer sessionId="s1" feed={feed} />);
+    const input = screen.getByRole("textbox");
+    const states = [
+      { availability: { ...unowned, owner: "unknown" as const, can_resume: false } },
+      { state: "live" as const },
+    ];
+    if (order === "live-first") states.reverse();
+    for (const patch of states) {
+      act(() => sessionsStore.getState().applySessionPatch("s1", patch));
+      expect(screen.getByRole("textbox")).toBe(input);
+      expect(screen.queryByRole("status")).toBeNull();
+      expect(screen.queryByRole("alert")).toBeNull();
+    }
+    expect(feed.sendPrompt).not.toHaveBeenCalled();
+  },
+);
 
 it("shows the failed first prompt and prevents concurrent deliveries", async () => {
   let finish!: (result: PromptOutcome) => void;
@@ -341,7 +338,12 @@ it("allows STOP during pending approval even when prompt delivery is disabled", 
 it("does not stop on empty Enter or resume from a late prompt error after STOP", async () => {
   let rejectPrompt!: (error: Error) => void;
   const feed = {
-    sendPrompt: vi.fn(() => new Promise<PromptOutcome>((_resolve, reject) => { rejectPrompt = reject; })),
+    sendPrompt: vi.fn(
+      () =>
+        new Promise<PromptOutcome>((_resolve, reject) => {
+          rejectPrompt = reject;
+        }),
+    ),
     interrupt: vi.fn(),
   };
   const fetchMock = vi.fn(async () => new Response(null, { status: 204 }));
@@ -356,7 +358,10 @@ it("does not stop on empty Enter or resume from a late prompt error after STOP",
     rejectPrompt(new DaemonError({ code: "session_not_running", message: "stopped" }));
   });
   expect(fetchMock).toHaveBeenCalledTimes(2);
-  expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/\/availability$/), expect.objectContaining({ method: "GET" }));
+  expect(fetchMock).toHaveBeenCalledWith(
+    expect.stringMatching(/\/availability$/),
+    expect.objectContaining({ method: "GET" }),
+  );
   expect(feed.sendPrompt).toHaveBeenCalledTimes(1);
   expect(screen.queryByRole("alert")).toBeNull();
   expect(transcriptStore.getState().transcripts.s1?.pendingUsers).toHaveLength(0);
@@ -365,9 +370,12 @@ it("does not stop on empty Enter or resume from a late prompt error after STOP",
 it("shows stop failures and allows retry without leaving the composer disabled", async () => {
   sessionsStore.getState().setDraft("s1", "");
   sessionsStore.getState().applySessionPatch("s1", { nativeTurnActive: true, promptError: null });
-  vi.stubGlobal("fetch", vi.fn(async () => {
-    throw new Error("offline");
-  }));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => {
+      throw new Error("offline");
+    }),
+  );
   render(<Composer sessionId="s1" />);
   fireEvent.click(screen.getByRole("button", { name: "Stop" }));
   await screen.findByRole("alert");
@@ -377,16 +385,40 @@ it("shows stop failures and allows retry without leaving the composer disabled",
 
 it("keeps the draft and permits retry after Codex resume readiness times out", async () => {
   sessionsStore.getState().applySessionPatch("s1", {
-    harness: "codex", state: "stopped", nativeId: "native-1", daemonOrigin: true,
-    availability: unowned, model: "native:codex/gpt-6-luna", promptError: null,
+    harness: "codex",
+    state: "stopped",
+    nativeId: "native-1",
+    daemonOrigin: true,
+    availability: unowned,
+    model: "native:codex/gpt-6-luna",
+    promptError: null,
   });
-  const resume = vi.fn()
-    .mockResolvedValueOnce(new Response(JSON.stringify({ error: {
-      code: "native_initialization_timeout", message: "The harness did not become ready in time", detail: {},
-    } }), { status: 409 }))
-    .mockResolvedValueOnce(new Response(JSON.stringify({ id: "s1", harness: "codex", state: "live" }), { status: 200 }));
-  vi.stubGlobal("fetch", (url: unknown) => String(url).endsWith("/resume") ? resume() : Promise.resolve(new Response("[]", { status: 200 })));
-  const feed = { sendPrompt: vi.fn(async (): Promise<PromptOutcome> => ({state: "queued", code: null})), interrupt: vi.fn() };
+  const resume = vi
+    .fn()
+    .mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: "native_initialization_timeout",
+            message: "The harness did not become ready in time",
+            detail: {},
+          },
+        }),
+        { status: 409 },
+      ),
+    )
+    .mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: "s1", harness: "codex", state: "live" }), { status: 200 }),
+    );
+  vi.stubGlobal("fetch", (url: unknown) =>
+    String(url).endsWith("/resume")
+      ? resume()
+      : Promise.resolve(new Response("[]", { status: 200 })),
+  );
+  const feed = {
+    sendPrompt: vi.fn(async (): Promise<PromptOutcome> => ({ state: "queued", code: null })),
+    interrupt: vi.fn(),
+  };
   render(<Composer sessionId="s1" feed={feed} />);
   fireEvent.keyDown(screen.getByRole("textbox"), { key: "Enter" });
   await waitFor(() => expect(sessionsStore.getState().sessions.s1?.sending).toBe(false));
@@ -404,15 +436,27 @@ it("keeps the draft and permits retry after Codex resume readiness times out", a
 it("clears STOP after native completion despite an active metadata snapshot", () => {
   sessionsStore.getState().setDraft("s1", "");
   sessionsStore.getState().applySessionPatch("s1", {
-    harness: "opencode", activity: "active", nativeTurnActive: true, promptError: null,
-    sending: false, awaitingResponse: false,
+    harness: "opencode",
+    activity: "active",
+    nativeTurnActive: true,
+    promptError: null,
+    sending: false,
+    awaitingResponse: false,
   });
   render(<Composer sessionId="s1" />);
   expect(screen.getByRole("button", { name: "Stop" })).toBeTruthy();
-  act(() => sessionsStore.getState().ingestFrame({
-    topic: "session.s1", seq: 1, ts: 1, source: "opencode",
-    raw: { type: "session.status", properties: { sessionID: "native", status: { type: "idle" } } },
-  }));
+  act(() =>
+    sessionsStore.getState().ingestFrame({
+      topic: "session.s1",
+      seq: 1,
+      ts: 1,
+      source: "opencode",
+      raw: {
+        type: "session.status",
+        properties: { sessionID: "native", status: { type: "idle" } },
+      },
+    }),
+  );
   expect(sessionsStore.getState().sessions.s1?.activity).toBe("active");
   expect(sessionsStore.getState().sessions.s1?.nativeTurnActive).toBe(false);
   expect(screen.queryByRole("button", { name: "Stop" })).toBeNull();
@@ -420,14 +464,26 @@ it("clears STOP after native completion despite an active metadata snapshot", ()
 });
 
 it.each([
-  { sending: true }, { awaitingResponse: true }, { pendingApprovals: 1 },
-  { stopping: true }, { nativeTurnActive: undefined }, { externalBusy: true },
+  { sending: true },
+  { awaitingResponse: true },
+  { pendingApprovals: 1 },
+  { stopping: true },
+  { nativeTurnActive: undefined },
+  { externalBusy: true },
 ])("keeps STOP available independently of the sidebar work indicator for %j", (pending) => {
   sessionsStore.getState().setDraft("s1", "");
   sessionsStore.getState().applySessionPatch("s1", {
-    activity: "active", nativeTurnActive: false, promptError: null, ...pending,
+    activity: "active",
+    nativeTurnActive: false,
+    promptError: null,
+    ...pending,
   });
-  render(<><Composer sessionId="s1" /><SessionDot session={sessionsStore.getState().sessions.s1!} /></>);
+  render(
+    <>
+      <Composer sessionId="s1" />
+      <SessionDot session={sessionsStore.getState().sessions.s1!} />
+    </>,
+  );
   expect(screen.getByRole("button", { name: "Stop" })).toBeTruthy();
   expect(Boolean(document.querySelector(".conversation-indicator--working"))).toBe(
     sessionsStore.getState().sessions.s1?.externalBusy === true,
@@ -436,8 +492,13 @@ it.each([
 
 it("keeps imported idle sessions neutral without an observed completion", () => {
   sessionsStore.getState().applySessionPatch("s1", {
-    harness: "opencode", activity: "active", nativeTurnActive: false, promptError: null,
-    sending: false, awaitingResponse: false, externalBusy: false,
+    harness: "opencode",
+    activity: "active",
+    nativeTurnActive: false,
+    promptError: null,
+    sending: false,
+    awaitingResponse: false,
+    externalBusy: false,
   });
   render(<SessionDot session={sessionsStore.getState().sessions.s1!} />);
   expect(document.querySelector(".conversation-indicator-slot")).toBeTruthy();

@@ -105,23 +105,33 @@ function Details({ node }: { node: ToolNode }) {
   );
 }
 
-export function CodexTool({ node, sessionId, active = true }: { node: ToolNode; sessionId?: string; active?: boolean }) {
+export function CodexTool({
+  node,
+  sessionId,
+  active = true,
+}: {
+  node: ToolNode;
+  sessionId?: string;
+  active?: boolean;
+}) {
   const { t } = useTranslation();
-  const title = node.actions?.some((action) => action.kind !== "tool") || node.title
-    ? activityToolTitle(node, t) : node.target ?? codexToolTitle(node.tool, node.codex?.input);
+  const title =
+    node.actions?.some((action) => action.kind !== "tool") || node.title
+      ? activityToolTitle(node, t)
+      : (node.target ?? codexToolTitle(node.tool, node.codex?.input));
   const Icon = node.status === "failed" ? CircleAlert : activityIcons[activityKind(node) ?? "tool"];
-  if (isCodexAgentActivity(node.tool)) return <CodexAgentActivity node={node} sessionId={sessionId} active={active} />;
+  if (isCodexAgentActivity(node.tool))
+    return <CodexAgentActivity node={node} sessionId={sessionId} active={active} />;
   return (
     <div className={`tr-tool tr-tool--${node.status}`}>
       <Disclosure
         title={
           <>
-            <Icon
-              size={14}
-              aria-hidden="true"
-
-            />
-            <span className={`tr-tool-summary${active && node.status === "running" ? " tr-shimmer" : ""}`} title={title}>
+            <Icon size={14} aria-hidden="true" />
+            <span
+              className={`tr-tool-summary${active && node.status === "running" ? " tr-shimmer" : ""}`}
+              title={title}
+            >
               {title}
             </span>
             {node.status === "failed" && (

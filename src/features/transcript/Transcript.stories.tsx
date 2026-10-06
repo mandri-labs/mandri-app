@@ -43,7 +43,12 @@ function ResetStores() {
     transcriptStore.getState().resetTranscripts();
     return installReplaySocket({
       request: async <A extends RequestAction>(action: A): Promise<ActionResultMap[A]> => {
-        if (action === "session.history") return { entries: [], next_cursor: null, has_more: false } as unknown as ActionResultMap[A];
+        if (action === "session.history")
+          return {
+            entries: [],
+            next_cursor: null,
+            has_more: false,
+          } as unknown as ActionResultMap[A];
         throw new Error("This offline story only replays recorded events.");
       },
       subscribe: () => undefined,
@@ -52,7 +57,6 @@ function ResetStores() {
   }, []);
   return null;
 }
-
 
 function eventOf(frame: ServerMessage): EventMessage | null {
   if ("type" in frame) {
@@ -64,11 +68,7 @@ function eventOf(frame: ServerMessage): EventMessage | null {
   return frame;
 }
 
-function replayFixtureIntoSession(
-  fixture: FixtureFile,
-  sessionId: string,
-  repeats: number,
-): void {
+function replayFixtureIntoSession(fixture: FixtureFile, sessionId: string, repeats: number): void {
   const events = validateFixtureFrames(fixture)
     .frames.map(eventOf)
     .filter((event): event is EventMessage => event !== null);
@@ -80,7 +80,10 @@ function replayFixtureIntoSession(
   for (let pass = 0; pass < repeats; pass += 1) {
     const shift = pass * span - (base - 1);
     for (const event of events) {
-      sessionFeed.ingestSessionFrame(sessionId, fixture.harness, { ...event, seq: event.seq + shift });
+      sessionFeed.ingestSessionFrame(sessionId, fixture.harness, {
+        ...event,
+        seq: event.seq + shift,
+      });
     }
   }
 }
@@ -146,7 +149,9 @@ const meta = {
     (Story: () => ReactNode) => (
       <StoryGate>
         <ResetStores />
-        <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}><Story /></div>
+        <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+          <Story />
+        </div>
       </StoryGate>
     ),
   ],
@@ -188,22 +193,75 @@ export const CodexToolsDiff: Story = {
 function CodexFileChangesExample() {
   useEffect(() => {
     const sessionId = "codex-file-changes";
-    seedSessionView({ id: sessionId, harness: "codex", state: "live", deleted: false,
-      title: "Codex file changes", pendingApprovals: 0, activity: "idle" });
+    seedSessionView({
+      id: sessionId,
+      harness: "codex",
+      state: "live",
+      deleted: false,
+      title: "Codex file changes",
+      pendingApprovals: 0,
+      activity: "idle",
+    });
     panesStore.getState().openPane(sessionId);
     sessionFeed.ensureSession(sessionId, "codex");
     const rawEvents = [
-      { method: "item/completed", params: { item: { type: "userMessage", id: "user", content: [{ text: "Add prompt attachments and update the runtime." }] } } },
-      { method: "item/completed", params: { item: { type: "agentMessage", id: "message", text: "I added the attachment type and updated the runtime." } } },
-      { method: "item/completed", params: { item: { type: "fileChange", id: "edit", status: "completed", changes: [
-        { path: "/home/developer/Mandri/mandri/mandri_core/src/mandri/core/types/prompt.py", kind: { type: "add" }, diff: "import dataclasses\n\n@dataclasses.dataclass(frozen=True)\nclass PromptAttachment:\n    path: str\n    media_type: str\n    data: bytes\n" },
-        { path: "C:\\Users\\developer\\Mandri\\mandri\\mandri_runtime\\src\\mandri\\runtime\\control\\prompt.py", kind: { type: "update" }, diff: "@@ -20,2 +20,2 @@\n-def prompt(text):\n+def prompt(text, attachments):\n     return text\n" },
-        { path: "/home/developer/Mandri/mandri/mandri_runtime/src/mandri/runtime/obsolete.py", kind: { type: "delete" }, diff: "# obsolete\n" },
-      ] } } },
+      {
+        method: "item/completed",
+        params: {
+          item: {
+            type: "userMessage",
+            id: "user",
+            content: [{ text: "Add prompt attachments and update the runtime." }],
+          },
+        },
+      },
+      {
+        method: "item/completed",
+        params: {
+          item: {
+            type: "agentMessage",
+            id: "message",
+            text: "I added the attachment type and updated the runtime.",
+          },
+        },
+      },
+      {
+        method: "item/completed",
+        params: {
+          item: {
+            type: "fileChange",
+            id: "edit",
+            status: "completed",
+            changes: [
+              {
+                path: "/home/developer/Mandri/mandri/mandri_core/src/mandri/core/types/prompt.py",
+                kind: { type: "add" },
+                diff: "import dataclasses\n\n@dataclasses.dataclass(frozen=True)\nclass PromptAttachment:\n    path: str\n    media_type: str\n    data: bytes\n",
+              },
+              {
+                path: "C:\\Users\\developer\\Mandri\\mandri\\mandri_runtime\\src\\mandri\\runtime\\control\\prompt.py",
+                kind: { type: "update" },
+                diff: "@@ -20,2 +20,2 @@\n-def prompt(text):\n+def prompt(text, attachments):\n     return text\n",
+              },
+              {
+                path: "/home/developer/Mandri/mandri/mandri_runtime/src/mandri/runtime/obsolete.py",
+                kind: { type: "delete" },
+                diff: "# obsolete\n",
+              },
+            ],
+          },
+        },
+      },
     ];
-    rawEvents.forEach((raw, index) => sessionFeed.ingestSessionFrame(sessionId, "codex", {
-      topic: `session.${sessionId}`, source: "codex", seq: index + 1, ts: Date.now(), raw,
-    }));
+    rawEvents.forEach((raw, index) =>
+      sessionFeed.ingestSessionFrame(sessionId, "codex", {
+        topic: `session.${sessionId}`,
+        source: "codex",
+        seq: index + 1,
+        ts: Date.now(),
+        raw,
+      }),
+    );
     return () => sessionFeed.closeSession(sessionId);
   }, []);
   return <PaneManager />;

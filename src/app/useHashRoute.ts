@@ -16,7 +16,9 @@ export function parseHash(hash: string): Route {
   if (path === "" || path === "/") {
     const params = new URLSearchParams(query);
     const cwd = params.get("cwd");
-    return { name: "dashboard", ...(cwd ? { cwd } : {}),
+    return {
+      name: "dashboard",
+      ...(cwd ? { cwd } : {}),
       ...(params.get("worktree") === "1" ? { worktree: true } : {}),
       ...(params.get("surrogate") === "1" ? { surrogate: true } : {}),
     };
@@ -39,12 +41,18 @@ export function parseHash(hash: string): Route {
       const params = new URLSearchParams(query);
       const sessionId = params.get("session_id");
       const projectPath = params.get("project_path");
-      return sessionId ? { name: "usage", sessionId } : projectPath ? { name: "usage", projectPath } : { name: "usage" };
+      return sessionId
+        ? { name: "usage", sessionId }
+        : projectPath
+          ? { name: "usage", projectPath }
+          : { name: "usage" };
     }
     case "routes":
       return { name: "routes" };
     case "settings":
-      return new URLSearchParams(query).get("section") === "connection" ? { name: "settings", section: "connection" } : { name: "settings" };
+      return new URLSearchParams(query).get("section") === "connection"
+        ? { name: "settings", section: "connection" }
+        : { name: "settings" };
     default:
       return { name: "dashboard" };
   }
@@ -53,8 +61,10 @@ export function parseHash(hash: string): Route {
 export function routeToHash(route: Route): string {
   switch (route.name) {
     case "dashboard": {
-      const params = new URLSearchParams({ ...(route.cwd ? { cwd: route.cwd } : {}),
-        ...(route.worktree ? { worktree: "1" } : {}), ...(route.surrogate ? { surrogate: "1" } : {}),
+      const params = new URLSearchParams({
+        ...(route.cwd ? { cwd: route.cwd } : {}),
+        ...(route.worktree ? { worktree: "1" } : {}),
+        ...(route.surrogate ? { surrogate: "1" } : {}),
       });
       return params.size ? `#/?${params}` : "#/";
     }
@@ -67,7 +77,13 @@ export function routeToHash(route: Route): string {
     case "providers":
       return "#/providers";
     case "usage": {
-      const params = new URLSearchParams(route.sessionId ? { session_id: route.sessionId } : route.projectPath ? { project_path: route.projectPath } : {});
+      const params = new URLSearchParams(
+        route.sessionId
+          ? { session_id: route.sessionId }
+          : route.projectPath
+            ? { project_path: route.projectPath }
+            : {},
+      );
       return params.size ? `#/usage?${params}` : "#/usage";
     }
     case "routes":

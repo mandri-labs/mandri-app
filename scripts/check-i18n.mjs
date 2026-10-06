@@ -3,12 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-const i18nDir = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "src",
-  "i18n",
-);
+const i18nDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "src", "i18n");
 
 function flatten(value, prefix = "") {
   return Object.entries(value).flatMap(([key, child]) => {

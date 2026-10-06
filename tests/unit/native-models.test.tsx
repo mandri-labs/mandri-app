@@ -3,7 +3,10 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { request } from "@/daemon/rest/client";
 import { listProviders } from "@/daemon/rest/providers";
 import { modelSelection, nativeHarness, sessionModelRef } from "@/daemon/modelSelection";
-import { rememberRuntimeCapabilities, runtimeCapabilitiesStore } from "@/daemon/runtimeCapabilities";
+import {
+  rememberRuntimeCapabilities,
+  runtimeCapabilitiesStore,
+} from "@/daemon/runtimeCapabilities";
 import { Composer, ModelMenu } from "@/features/transcript/Composer";
 import { sessionsStore } from "@/stores/sessions";
 import { nativeModelsStore } from "@/features/providers/nativeModels";
@@ -258,9 +261,18 @@ it("keeps native default usable when catalog discovery fails", async () => {
 
 it("discovers native model support from capabilities for an unregistered harness", async () => {
   runtimeCapabilitiesStore.setState({ entries: {} });
-  vi.mocked(request).mockImplementation(async (path) => path === "/v1/runtimes"
-    ? [{ harness: "future-harness", capabilities: { model_sources: ["gateway", "native"] } }]
-    : [{ id: "provider/model", display_name: "Future native model", reasoning_efforts: [], default_effort: null }]);
+  vi.mocked(request).mockImplementation(async (path) =>
+    path === "/v1/runtimes"
+      ? [{ harness: "future-harness", capabilities: { model_sources: ["gateway", "native"] } }]
+      : [
+          {
+            id: "provider/model",
+            display_name: "Future native model",
+            reasoning_efforts: [],
+            default_effort: null,
+          },
+        ],
+  );
   const select = vi.fn();
   render(<ModelMenu harness="future-harness" onSelect={select} />);
   fireEvent.click(await screen.findByText("Future native model"));
@@ -273,12 +285,19 @@ it("does not infer native support from a known harness name or remove gateway pr
   runtimeCapabilitiesStore.setState({ entries: {} });
   seedPiSearchModels();
   let resolve!: (rows: unknown) => void;
-  vi.mocked(request).mockImplementation(() => new Promise((done) => { resolve = done; }));
+  vi.mocked(request).mockImplementation(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
   render(<ModelMenu harness="pi" onSelect={vi.fn()} />);
   expect(screen.getByTitle("gateway/fab")).toBeTruthy();
   expect(screen.queryByText("Native models for Pi")).toBeNull();
   resolve([{ harness: "pi", capabilities: { model_sources: ["gateway"] } }]);
-  await waitFor(() => expect(runtimeCapabilitiesStore.getState().entries.pi?.modelSources).toEqual(["gateway"]));
+  await waitFor(() =>
+    expect(runtimeCapabilitiesStore.getState().entries.pi?.modelSources).toEqual(["gateway"]),
+  );
   expect(screen.queryByText("Native models for Pi")).toBeNull();
   expect(screen.getByTitle("gateway/fab")).toBeTruthy();
   expect(request).toHaveBeenCalledTimes(1);

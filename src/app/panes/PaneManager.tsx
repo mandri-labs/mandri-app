@@ -69,8 +69,7 @@ function ConversationPane({
     if (event.target instanceof Element) {
       const control = event.target.closest(".pane-header button");
       // Switching canvases on pointerdown can move the button before its click lands.
-      if (control && (control.classList.contains("pane-close") || event.type !== "click"))
-        return;
+      if (control && (control.classList.contains("pane-close") || event.type !== "click")) return;
     }
     if (panesStore.getState().panes.find((item) => item.sessionId === pane.sessionId)?.focused)
       return;

@@ -7,7 +7,13 @@ import { AsyncQuestions, pendingAsyncQuestion } from "./AsyncQuestions";
 import { isSessionBusy } from "./turnActivity";
 import { daemonIdentity } from "@/daemon/identity";
 import { AttachmentButton, AttachmentChips, useAttachmentInput } from "./AttachmentInput";
-import { draftMessage, attachmentMessage, uploadFiles, removeFiles, type DraftAttachment } from "./attachments";
+import {
+  draftMessage,
+  attachmentMessage,
+  uploadFiles,
+  removeFiles,
+  type DraftAttachment,
+} from "./attachments";
 import { ChipPopover } from "./ChipPopover";
 import { ModelPopover } from "./ModelPopover";
 import { HarnessMark, harnessDisplayName, splitModelRef } from "./composerControls";
@@ -30,11 +36,19 @@ import { sessionsStore, transcriptStore } from "@/stores/sessions";
 import { swapSessionModel } from "@/features/providers/swapSessionModel";
 import { swapSessionEffort } from "@/features/providers/swapSessionEffort";
 import { modelCatalogEntry, supportedModelEffort } from "@/features/providers/modelReasoning";
-import { HARNESS_MODES, permissionLabel, permissionTone } from "@/features/sessions/permissionModes";
+import {
+  HARNESS_MODES,
+  permissionLabel,
+  permissionTone,
+} from "@/features/sessions/permissionModes";
 import { SessionProtection } from "@/features/sessions/SessionProtection";
 import { PermissionModeIcon } from "@/features/sessions/PermissionModeIcon";
 import { PermissionMenu } from "@/features/sessions/PermissionMenu";
-import { isSessionResumable, resumeSessionAction, stopSessionAction } from "@/features/sessions/lifecycle";
+import {
+  isSessionResumable,
+  resumeSessionAction,
+  stopSessionAction,
+} from "@/features/sessions/lifecycle";
 import { createDebugLogger } from "@/lib/debug";
 import "./composer.css";
 
@@ -123,10 +137,7 @@ export function Composer({
   const harnessKind = session?.harness;
   const attachmentsBlocked =
     harnessKind === "agy" || disabled || !!session?.sending || sessionId === undefined;
-  const attachmentInput = useAttachmentInput(
-    sessionId ?? "preview",
-    attachmentsBlocked,
-  );
+  const attachmentInput = useAttachmentInput(sessionId ?? "preview", attachmentsBlocked);
   const capabilities = useRuntimeCapabilities(
     harnessKind,
     harnessKind === "agy" && (modelOpen || permissionsOpen),
@@ -165,24 +176,47 @@ export function Composer({
     (live || resumable === true) &&
     !(harnessKind === "agy" && attachmentInput.files.length > 0);
   const nativeCommands = useCommands({
-    sessionId, harness: harnessKind, cwd: session?.projectPath, executionBackend: session?.executionBackend, privacyMode: session?.privacyMode, text, setText, enabled: canDeliver,
+    sessionId,
+    harness: harnessKind,
+    cwd: session?.projectPath,
+    executionBackend: session?.executionBackend,
+    privacyMode: session?.privacyMode,
+    text,
+    setText,
+    enabled: canDeliver,
     busy: isSessionBusy(session),
     transport: commands,
     execute: async (command, args, invocationId) => {
       if (!sessionId) throw new Error(t("commands.unavailable"));
       const generation = daemonIdentity.getState().generation;
       const stopRevision = sessionsStore.getState().sessions[sessionId]?.stopRevision;
-      if (sessionsStore.getState().sessions[sessionId]?.state !== "live") await resumeSessionAction(sessionId);
-      if (generation !== daemonIdentity.getState().generation || stopRevision !== sessionsStore.getState().sessions[sessionId]?.stopRevision) throw new Error(t("commands.unavailable"));
+      if (sessionsStore.getState().sessions[sessionId]?.state !== "live")
+        await resumeSessionAction(sessionId);
+      if (
+        generation !== daemonIdentity.getState().generation ||
+        stopRevision !== sessionsStore.getState().sessions[sessionId]?.stopRevision
+      )
+        throw new Error(t("commands.unavailable"));
       return (commands ?? commandTransport).invoke(sessionId, invocationId, command.id, args);
     },
   });
-  const canSend = canDeliver && !nativeCommands.pending && (text.trim().length > 0 || attachmentInput.files.length > 0);
+  const canSend =
+    canDeliver &&
+    !nativeCommands.pending &&
+    (text.trim().length > 0 || attachmentInput.files.length > 0);
   const showStop = live && text.trim().length === 0 && isSessionBusy(session);
-  const question = useStore(transcriptStore, useCallback((state) => {
-    const transcript = sessionId ? state.transcripts[sessionId] : undefined;
-    return transcript?.pendingUsers?.length ? undefined : pendingAsyncQuestion(transcript?.nodes ?? []);
-  }, [sessionId]));
+  const question = useStore(
+    transcriptStore,
+    useCallback(
+      (state) => {
+        const transcript = sessionId ? state.transcripts[sessionId] : undefined;
+        return transcript?.pendingUsers?.length
+          ? undefined
+          : pendingAsyncQuestion(transcript?.nodes ?? []);
+      },
+      [sessionId],
+    ),
+  );
   const sendTitle = wired
     ? live || resumable
       ? capabilities?.steering === "stop_resume" && session?.nativeTurnActive
@@ -207,7 +241,8 @@ export function Composer({
       });
       const generation = daemonIdentity.getState().generation;
       const stopRevision = sessionsStore.getState().sessions[id]?.stopRevision;
-      const deliveryCurrent = () => generation === daemonIdentity.getState().generation &&
+      const deliveryCurrent = () =>
+        generation === daemonIdentity.getState().generation &&
         stopRevision === sessionsStore.getState().sessions[id]?.stopRevision;
       const draftBefore = sessionsStore.getState().drafts[id];
       let pendingKey: string | undefined;
@@ -218,13 +253,16 @@ export function Composer({
       const service = feed ?? sessionFeed;
       let deliveryStage: "attachments" | "resume" | "prompt" = "attachments";
       const requireCurrent = () => {
-        if (!deliveryCurrent()) throw new DaemonError({ code: "operation_cancelled", message: "Delivery interrupted" });
+        if (!deliveryCurrent())
+          throw new DaemonError({ code: "operation_cancelled", message: "Delivery interrupted" });
       };
       const send = async (identities: string[]) => {
         requireCurrent();
         markDelivery(id, pendingKey!, "sending");
         submitted = true;
-        await (identities.length ? service.sendPrompt(id, composed, identities) : service.sendPrompt(id, composed));
+        await (identities.length
+          ? service.sendPrompt(id, composed, identities)
+          : service.sendPrompt(id, composed));
         if (generation !== daemonIdentity.getState().generation) return;
         markDelivery(id, pendingKey!, "accepted");
         removeFiles(id, selected);
@@ -232,19 +270,26 @@ export function Composer({
       try {
         if (selected.length) {
           filesKey = `delivery:${crypto.randomUUID()}`;
-          if (!await persistFiles(filesKey, selected)) throw new DaemonError({
-            code: "composer_storage_unavailable", message: "Unable to retain message attachments",
-          });
+          if (!(await persistFiles(filesKey, selected)))
+            throw new DaemonError({
+              code: "composer_storage_unavailable",
+              message: "Unable to retain message attachments",
+            });
           requireCurrent();
         }
         const preview = draftMessage(composed, selected);
         pendingKey = transcriptStore.getState().addPendingUser(id, preview.text, preview.images, {
-          content: composed, state: "preparing", filesKey,
+          content: composed,
+          state: "preparing",
+          filesKey,
         });
         if (sessionsStore.getState().drafts[id] === draftBefore) setText("");
         const uploaded = selected.length ? await uploadFiles(id, selected) : [];
         requireCurrent();
-        if (uploaded.length) transcriptStore.getState().updatePendingUser(id, pendingKey, attachmentMessage(composed, uploaded));
+        if (uploaded.length)
+          transcriptStore
+            .getState()
+            .updatePendingUser(id, pendingKey, attachmentMessage(composed, uploaded));
         const identities = uploaded.map((file) => file.id);
         deliveryStage = "resume";
         if (sessionsStore.getState().sessions[id]?.state !== "live") await resumeSessionAction(id);
@@ -253,7 +298,11 @@ export function Composer({
         try {
           await send(identities);
         } catch (promptError) {
-          if (!(promptError instanceof DaemonError) || !["session_not_running", "invalid_state", "conflict"].includes(promptError.code)) throw promptError;
+          if (
+            !(promptError instanceof DaemonError) ||
+            !["session_not_running", "invalid_state", "conflict"].includes(promptError.code)
+          )
+            throw promptError;
           submitted = false;
           markDelivery(id, pendingKey, "preparing");
           requireCurrent();
@@ -267,23 +316,46 @@ export function Composer({
         if (generation !== daemonIdentity.getState().generation) return;
         const uncertain = submitted && deliveryUncertain(sendError);
         const code = sendError instanceof DaemonError ? sendError.code : null;
-        log.warn("delivery failed", { sessionId: id, stage: deliveryStage, code,
-          attachmentCount: selected.length, message: sendError instanceof Error ? sendError.message : String(sendError) });
+        log.warn("delivery failed", {
+          sessionId: id,
+          stage: deliveryStage,
+          code,
+          attachmentCount: selected.length,
+          message: sendError instanceof Error ? sendError.message : String(sendError),
+        });
         if (pendingKey) {
-          transcriptStore.getState().setDeliveryState(id, pendingKey, uncertain ? "unknown" : "not_sent");
+          transcriptStore
+            .getState()
+            .setDeliveryState(id, pendingKey, uncertain ? "unknown" : "not_sent");
           if (!uncertain) await restoreDelivery(id, pendingKey);
         }
         if (generation !== daemonIdentity.getState().generation) return;
-        const attachmentFailure = selected.length > 0 &&
-          (deliveryStage === "attachments" || code === "attachment_storage_unavailable" || code === "invalid_params");
-        if (attachmentFailure) attachmentInput.setError(code === "attachment_storage_unavailable"
-          ? t("error.attachment_storage_unavailable") : sendError instanceof Error ? sendError.message : t("error.unknown"));
+        const attachmentFailure =
+          selected.length > 0 &&
+          (deliveryStage === "attachments" ||
+            code === "attachment_storage_unavailable" ||
+            code === "invalid_params");
+        if (attachmentFailure)
+          attachmentInput.setError(
+            code === "attachment_storage_unavailable"
+              ? t("error.attachment_storage_unavailable")
+              : sendError instanceof Error
+                ? sendError.message
+                : t("error.unknown"),
+          );
         if (deliveryCurrent() || !sessionsStore.getState().sessions[id]?.sending) {
           sessionsStore.getState().applySessionPatch(id, { awaitingResponse: false });
-          setError(attachmentFailure || (!deliveryCurrent() && !uncertain) ? null : uncertain ? "error.delivery_unknown" : errorKeyOf(sendError));
+          setError(
+            attachmentFailure || (!deliveryCurrent() && !uncertain)
+              ? null
+              : uncertain
+                ? "error.delivery_unknown"
+                : errorKeyOf(sendError),
+          );
         }
       } finally {
-        if (!pendingKey && filesKey && generation === daemonIdentity.getState().generation) setFiles(filesKey, []);
+        if (!pendingKey && filesKey && generation === daemonIdentity.getState().generation)
+          setFiles(filesKey, []);
         if (deliveryCurrent()) sessionsStore.getState().applySessionPatch(id, { sending: false });
       }
     },
@@ -317,8 +389,7 @@ export function Composer({
     setError(null);
     const generation = daemonIdentity.getState().generation;
     void stopSessionAction(sessionId).catch((stopError: unknown) => {
-      if (generation === daemonIdentity.getState().generation)
-        setError(errorKeyOf(stopError));
+      if (generation === daemonIdentity.getState().generation) setError(errorKeyOf(stopError));
     });
   };
 
@@ -365,200 +436,218 @@ export function Composer({
   return (
     <div className="composer-with-questions" style={{ position: "relative" }}>
       {nativeCommands.panel}
-      {question?.questions && <AsyncQuestions
-        key={`${sessionId}:${question.key ?? question.text}`}
-        questions={question.questions}
-        disabled={!canDeliver}
-        onAnswer={(answer) => {
-          if (!canDeliver || sessionId === undefined) return;
-          void deliver([answer, text.trim()].filter(Boolean).join("\n\n"), sessionId, [...attachmentInput.files]);
-        }}
-      />}
-      <div className="composer">
-      <AttachmentChips input={attachmentInput} disabled={!!session?.sending} />
-      <textarea
-        {...nativeCommands.inputProps}
-        ref={textareaRef}
-        onPaste={attachmentInput.onPaste}
-        className="composer-input"
-        value={text}
-        aria-label={t("core.welcome.composer_placeholder")}
-        placeholder={t("core.welcome.composer_placeholder")}
-        rows={2}
-        disabled={disabled || externallyBlocked}
-        onChange={(event) => {
-          setText(event.target.value);
-        }}
-        onKeyDown={(event) => {
-          if (nativeCommands.onKeyDown(event)) return;
-          attachmentInput.onKeyDown(event);
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            submit();
-          }
-        }}
-      />
-      {modeNotice && <div role="status">{t(modeNotice)}</div>}
-      {error !== null && (
-        <div className="composer-error" role="alert">
-          <span className="composer-error-text">{t(error)}</span>
-          <button
-            type="button"
-            className="composer-error-dismiss"
-            aria-label={t("core.actions.close")}
-            onClick={() => setError(null)}
-          >
-            <X size={12} aria-hidden="true" />
-          </button>
-        </div>
-      )}
-      <div className="composer-tools">
-        <AttachmentButton
-          input={attachmentInput}
-          disabled={attachmentsBlocked || externallyBlocked}
+      {question?.questions && (
+        <AsyncQuestions
+          key={`${sessionId}:${question.key ?? question.text}`}
+          questions={question.questions}
+          disabled={!canDeliver}
+          onAnswer={(answer) => {
+            if (!canDeliver || sessionId === undefined) return;
+            void deliver([answer, text.trim()].filter(Boolean).join("\n\n"), sessionId, [
+              ...attachmentInput.files,
+            ]);
+          }}
         />
-        <span className="composer-spacer" aria-hidden="true" />
-        {sessionId === undefined ? (
-          <span className="composer-chip composer-chip--agent" title={harness}>
-            <HarnessMark harness={harnessKind ?? ""} size={14} />
-            <span className="composer-chip-label">{harness}</span>
-          </span>
-        ) : null}
-        {harnessKind !== undefined && (capabilities?.permissionModes ?? HARNESS_MODES[harnessKind]).length > 0 && (
-          <div className="composer-chip-anchor" ref={permissionsAnchorRef}>
+      )}
+      <div className="composer">
+        <AttachmentChips input={attachmentInput} disabled={!!session?.sending} />
+        <textarea
+          {...nativeCommands.inputProps}
+          ref={textareaRef}
+          onPaste={attachmentInput.onPaste}
+          className="composer-input"
+          value={text}
+          aria-label={t("core.welcome.composer_placeholder")}
+          placeholder={t("core.welcome.composer_placeholder")}
+          rows={2}
+          disabled={disabled || externallyBlocked}
+          onChange={(event) => {
+            setText(event.target.value);
+          }}
+          onKeyDown={(event) => {
+            if (nativeCommands.onKeyDown(event)) return;
+            attachmentInput.onKeyDown(event);
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              submit();
+            }
+          }}
+        />
+        {modeNotice && <div role="status">{t(modeNotice)}</div>}
+        {error !== null && (
+          <div className="composer-error" role="alert">
+            <span className="composer-error-text">{t(error)}</span>
             <button
               type="button"
-              className="composer-chip composer-permissions"
-              data-setting-tone={permissionTone(
-                harnessKind,
-                session?.resumeMode ?? session?.interactionMode ?? "",
-              )}
-              aria-label={t("core.start.mode")}
-              aria-haspopup="dialog"
-              aria-expanded={permissionsOpen}
-              title={t(
-                live ? "core.composer.permissions_live" : "core.composer.permissions_resume",
-              )}
-              disabled={modePending || disabled || session?.sending || (!live && !resumable)}
-              onClick={() => {
-                setModelOpen(false);
-                setPermissionsOpen((open) => !open);
-              }}
+              className="composer-error-dismiss"
+              aria-label={t("core.actions.close")}
+              onClick={() => setError(null)}
             >
-              <PermissionModeIcon
-                harness={harnessKind}
-                mode={session?.resumeMode ?? session?.interactionMode ?? ""}
-              />
-              <span className="composer-chip-label">
-                {permissionLabel(
-                  harnessKind,
-                  session?.resumeMode ?? session?.interactionMode ?? "",
-                  t,
-                )}
-              </span>
-              <ChevronDown size={12} aria-hidden="true" />
+              <X size={12} aria-hidden="true" />
             </button>
-            {permissionsOpen && (
-              <ChipPopover
-                anchorRef={permissionsAnchorRef}
-                className="permission-popover"
-                onClose={() => setPermissionsOpen(false)}
-              >
-                <PermissionMenu
-                  harness={harnessKind}
-                  modes={capabilities?.permissionModes}
-                  selected={session?.resumeMode ?? session?.interactionMode ?? ""}
-                  onSelect={(mode) => {
-                    setPermissionsOpen(false);
-                    if (sessionId === undefined) return;
-                    if (!live) {
-                      sessionsStore.getState().applySessionPatch(sessionId, { resumeMode: mode });
-                      return;
-                    }
-                    setModePending(true);
-                    setError(null);
-                    void sessionFeed.setMode(sessionId, mode).then((result) => {
-                      sessionsStore.getState().applySessionPatch(sessionId, {
-                        interactionMode: result.mode,
-                        resumeMode: undefined,
-                      });
-                      setModeNotice(result.outcome === "restarted"
-                        ? "core.composer.permissions_restarted"
-                        : result.outcome === "next_turn_applied"
-                        ? "core.composer.permissions_next_turn"
-                        : result.outcome === "hook_policy_applied"
-                          ? "core.composer.permissions_hooks" : null);
-                    }).catch((modeError: unknown) => {
-                      setError(errorKeyOf(modeError));
-                    }).finally(() => setModePending(false));
-                  }}
-                />
-              </ChipPopover>
-            )}
           </div>
         )}
-        {session ? <SessionProtection session={session} /> : null}
-        <div className="composer-chip-anchor composer-chip-anchor--model" ref={modelAnchorRef}>
-          {sessionId !== undefined ? (
-            <span className="composer-model-harness">{harness}</span>
+        <div className="composer-tools">
+          <AttachmentButton
+            input={attachmentInput}
+            disabled={attachmentsBlocked || externallyBlocked}
+          />
+          <span className="composer-spacer" aria-hidden="true" />
+          {sessionId === undefined ? (
+            <span className="composer-chip composer-chip--agent" title={harness}>
+              <HarnessMark harness={harnessKind ?? ""} size={14} />
+              <span className="composer-chip-label">{harness}</span>
+            </span>
           ) : null}
+          {harnessKind !== undefined &&
+            (capabilities?.permissionModes ?? HARNESS_MODES[harnessKind]).length > 0 && (
+              <div className="composer-chip-anchor" ref={permissionsAnchorRef}>
+                <button
+                  type="button"
+                  className="composer-chip composer-permissions"
+                  data-setting-tone={permissionTone(
+                    harnessKind,
+                    session?.resumeMode ?? session?.interactionMode ?? "",
+                  )}
+                  aria-label={t("core.start.mode")}
+                  aria-haspopup="dialog"
+                  aria-expanded={permissionsOpen}
+                  title={t(
+                    live ? "core.composer.permissions_live" : "core.composer.permissions_resume",
+                  )}
+                  disabled={modePending || disabled || session?.sending || (!live && !resumable)}
+                  onClick={() => {
+                    setModelOpen(false);
+                    setPermissionsOpen((open) => !open);
+                  }}
+                >
+                  <PermissionModeIcon
+                    harness={harnessKind}
+                    mode={session?.resumeMode ?? session?.interactionMode ?? ""}
+                  />
+                  <span className="composer-chip-label">
+                    {permissionLabel(
+                      harnessKind,
+                      session?.resumeMode ?? session?.interactionMode ?? "",
+                      t,
+                    )}
+                  </span>
+                  <ChevronDown size={12} aria-hidden="true" />
+                </button>
+                {permissionsOpen && (
+                  <ChipPopover
+                    anchorRef={permissionsAnchorRef}
+                    className="permission-popover"
+                    onClose={() => setPermissionsOpen(false)}
+                  >
+                    <PermissionMenu
+                      harness={harnessKind}
+                      modes={capabilities?.permissionModes}
+                      selected={session?.resumeMode ?? session?.interactionMode ?? ""}
+                      onSelect={(mode) => {
+                        setPermissionsOpen(false);
+                        if (sessionId === undefined) return;
+                        if (!live) {
+                          sessionsStore
+                            .getState()
+                            .applySessionPatch(sessionId, { resumeMode: mode });
+                          return;
+                        }
+                        setModePending(true);
+                        setError(null);
+                        void sessionFeed
+                          .setMode(sessionId, mode)
+                          .then((result) => {
+                            sessionsStore.getState().applySessionPatch(sessionId, {
+                              interactionMode: result.mode,
+                              resumeMode: undefined,
+                            });
+                            setModeNotice(
+                              result.outcome === "restarted"
+                                ? "core.composer.permissions_restarted"
+                                : result.outcome === "next_turn_applied"
+                                  ? "core.composer.permissions_next_turn"
+                                  : result.outcome === "hook_policy_applied"
+                                    ? "core.composer.permissions_hooks"
+                                    : null,
+                            );
+                          })
+                          .catch((modeError: unknown) => {
+                            setError(errorKeyOf(modeError));
+                          })
+                          .finally(() => setModePending(false));
+                      }}
+                    />
+                  </ChipPopover>
+                )}
+              </div>
+            )}
+          {session ? <SessionProtection session={session} /> : null}
+          <div className="composer-chip-anchor composer-chip-anchor--model" ref={modelAnchorRef}>
+            {sessionId !== undefined ? (
+              <span className="composer-model-harness">{harness}</span>
+            ) : null}
+            <button
+              type="button"
+              className="composer-chip"
+              disabled={!wired || disabled || externallyBlocked}
+              aria-haspopup="dialog"
+              aria-expanded={modelOpen}
+              aria-label={t("core.start.model")}
+              title={wired ? undefined : t("core.composer.model_locked")}
+              onClick={() => {
+                setModelOpen((value) => !value);
+              }}
+            >
+              {modelShown ? (
+                <>
+                  <span className="composer-chip-label">
+                    {nativeHarness(modelRef)
+                      ? modelRef.endsWith("/default")
+                        ? t("core.providers.native_default")
+                        : (modelCatalog?.display_name ?? splitModelRef(modelRef).name)
+                      : modelRef}
+                  </span>
+                  {visibleEffort !== null ? (
+                    <span className="composer-chip-suffix">{visibleEffort}</span>
+                  ) : null}
+                </>
+              ) : (
+                <span className="composer-chip-suffix">—</span>
+              )}
+              <ChevronDown size={12} aria-hidden="true" />
+            </button>
+            {modelOpen && wired ? (
+              <ModelPopover
+                anchorRef={modelAnchorRef}
+                onClose={() => {
+                  setModelOpen(false);
+                }}
+                allowNative={permitsNative(session ?? {})}
+                harness={harnessKind}
+                cwd={session?.projectPath}
+                onSelect={swapModel}
+                onSelectEffort={swapEffort}
+                currentEffort={effort}
+                currentModel={modelShown ? modelRef : undefined}
+              />
+            ) : null}
+          </div>
           <button
             type="button"
-            className="composer-chip"
-            disabled={!wired || disabled || externallyBlocked}
-            aria-haspopup="dialog"
-            aria-expanded={modelOpen}
-            aria-label={t("core.start.model")}
-            title={wired ? undefined : t("core.composer.model_locked")}
-            onClick={() => {
-              setModelOpen((value) => !value);
-            }}
+            className="composer-send"
+            aria-label={t(showStop ? "core.actions.stop" : "core.actions.send")}
+            title={showStop ? t("core.actions.stop") : sendTitle}
+            disabled={showStop ? !!session?.stopping : !canSend}
+            onClick={showStop ? stop : submit}
           >
-            {modelShown ? (
-              <>
-                <span className="composer-chip-label">
-                  {nativeHarness(modelRef)
-                    ? modelRef.endsWith("/default")
-                      ? t("core.providers.native_default")
-                      : (modelCatalog?.display_name ?? splitModelRef(modelRef).name)
-                    : modelRef}
-                </span>
-                {visibleEffort !== null ? (
-                  <span className="composer-chip-suffix">{visibleEffort}</span>
-                ) : null}
-              </>
+            {showStop ? (
+              <Square size={12} fill="currentColor" aria-hidden="true" />
             ) : (
-              <span className="composer-chip-suffix">—</span>
+              <ArrowUp size={14} aria-hidden="true" />
             )}
-            <ChevronDown size={12} aria-hidden="true" />
           </button>
-          {modelOpen && wired ? (
-            <ModelPopover
-              anchorRef={modelAnchorRef}
-              onClose={() => {
-                setModelOpen(false);
-              }}
-              allowNative={permitsNative(session ?? {})}
-              harness={harnessKind}
-              cwd={session?.projectPath}
-              onSelect={swapModel}
-              onSelectEffort={swapEffort}
-              currentEffort={effort}
-              currentModel={modelShown ? modelRef : undefined}
-            />
-          ) : null}
         </div>
-        <button
-          type="button"
-          className="composer-send"
-          aria-label={t(showStop ? "core.actions.stop" : "core.actions.send")}
-          title={showStop ? t("core.actions.stop") : sendTitle}
-          disabled={showStop ? !!session?.stopping : !canSend}
-          onClick={showStop ? stop : submit}
-        >
-          {showStop ? <Square size={12} fill="currentColor" aria-hidden="true" /> : <ArrowUp size={14} aria-hidden="true" />}
-        </button>
-      </div>
       </div>
     </div>
   );

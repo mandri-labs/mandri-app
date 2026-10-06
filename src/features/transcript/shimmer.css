@@ -21,14 +21,19 @@
     background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    animation: transcript-shimmer 4s linear .6s infinite;
+    animation: transcript-shimmer 4s linear 0.6s infinite;
   }
 }
 
 /* A one-second left-to-right sweep followed by three seconds at rest. */
 @keyframes transcript-shimmer {
-  0% { background-position: 100% 0; }
-  25%, 100% { background-position: 0% 0; }
+  0% {
+    background-position: 100% 0;
+  }
+  25%,
+  100% {
+    background-position: 0% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce), (forced-colors: active) {

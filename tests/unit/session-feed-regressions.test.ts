@@ -168,7 +168,9 @@ it("reconciles an explicit history change in a newly created session", async () 
   const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
   service.ensureSession("s1", "claude", { newSession: true });
   service.ingestSessionFrame("s1", "claude", {
-    ...event(1, "changed"), source: "mandri", raw: { type: "history_changed" },
+    ...event(1, "changed"),
+    source: "mandri",
+    raw: { type: "history_changed" },
   });
   await service.loadHistory("s1");
   expect(fetch).toHaveBeenCalledTimes(1);
@@ -286,39 +288,50 @@ it("merges history with live messages in both arrival orders without merging dis
   expect(service.getNodes("s1")).toHaveLength(2);
 });
 
-it.each([false, true])("restores Claude string prompts without duplicate live echoes (history first: %s)", async (historyFirst) => {
-  const stored = { ...raw("prompt", "Hello"), message: { role: "user", content: "Hello" } };
-  const service = new SessionFeedService({
-    fetchHistoryPage: async () => ({ ...page(), entries: [JSON.stringify(stored)] }),
-    getSocket: () => null,
-  });
-  service.ensureSession("s1", "claude");
-  if (historyFirst) await service.loadHistory("s1");
-  service.ingestSessionFrame("s1", "claude", event(1, "prompt", "Hello"));
-  await service.loadHistory("s1", { refresh: true });
-  expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "Hello", key: "prompt:user:0" }]);
-  service.closeSession("s1");
-  service.ensureSession("s1", "claude");
-  await service.loadHistory("s1");
-  expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "Hello", key: "prompt:user:0" }]);
-});
+it.each([false, true])(
+  "restores Claude string prompts without duplicate live echoes (history first: %s)",
+  async (historyFirst) => {
+    const stored = { ...raw("prompt", "Hello"), message: { role: "user", content: "Hello" } };
+    const service = new SessionFeedService({
+      fetchHistoryPage: async () => ({ ...page(), entries: [JSON.stringify(stored)] }),
+      getSocket: () => null,
+    });
+    service.ensureSession("s1", "claude");
+    if (historyFirst) await service.loadHistory("s1");
+    service.ingestSessionFrame("s1", "claude", event(1, "prompt", "Hello"));
+    await service.loadHistory("s1", { refresh: true });
+    expect(service.getNodes("s1")).toMatchObject([
+      { kind: "user", text: "Hello", key: "prompt:user:0" },
+    ]);
+    service.closeSession("s1");
+    service.ensureSession("s1", "claude");
+    await service.loadHistory("s1");
+    expect(service.getNodes("s1")).toMatchObject([
+      { kind: "user", text: "Hello", key: "prompt:user:0" },
+    ]);
+  },
+);
 
 it("ignores legacy usage collection warnings without hiding transcript errors", () => {
   const service = new SessionFeedService({ getSocket: () => null });
   for (const seq of [1, 2]) {
     service.ingestSessionFrame("s1", "claude", {
-      ...event(seq, "usage"), source: "mandri", raw: { error: "usage_collection_failed" },
+      ...event(seq, "usage"),
+      source: "mandri",
+      raw: { error: "usage_collection_failed" },
     });
   }
   service.ingestSessionFrame("s1", "claude", event(3, "prompt", "Hello"));
-  expect(service.getNodes("s1")).toMatchObject([
-    { kind: "user", text: "Hello" },
-  ]);
+  expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "Hello" }]);
   expect(service.getFlags("s1").gapFlag).toBe(false);
   service.ingestSessionFrame("s1", "claude", {
-    ...event(4, "corrupt"), source: "mandri", raw: { error: "parse_error", size: 100 },
+    ...event(4, "corrupt"),
+    source: "mandri",
+    raw: { error: "parse_error", size: 100 },
   });
-  expect(service.getNodes("s1").at(-1)).toMatchObject({ messageKey: "core.transcript.feed_degraded" });
+  expect(service.getNodes("s1").at(-1)).toMatchObject({
+    messageKey: "core.transcript.feed_degraded",
+  });
 });
 
 it("does not let a closed buffer overwrite its replacement", async () => {
@@ -542,35 +555,58 @@ it.each(["live completion", "new prompt"])(
   },
 );
 
-
 it("keeps Codex steering after the initial prompt through history refresh and event replay", async () => {
   let entries: string[] = [];
-  const service = new SessionFeedService({ fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }) });
+  const service = new SessionFeedService({
+    fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }),
+  });
   service.ensureSession("s1", "codex");
   await service.loadHistory("s1");
-  const user = (id: string, text: string) => ({ method: "item/completed", params: {
-    turnId: "turn", item: { type: "userMessage", id, content: [{ type: "text", text }] },
-  } });
-  const ingest = (seq: number, raw: unknown) => service.ingestSessionFrame("s1", "codex", {
-    topic: "session.s1", seq, ts: seq, source: "codex", raw,
+  const user = (id: string, text: string) => ({
+    method: "item/completed",
+    params: {
+      turnId: "turn",
+      item: { type: "userMessage", id, content: [{ type: "text", text }] },
+    },
   });
-  const texts = () => service.getNodes("s1").flatMap((node) => "text" in node ? [node.text] : []);
+  const ingest = (seq: number, raw: unknown) =>
+    service.ingestSessionFrame("s1", "codex", {
+      topic: "session.s1",
+      seq,
+      ts: seq,
+      source: "codex",
+      raw,
+    });
+  const texts = () => service.getNodes("s1").flatMap((node) => ("text" in node ? [node.text] : []));
   ingest(1, user("initial", "Implement the feature"));
-  ingest(2, { method: "item/completed", params: {
-    turnId: "turn", item: { type: "agentMessage", id: "answer", text: "Working" },
-  } });
+  ingest(2, {
+    method: "item/completed",
+    params: {
+      turnId: "turn",
+      item: { type: "agentMessage", id: "answer", text: "Working" },
+    },
+  });
   transcriptStore.getState().addPendingUser("s1", "Include the second provider");
   ingest(3, user("steering", "Include the second provider"));
   const expected = ["Implement the feature", "Working", "Include the second provider"];
   expect(texts()).toEqual(expected);
   expect(transcriptStore.getState().transcripts.s1!.pendingUsers).toHaveLength(0);
-  entries = expected.map((text, index) => JSON.stringify({
-    timestamp: `2026-01-01T00:00:0${index}Z`, type: "response_item", payload: {
-      type: "message", role: index === 1 ? "assistant" : "user", id: index === 1 ? "answer" : undefined,
-      content: [{ type: index === 1 ? "output_text" : "input_text", text }],
-      internal_chat_message_metadata_passthrough: { turn_id: "turn", content_item_kinds: ["user.text"] },
-    },
-  }));
+  entries = expected.map((text, index) =>
+    JSON.stringify({
+      timestamp: `2026-01-01T00:00:0${index}Z`,
+      type: "response_item",
+      payload: {
+        type: "message",
+        role: index === 1 ? "assistant" : "user",
+        id: index === 1 ? "answer" : undefined,
+        content: [{ type: index === 1 ? "output_text" : "input_text", text }],
+        internal_chat_message_metadata_passthrough: {
+          turn_id: "turn",
+          content_item_kinds: ["user.text"],
+        },
+      },
+    }),
+  );
   await service.loadHistory("s1", { refresh: true });
   expect(texts()).toEqual(expected);
   ingest(4, user("steering", "Include the second provider"));
@@ -580,37 +616,67 @@ it("keeps Codex steering after the initial prompt through history refresh and ev
   expect(transcriptStore.getState().transcripts.s1!.localUsers).toHaveLength(0);
 });
 
-
 it("acknowledges persisted steering sent before the first assistant response", async () => {
   let entries: string[] = [];
-  const service = new SessionFeedService({ fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }) });
+  const service = new SessionFeedService({
+    fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }),
+  });
   service.ensureSession("s1", "codex");
   await service.loadHistory("s1");
-  const ingest = (seq: number, text: string) => service.ingestSessionFrame("s1", "codex", {
-    topic: "session.s1", seq, ts: seq, source: "codex", raw: { method: "item/completed", params: {
-      turnId: "turn", item: { type: "userMessage", id: `user-${seq}`, content: [{ type: "text", text }] },
-    } },
-  });
+  const ingest = (seq: number, text: string) =>
+    service.ingestSessionFrame("s1", "codex", {
+      topic: "session.s1",
+      seq,
+      ts: seq,
+      source: "codex",
+      raw: {
+        method: "item/completed",
+        params: {
+          turnId: "turn",
+          item: { type: "userMessage", id: `user-${seq}`, content: [{ type: "text", text }] },
+        },
+      },
+    });
   ingest(1, "Initial prompt");
   transcriptStore.getState().addPendingUser("s1", "Steering");
   ingest(2, "Steering");
-  entries = ["Initial prompt", "Steering"].map((text, index) => JSON.stringify({
-    timestamp: `2026-01-01T00:00:0${index}Z`, type: "response_item", payload: {
-      type: "message", role: "user", content: [{ type: "input_text", text }],
-      internal_chat_message_metadata_passthrough: { turn_id: "turn", content_item_kinds: ["user.text"] },
-    },
-  }));
+  entries = ["Initial prompt", "Steering"].map((text, index) =>
+    JSON.stringify({
+      timestamp: `2026-01-01T00:00:0${index}Z`,
+      type: "response_item",
+      payload: {
+        type: "message",
+        role: "user",
+        content: [{ type: "input_text", text }],
+        internal_chat_message_metadata_passthrough: {
+          turn_id: "turn",
+          content_item_kinds: ["user.text"],
+        },
+      },
+    }),
+  );
   await service.loadHistory("s1", { refresh: true });
   expect(transcriptStore.getState().transcripts.s1!.localUsers).toHaveLength(0);
-  expect(service.getNodes("s1").map((node) => "text" in node ? node.text : undefined)).toEqual(["Initial prompt", "Steering"]);
+  expect(service.getNodes("s1").map((node) => ("text" in node ? node.text : undefined))).toEqual([
+    "Initial prompt",
+    "Steering",
+  ]);
 });
 
 it("restores OpenCode part identity from history before the next live delta", async () => {
   const entries = [
     { type: "message.updated", properties: { info: { id: "assistant", role: "assistant" } } },
-    { type: "message.part.updated", properties: { part: { id: "reasoning", messageID: "assistant", type: "reasoning", text: "Before" } } },
+    {
+      type: "message.part.updated",
+      properties: {
+        part: { id: "reasoning", messageID: "assistant", type: "reasoning", text: "Before" },
+      },
+    },
     { type: "message.updated", properties: { info: { id: "user", role: "user" } } },
-    { type: "message.part.updated", properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } } },
+    {
+      type: "message.part.updated",
+      properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } },
+    },
   ].map((raw) => JSON.stringify(raw));
   const service = new SessionFeedService({
     fetchHistoryPage: async () => ({ entries, next_cursor: null, has_more: false }),
@@ -618,12 +684,22 @@ it("restores OpenCode part identity from history before the next live delta", as
   });
   service.ensureSession("s1", "opencode");
   await service.loadHistory("s1");
-  service.ingestSessionFrame("s1", "opencode", { ...event(1, "delta"), source: "opencode", raw: {
-    type: "message.part.delta", properties: { partID: "reasoning", field: "text", delta: " after" },
-  } });
-  service.ingestSessionFrame("s1", "opencode", { ...event(2, "prompt"), source: "opencode", raw: {
-    type: "message.part.updated", properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } },
-  } });
+  service.ingestSessionFrame("s1", "opencode", {
+    ...event(1, "delta"),
+    source: "opencode",
+    raw: {
+      type: "message.part.delta",
+      properties: { partID: "reasoning", field: "text", delta: " after" },
+    },
+  });
+  service.ingestSessionFrame("s1", "opencode", {
+    ...event(2, "prompt"),
+    source: "opencode",
+    raw: {
+      type: "message.part.updated",
+      properties: { part: { id: "prompt", messageID: "user", type: "text", text: "Prompt" } },
+    },
+  });
   expect(service.getNodes("s1")).toMatchObject([
     { kind: "thinking", text: "Before after", key: "reasoning" },
     { kind: "user", text: "Prompt", key: "prompt" },
@@ -631,40 +707,72 @@ it("restores OpenCode part identity from history before the next live delta", as
 });
 
 it("does not let an old history response overwrite fresh external activity", async () => {
-  sessionsStore.setState({ sessions: { s1: { id: "s1", harness: "opencode", state: "discovered", title: "External", deleted: false, pendingApprovals: 0, externalBusy: false } } });
+  sessionsStore.setState({
+    sessions: {
+      s1: {
+        id: "s1",
+        harness: "opencode",
+        state: "discovered",
+        title: "External",
+        deleted: false,
+        pendingApprovals: 0,
+        externalBusy: false,
+      },
+    },
+  });
   let resolve!: (page: HistoryPage) => void;
-  const service = new SessionFeedService({ fetchHistoryPage: () => new Promise((done) => { resolve = done; }), getSocket: () => null });
+  const service = new SessionFeedService({
+    fetchHistoryPage: () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+    getSocket: () => null,
+  });
   service.ensureSession("s1", "opencode");
   const loading = service.loadHistory("s1");
-  sessionsStore.getState().applySessionPatch("s1", { externalBusy: true, externalModel: "current" });
+  sessionsStore
+    .getState()
+    .applySessionPatch("s1", { externalBusy: true, externalModel: "current" });
   resolve({ ...page(), external_busy: false, external_model: "previous" });
   await loading;
-  expect(sessionsStore.getState().sessions.s1).toMatchObject({ externalBusy: true, externalModel: "current" });
+  expect(sessionsStore.getState().sessions.s1).toMatchObject({
+    externalBusy: true,
+    externalModel: "current",
+  });
 });
 
 afterEach(() => vi.useRealTimers());
 
-it.each(["delivery_unknown", "service_unavailable"] as const)("retries %s history failures while still online without a transcript error", async (code) => {
-  vi.useFakeTimers();
-  const fetch = vi.fn().mockRejectedValueOnce(new DaemonError({ code, message: "socket disconnected" })).mockResolvedValueOnce(page("recovered"));
-  const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
-  service.ensureSession("s1", "claude");
-  const loading = service.loadHistory("s1");
-  await vi.advanceTimersByTimeAsync(499);
-  expect(fetch).toHaveBeenCalledTimes(1);
-  expect(service.getFlags("s1").historyUnavailable).toBe(false);
-  expect(service.getNodes("s1")).toEqual([]);
-  await vi.advanceTimersByTimeAsync(1);
-  await loading;
-  expect(fetch).toHaveBeenCalledTimes(2);
-  expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "recovered" }]);
-});
+it.each(["delivery_unknown", "service_unavailable"] as const)(
+  "retries %s history failures while still online without a transcript error",
+  async (code) => {
+    vi.useFakeTimers();
+    const fetch = vi
+      .fn()
+      .mockRejectedValueOnce(new DaemonError({ code, message: "socket disconnected" }))
+      .mockResolvedValueOnce(page("recovered"));
+    const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
+    service.ensureSession("s1", "claude");
+    const loading = service.loadHistory("s1");
+    await vi.advanceTimersByTimeAsync(499);
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(service.getFlags("s1").historyUnavailable).toBe(false);
+    expect(service.getNodes("s1")).toEqual([]);
+    await vi.advanceTimersByTimeAsync(1);
+    await loading;
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(service.getNodes("s1")).toMatchObject([{ kind: "user", text: "recovered" }]);
+  },
+);
 
 it("retries the same older history page before a queued reconnect refresh", async () => {
   vi.useFakeTimers();
-  const fetch = vi.fn()
+  const fetch = vi
+    .fn()
     .mockResolvedValueOnce({ ...page("recent"), next_cursor: "older", has_more: true })
-    .mockRejectedValueOnce(new DaemonError({ code: "delivery_unknown", message: "lost history response" }))
+    .mockRejectedValueOnce(
+      new DaemonError({ code: "delivery_unknown", message: "lost history response" }),
+    )
     .mockResolvedValueOnce(page("old"))
     .mockResolvedValueOnce(page("recent", "new"));
   const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
@@ -675,15 +783,25 @@ it("retries the same older history page before a queued reconnect refresh", asyn
   await vi.advanceTimersByTimeAsync(10_000);
   expect(fetch).toHaveBeenCalledTimes(2);
   connectionStore.getState().setStatus("online");
-  service.ingestSessionFrame("s1", "claude", { op: "subscribed", topic: "session.s1", from_seq: 1 });
+  service.ingestSessionFrame("s1", "claude", {
+    op: "subscribed",
+    topic: "session.s1",
+    from_seq: 1,
+  });
   await older;
   expect(fetch.mock.calls.map((args) => args[1])).toEqual([null, "older", "older", null]);
-  expect(service.getNodes("s1").map((node) => "text" in node ? node.text : null)).toEqual(["old", "recent", "new"]);
+  expect(service.getNodes("s1").map((node) => ("text" in node ? node.text : null))).toEqual([
+    "old",
+    "recent",
+    "new",
+  ]);
 });
 
 it("backs off consecutive online history failures and cancels retry when the buffer closes", async () => {
   vi.useFakeTimers();
-  const fetch = vi.fn().mockRejectedValue(new DaemonError({ code: "service_unavailable", message: "try again" }));
+  const fetch = vi
+    .fn()
+    .mockRejectedValue(new DaemonError({ code: "service_unavailable", message: "try again" }));
   const service = new SessionFeedService({ fetchHistoryPage: fetch, getSocket: () => null });
   service.ensureSession("s1", "claude");
   const loading = service.loadHistory("s1");

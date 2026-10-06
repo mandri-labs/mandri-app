@@ -8,8 +8,10 @@ export function canShowFileSummary(session: SessionView | undefined): boolean {
   const external = session.availability;
   // Opening external history must not briefly imply completion before its
   // writer status has arrived.
-  const awaitingExternalStatus = session.state === "discovered" &&
-    session.externalBusy !== false && external?.activity !== "idle";
+  const awaitingExternalStatus =
+    session.state === "discovered" &&
+    session.externalBusy !== false &&
+    external?.activity !== "idle";
   return !(
     awaitingExternalStatus ||
     isSessionWorking(session) ||
@@ -17,7 +19,9 @@ export function canShowFileSummary(session: SessionView | undefined): boolean {
     session.sending ||
     session.awaitingResponse ||
     session.stopping ||
-    ["checking", "preparing_image", "preparing_state", "starting"].includes(session.executionPhase ?? "") ||
+    ["checking", "preparing_image", "preparing_state", "starting"].includes(
+      session.executionPhase ?? "",
+    ) ||
     external?.activity === "busy" ||
     (external?.owner === "external" && external.activity !== "idle")
   );

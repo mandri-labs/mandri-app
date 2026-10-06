@@ -106,9 +106,7 @@ const meta = {
   title: "Sessions/LifecycleMenu",
   component: LifecycleMenu,
   parameters: { layout: "centered" },
-  decorators: [
-    (Story: () => React.ReactElement) => <Wrapper>{<Story />}</Wrapper>,
-  ],
+  decorators: [(Story: () => React.ReactElement) => <Wrapper>{<Story />}</Wrapper>],
 } satisfies Meta<typeof LifecycleMenu>;
 
 export default meta;

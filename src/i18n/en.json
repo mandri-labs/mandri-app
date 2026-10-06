@@ -1,6 +1,15 @@
 {
   "core": {
-    "status": {"working":"Working", "waiting":"Waiting for input", "unknown":"Activity could not be confirmed", "unread_completed":"Completed · unread", "unread_failed":"Failed · unread", "unread_interrupted":"Interrupted · unread", "mark_read":"Mark as read", "read_error":"Unable to mark this conversation as read"},
+    "status": {
+      "working": "Working",
+      "waiting": "Waiting for input",
+      "unknown": "Activity could not be confirmed",
+      "unread_completed": "Completed · unread",
+      "unread_failed": "Failed · unread",
+      "unread_interrupted": "Interrupted · unread",
+      "mark_read": "Mark as read",
+      "read_error": "Unable to mark this conversation as read"
+    },
     "permissions": {
       "legacy": "Previous profile: {{mode}}",
       "claude": {

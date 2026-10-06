@@ -203,10 +203,7 @@
             "goal",
             "team-onboarding"
           ],
-          "terminal_slash_commands": [
-            "doctor",
-            "color"
-          ],
+          "terminal_slash_commands": ["doctor", "color"],
           "apiKeySource": "none",
           "claude_code_version": "2.1.240",
           "output_style": "default",

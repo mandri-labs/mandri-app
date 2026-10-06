@@ -29,18 +29,9 @@ const TEST_TIMEOUT_MS = 600000;
 
 const originalRect = Element.prototype.getBoundingClientRect;
 const originalScrollHeight = Object.getOwnPropertyDescriptor(Element.prototype, "scrollHeight");
-const originalClientHeight = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "clientHeight",
-);
-const originalOffsetHeight = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "offsetHeight",
-);
-const originalOffsetWidth = Object.getOwnPropertyDescriptor(
-  HTMLElement.prototype,
-  "offsetWidth",
-);
+const originalClientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight");
+const originalOffsetHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetHeight");
+const originalOffsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "offsetWidth");
 
 const SESSION_IDS = ["pane-bench-0", "pane-bench-1", "pane-bench-2", "pane-bench-3"];
 
@@ -384,9 +375,9 @@ describe("4-pane streaming benchmark", () => {
 
       for (const paneIndex of SESSION_IDS.keys()) {
         const viewport = viewportAt(viewports, paneIndex);
-        expect(
-          viewport.textContent ?? "",
-        ).toContain(`Pane append ${paneIndex}:${APPENDS_PER_PANE - 1}`);
+        expect(viewport.textContent ?? "").toContain(
+          `Pane append ${paneIndex}:${APPENDS_PER_PANE - 1}`,
+        );
       }
 
       for (const viewport of viewports) {
@@ -437,7 +428,9 @@ describe("4-pane streaming benchmark", () => {
       const after = viewportAt(viewports, 1).textContent ?? "";
       expect(after).toBe(before);
       expect(container.querySelectorAll(".transcript--compact")).toHaveLength(1);
-      expect(viewportAt(viewports, 1).closest(".transcript")?.classList.contains("transcript--compact")).toBe(true);
+      expect(
+        viewportAt(viewports, 1).closest(".transcript")?.classList.contains("transcript--compact"),
+      ).toBe(true);
       for (const viewport of viewports) {
         expect((viewport.textContent ?? "").length).toBeGreaterThan(0);
       }

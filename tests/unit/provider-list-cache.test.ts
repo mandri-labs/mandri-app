@@ -13,9 +13,14 @@ afterEach(() => vi.restoreAllMocks());
 it("shares concurrent loads and cached results until freshness expires", async () => {
   const now = vi.spyOn(Date, "now").mockReturnValue(1000);
   let finish!: (rows: unknown[]) => void;
-  request.mockReturnValueOnce(new Promise((resolve) => { finish = resolve; }));
+  request.mockReturnValueOnce(
+    new Promise((resolve) => {
+      finish = resolve;
+    }),
+  );
   const { listProviders } = await import("@/daemon/rest/providers");
-  const first = listProviders(), second = listProviders();
+  const first = listProviders(),
+    second = listProviders();
   expect(request).toHaveBeenCalledTimes(1);
   finish([]);
   await Promise.all([first, second]);
@@ -42,7 +47,13 @@ it("invalidates after provider mutations and does not cache failures", async () 
 
 it("does not let an old in-flight response repopulate an invalidated cache", async () => {
   let finish!: (rows: unknown[]) => void;
-  request.mockReturnValueOnce(new Promise((resolve) => { finish = resolve; })).mockResolvedValue([]);
+  request
+    .mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    )
+    .mockResolvedValue([]);
   const { listProviders, deleteProvider } = await import("@/daemon/rest/providers");
   const old = listProviders();
   await deleteProvider("example");

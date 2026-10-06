@@ -1,11 +1,29 @@
 import { useLayoutEffect, useRef } from "react";
 
 const MEASUREMENT_STYLES = [
-  "box-sizing", "font-family", "font-size", "font-style", "font-weight",
-  "font-variation-settings", "line-height", "letter-spacing", "word-spacing",
-  "text-indent", "text-transform", "tab-size", "white-space", "word-break",
-  "overflow-wrap", "padding-top", "padding-bottom", "padding-left", "padding-right",
-  "border-top-width", "border-bottom-width", "border-left-width", "border-right-width",
+  "box-sizing",
+  "font-family",
+  "font-size",
+  "font-style",
+  "font-weight",
+  "font-variation-settings",
+  "line-height",
+  "letter-spacing",
+  "word-spacing",
+  "text-indent",
+  "text-transform",
+  "tab-size",
+  "white-space",
+  "word-break",
+  "overflow-wrap",
+  "padding-top",
+  "padding-bottom",
+  "padding-left",
+  "padding-right",
+  "border-top-width",
+  "border-bottom-width",
+  "border-left-width",
+  "border-right-width",
   "border-style",
 ] as const;
 
@@ -39,7 +57,8 @@ export function useComposerAutosize() {
     mirror.setAttribute("aria-hidden", "true");
     mirror.tabIndex = -1;
     mirror.wrap = input.wrap;
-    mirror.style.cssText = "position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none;contain:strict;height:0;min-height:0;max-height:none;overflow:hidden;";
+    mirror.style.cssText =
+      "position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none;contain:strict;height:0;min-height:0;max-height:none;overflow:hidden;";
     document.body.append(mirror);
     let borderHeight = 0;
     const measureStyle = () => {
@@ -48,9 +67,10 @@ export function useComposerAutosize() {
         mirror.style.setProperty(property, style.getPropertyValue(property));
       }
       const borderWidth = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-      borderHeight = style.boxSizing === "border-box"
-        ? parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
-        : -(parseFloat(style.paddingTop) + parseFloat(style.paddingBottom));
+      borderHeight =
+        style.boxSizing === "border-box"
+          ? parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
+          : -(parseFloat(style.paddingTop) + parseFloat(style.paddingBottom));
       mirror.style.width = `${input.clientWidth + (style.boxSizing === "border-box" ? borderWidth : -(parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)))}px`;
     };
 
@@ -58,13 +78,20 @@ export function useComposerAutosize() {
       const previous = attached.current?.value;
       // Normal typing can only grow the existing field. Reuse its incremental
       // text layout; reserve the mirror for deletions, replaced drafts and widths.
-      const appended = !remeasure && previous !== undefined && input.value.length > previous.length && input.value.startsWith(previous);
+      const appended =
+        !remeasure &&
+        previous !== undefined &&
+        input.value.length > previous.length &&
+        input.value.startsWith(previous);
       if (!appended) mirror.value = input.value || input.placeholder;
       const height = `${(appended ? input.scrollHeight : mirror.scrollHeight) + borderHeight}px`;
       if (input.style.height !== height) input.style.height = height;
       if (attached.current) attached.current.value = input.value;
     };
-    const remeasure = () => { measureStyle(); resize(true); };
+    const remeasure = () => {
+      measureStyle();
+      resize(true);
+    };
     let width: number | undefined;
     const observer = new ResizeObserver(([entry]) => {
       const nextWidth = entry?.contentRect.width;
@@ -77,7 +104,9 @@ export function useComposerAutosize() {
     window.addEventListener("resize", remeasure);
     document.fonts?.addEventListener("loadingdone", remeasure);
     attached.current = {
-      input, value: input.value, resize,
+      input,
+      value: input.value,
+      resize,
       dispose: () => {
         observer.disconnect();
         window.removeEventListener("resize", remeasure);
@@ -88,10 +117,13 @@ export function useComposerAutosize() {
     remeasure();
   });
 
-  useLayoutEffect(() => () => {
-    attached.current?.dispose();
-    attached.current = null;
-  }, []);
+  useLayoutEffect(
+    () => () => {
+      attached.current?.dispose();
+      attached.current = null;
+    },
+    [],
+  );
 
   return ref;
 }

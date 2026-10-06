@@ -28,7 +28,9 @@ beforeEach(() => {
 
 it("keeps the chosen remote endpoint when local desktop startup finishes later", async () => {
   let finish!: (url: string) => void;
-  const startup = new Promise<string>((resolve) => { finish = resolve; });
+  const startup = new Promise<string>((resolve) => {
+    finish = resolve;
+  });
   vi.mocked(ensureDesktopDaemon).mockReturnValue(startup);
   connectDaemon();
   preferencesStore.getState().setDaemonBaseUrl("https://studio.example");
@@ -42,7 +44,9 @@ it("keeps the chosen remote endpoint when local desktop startup finishes later",
 
 it("ignores an obsolete local startup failure after switching to a remote endpoint", async () => {
   let fail!: (reason: Error) => void;
-  const startup = new Promise<string>((_, reject) => { fail = reject; });
+  const startup = new Promise<string>((_, reject) => {
+    fail = reject;
+  });
   vi.mocked(ensureDesktopDaemon).mockReturnValue(startup);
   connectDaemon();
   connectionStore.getState().setStartupError("Previous startup error");

@@ -137,97 +137,99 @@ export function LifecycleMenu({ session, className = "" }: LifecycleMenuProps) {
       >
         <MoreVertical size={14} aria-hidden="true" />
       </button>
-      {open ? createPortal(
-        <div ref={menuRef} className="lifecycle-popover" role="menu">
-          <ConversationReadItem target={`session:${session.id}`} disabled={busy} run={run} />
-          {canCreate && (
-            <button
-              type="button"
-              role="menuitem"
-              className="lifecycle-item"
-              disabled={busy}
-              onClick={() => setOverlay("agent")}
-            >
-              {t("core.agents.create")}
-            </button>
-          )}
-          {permitsNative(session) && session.availability?.owner !== "unowned" && (
-            <button
-              type="button"
-              role="menuitem"
-              className="lifecycle-item"
-              disabled={busy || !session.availability?.can_release}
-              title={
-                session.availability?.reason
-                  ? t(`core.availability.${session.availability.reason}`, {
-                      defaultValue: t("core.availability.unavailable"),
-                    })
-                  : undefined
-              }
-              onClick={() => setOverlay("release")}
-            >
-              <LockOpen size={13} aria-hidden="true" />
-              {t("core.lifecycle.release")}
-            </button>
-          )}
-          {permitsNative(session) && session.availability?.can_restore && (
-            <button
-              type="button"
-              role="menuitem"
-              className="lifecycle-item"
-              disabled={busy}
-              onClick={() => run(() => restoreNativeModelAction(session.id))}
-            >
-              <RotateCcw size={13} aria-hidden="true" />
-              {t("core.lifecycle.restore_native")}
-            </button>
-          )}
-          <button
-            type="button"
-            role="menuitem"
-            className="lifecycle-item"
-            disabled={busy}
-            onClick={() => {
-              setOverlay("rename");
-              setError(null);
-            }}
-          >
-            <Pencil size={13} aria-hidden="true" />
-            <span>{t("core.lifecycle.rename")}</span>
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="lifecycle-item lifecycle-item--danger"
-            disabled={busy}
-            onClick={() => {
-              setOverlay("delete");
-              setError(null);
-            }}
-          >
-            <Trash2 size={13} aria-hidden="true" />
-            <span>{t("core.lifecycle.delete")}</span>
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="lifecycle-item"
-            onClick={() => {
-              setOpen(false);
-              navigate({ name: "usage", sessionId: session.id });
-            }}
-          >
-            <BarChart3 size={13} aria-hidden="true" />
-            <span>{t("usage.title")}</span>
-          </button>
-          {error !== null ? (
-            <div className="lifecycle-error" role="alert">
-              {error}
-            </div>
-          ) : null}
-        </div>,
-        document.body,
-      ) : null}
+      {open
+        ? createPortal(
+            <div ref={menuRef} className="lifecycle-popover" role="menu">
+              <ConversationReadItem target={`session:${session.id}`} disabled={busy} run={run} />
+              {canCreate && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="lifecycle-item"
+                  disabled={busy}
+                  onClick={() => setOverlay("agent")}
+                >
+                  {t("core.agents.create")}
+                </button>
+              )}
+              {permitsNative(session) && session.availability?.owner !== "unowned" && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="lifecycle-item"
+                  disabled={busy || !session.availability?.can_release}
+                  title={
+                    session.availability?.reason
+                      ? t(`core.availability.${session.availability.reason}`, {
+                          defaultValue: t("core.availability.unavailable"),
+                        })
+                      : undefined
+                  }
+                  onClick={() => setOverlay("release")}
+                >
+                  <LockOpen size={13} aria-hidden="true" />
+                  {t("core.lifecycle.release")}
+                </button>
+              )}
+              {permitsNative(session) && session.availability?.can_restore && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="lifecycle-item"
+                  disabled={busy}
+                  onClick={() => run(() => restoreNativeModelAction(session.id))}
+                >
+                  <RotateCcw size={13} aria-hidden="true" />
+                  {t("core.lifecycle.restore_native")}
+                </button>
+              )}
+              <button
+                type="button"
+                role="menuitem"
+                className="lifecycle-item"
+                disabled={busy}
+                onClick={() => {
+                  setOverlay("rename");
+                  setError(null);
+                }}
+              >
+                <Pencil size={13} aria-hidden="true" />
+                <span>{t("core.lifecycle.rename")}</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="lifecycle-item lifecycle-item--danger"
+                disabled={busy}
+                onClick={() => {
+                  setOverlay("delete");
+                  setError(null);
+                }}
+              >
+                <Trash2 size={13} aria-hidden="true" />
+                <span>{t("core.lifecycle.delete")}</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="lifecycle-item"
+                onClick={() => {
+                  setOpen(false);
+                  navigate({ name: "usage", sessionId: session.id });
+                }}
+              >
+                <BarChart3 size={13} aria-hidden="true" />
+                <span>{t("usage.title")}</span>
+              </button>
+              {error !== null ? (
+                <div className="lifecycle-error" role="alert">
+                  {error}
+                </div>
+              ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
       {overlay === "agent" && (
         <CreateAgentDialog
           sessionId={session.id}
@@ -423,13 +425,20 @@ function DeleteOverlay({ busy, error, onConfirm, onClose, hasWorktree }: DeleteO
         <div className="lifecycle-panel-title">{t("core.lifecycle.delete_title")}</div>
         <p className="lifecycle-panel-body">{t("core.lifecycle.delete_body")}</p>
         <p className="lifecycle-panel-body">{t("usage.retention_note")}</p>
-        {hasWorktree ? <>
-          <p className="lifecycle-panel-body">{t("core.protection.worktree_cleanup")}</p>
-          <label className="lifecycle-checkbox">
-            <input type="checkbox" checked={discard} disabled={busy} onChange={(event) => setDiscard(event.target.checked)} />
-            <span>{t("core.protection.worktree_discard")}</span>
-          </label>
-        </> : null}
+        {hasWorktree ? (
+          <>
+            <p className="lifecycle-panel-body">{t("core.protection.worktree_cleanup")}</p>
+            <label className="lifecycle-checkbox">
+              <input
+                type="checkbox"
+                checked={discard}
+                disabled={busy}
+                onChange={(event) => setDiscard(event.target.checked)}
+              />
+              <span>{t("core.protection.worktree_discard")}</span>
+            </label>
+          </>
+        ) : null}
         <label className="lifecycle-checkbox">
           <input
             type="checkbox"

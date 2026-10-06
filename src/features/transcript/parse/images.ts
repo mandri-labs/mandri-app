@@ -39,7 +39,11 @@ export function contentImages(content: unknown): TranscriptImage[] {
       source =
         data?.["type"] === "base64"
           ? `data:${stringAt(data, "media_type")};base64,${stringAt(data, "data") ?? ""}`
-          : (stringAt(data, "url") ?? stringAt(block, "url") ?? (stringAt(block, "data") && stringAt(block, "mimeType") ? `data:${stringAt(block, "mimeType")};base64,${stringAt(block, "data")}` : ""));
+          : (stringAt(data, "url") ??
+            stringAt(block, "url") ??
+            (stringAt(block, "data") && stringAt(block, "mimeType")
+              ? `data:${stringAt(block, "mimeType")};base64,${stringAt(block, "data")}`
+              : ""));
     }
     if (source?.startsWith("file://")) {
       try {
@@ -103,9 +107,7 @@ export function userImages(text: string, images: readonly TranscriptImage[] = []
     }
   }
   for (const reference of references) {
-    const existing = found.find(
-      (image) => imageIdentity(image) === imageIdentity(reference),
-    );
+    const existing = found.find((image) => imageIdentity(image) === imageIdentity(reference));
     if (existing) existing.name ??= reference.name;
     else found.push(reference);
   }

@@ -91,7 +91,13 @@ function useFetchStub(routes: RouteView[]): void {
   });
 }
 
-function StubbedRoutesPage({ providers, routes }: { providers: ProviderView[]; routes: RouteView[] }) {
+function StubbedRoutesPage({
+  providers,
+  routes,
+}: {
+  providers: ProviderView[];
+  routes: RouteView[];
+}) {
   useFetchStub(routes);
   useEffect(() => {
     seedStore(providers, routes);
@@ -132,7 +138,10 @@ type Story = StoryObj<typeof meta>;
 
 export const RoutesList: Story = {
   render: () => (
-    <StubbedRoutesPage providers={[providerVerified, providerDegraded]} routes={[routeStable, routeManual]} />
+    <StubbedRoutesPage
+      providers={[providerVerified, providerDegraded]}
+      routes={[routeStable, routeManual]}
+    />
   ),
 };
 
@@ -154,7 +163,5 @@ export const SwapFromCatalog: Story = {
 };
 
 export const SwapManualEntry: Story = {
-  render: () => (
-    <StubbedRoutesPage providers={[providerVerified]} routes={[routeManual]} />
-  ),
+  render: () => <StubbedRoutesPage providers={[providerVerified]} routes={[routeManual]} />,
 };

@@ -11,10 +11,15 @@ vi.mock("@/daemon/rest/client", () => ({ request: vi.fn() }));
 vi.mock("@tanstack/react-virtual", () => ({
   useVirtualizer: (options: { count: number; getItemKey: (index: number) => string }) => ({
     getTotalSize: () => options.count * 100,
-    getVirtualItems: () => Array.from({ length: options.count }, (_, index) => ({
-      index, key: options.getItemKey(index), start: index * 100,
-    })),
-    measureElement: () => {}, scrollToEnd: () => {}, scrollRect: { height: 800 },
+    getVirtualItems: () =>
+      Array.from({ length: options.count }, (_, index) => ({
+        index,
+        key: options.getItemKey(index),
+        start: index * 100,
+      })),
+    measureElement: () => {},
+    scrollToEnd: () => {},
+    scrollRect: { height: 800 },
   }),
 }));
 
@@ -44,8 +49,13 @@ it("keeps the same text bubble when the server confirms a local message", () => 
   const bubble = view.container.querySelector(".tr-user-bubble");
   act(() => store.setNodes("s", [{ kind: "user", text: "Hello", key: "echo" }]));
   expect(view.container.querySelector(".tr-user-bubble")).toBe(bubble);
-  act(() => store.setNodes("s", [{ kind: "user", text: "Hello", key: "echo" }],
-    [{ kind: "user", text: "Hello", key: "echo" }]));
+  act(() =>
+    store.setNodes(
+      "s",
+      [{ kind: "user", text: "Hello", key: "echo" }],
+      [{ kind: "user", text: "Hello", key: "echo" }],
+    ),
+  );
   expect(view.container.querySelector(".tr-user-bubble")).toBe(bubble);
   expect(transcriptStore.getState().transcripts.s!.nodes[0]!.key).toBe("echo");
   expect(transcriptStore.getState().transcripts.s!.nodes[0]!.key).not.toBe(localKey);
@@ -70,26 +80,42 @@ it("keeps identical submissions distinct from older history and from each other"
 
 it("releases the local preview when the server changes the image content", async () => {
   const store = transcriptStore.getState();
-  const key = store.addPendingUser("s", "Describe this", [{
-    source: "draft:image", name: "image.png", file: new File([bytes], "image.png", { type: "image/png" }),
-  }]);
+  const key = store.addPendingUser("s", "Describe this", [
+    {
+      source: "draft:image",
+      name: "image.png",
+      file: new File([bytes], "image.png", { type: "image/png" }),
+    },
+  ]);
   store.updatePendingUser("s", key, text);
   store.setNodes("s", [{ kind: "user", text, key: "echo" }], [{ kind: "user", text, key: "echo" }]);
   const view = render(<Transcript sessionId="s" harness="codex" feed={feed} />);
   await waitFor(() => expect(view.container.querySelector(".tr-user-bubble img")).not.toBeNull());
   const bubble = view.container.querySelector(".tr-user-bubble");
-  act(() => store.setNodes("s", [{ kind: "user", text: "Describe this", key: "echo", images: [{ source: "/different.png" }] }]));
-  await waitFor(() => expect(request).toHaveBeenCalledWith("/v1/sessions/s/files",
-    expect.objectContaining({ query: { path: "/different.png" } })));
+  act(() =>
+    store.setNodes("s", [
+      { kind: "user", text: "Describe this", key: "echo", images: [{ source: "/different.png" }] },
+    ]),
+  );
+  await waitFor(() =>
+    expect(request).toHaveBeenCalledWith(
+      "/v1/sessions/s/files",
+      expect.objectContaining({ query: { path: "/different.png" } }),
+    ),
+  );
   expect(view.container.querySelector(".tr-user-bubble")).toBe(bubble);
   expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:preview");
 });
 
 it("keeps the decoded local thumbnail through upload, live echo and repeated history refresh", async () => {
   const store = transcriptStore.getState();
-  const key = store.addPendingUser("s", "Describe this", [{
-    source: "draft:image", name: "image.png", file: new File([bytes], "image.png", { type: "image/png" }),
-  }]);
+  const key = store.addPendingUser("s", "Describe this", [
+    {
+      source: "draft:image",
+      name: "image.png",
+      file: new File([bytes], "image.png", { type: "image/png" }),
+    },
+  ]);
   const view = render(<Transcript sessionId="s" harness="codex" feed={feed} />);
   await waitFor(() => expect(view.container.querySelector(".tr-user-bubble img")).not.toBeNull());
   const bubble = view.container.querySelector(".tr-user-bubble");
@@ -99,23 +125,40 @@ it("keeps the decoded local thumbnail through upload, live echo and repeated his
   observer.observe(bubble!, { childList: true, subtree: true });
   act(() => store.updatePendingUser("s", key, text));
   expect(view.container.querySelector(".tr-user-bubble img")).toBe(image);
-  const live = parseFrame("codex", { method: "item/completed", params: {
-    turnId: "turn", item: { id: "message", type: "userMessage", content: [
-      { type: "text", text }, { type: "localImage", path },
-    ] },
-  } });
+  const live = parseFrame("codex", {
+    method: "item/completed",
+    params: {
+      turnId: "turn",
+      item: {
+        id: "message",
+        type: "userMessage",
+        content: [
+          { type: "text", text },
+          { type: "localImage", path },
+        ],
+      },
+    },
+  });
   act(() => store.setNodes("s", live));
   expect(view.container.querySelector(".tr-user-bubble")).toBe(bubble);
   expect(view.container.querySelector(".tr-user-bubble img")).toBe(image);
-  const historyLine = JSON.stringify({ type: "response_item", payload: {
-    type: "message", role: "user", content: [
-      { type: "input_text", text },
-      { type: "input_text", text: `<image name=[Image #1] path="${path}">` },
-      { type: "input_image", image_url: "data:image/png;base64,iVBORw0KGgo=" },
-      { type: "input_text", text: "</image>" },
-    ],
-    internal_chat_message_metadata_passthrough: { turn_id: "turn", content_item_kinds: ["user.text", "user.image"] },
-  } });
+  const historyLine = JSON.stringify({
+    type: "response_item",
+    payload: {
+      type: "message",
+      role: "user",
+      content: [
+        { type: "input_text", text },
+        { type: "input_text", text: `<image name=[Image #1] path="${path}">` },
+        { type: "input_image", image_url: "data:image/png;base64,iVBORw0KGgo=" },
+        { type: "input_text", text: "</image>" },
+      ],
+      internal_chat_message_metadata_passthrough: {
+        turn_id: "turn",
+        content_item_kinds: ["user.text", "user.image"],
+      },
+    },
+  });
   for (let refresh = 0; refresh < 2; refresh++) {
     const history = parseHistoryLine("codex", historyLine);
     act(() => store.setNodes("s", mergeHistoryAndLive(history, live), history));

@@ -9,18 +9,29 @@ const mocks = vi.hoisted(() => ({
   resized: undefined as (() => void) | undefined,
   moved: undefined as (() => void) | undefined,
   appWindow: {
-    isMinimized: vi.fn(), isVisible: vi.fn(), isMaximized: vi.fn(),
-    innerSize: vi.fn(), outerPosition: vi.fn(), setSize: vi.fn(),
-    setPosition: vi.fn(), center: vi.fn(), maximize: vi.fn(),
-    onResized: vi.fn(), onMoved: vi.fn(),
+    isMinimized: vi.fn(),
+    isVisible: vi.fn(),
+    isMaximized: vi.fn(),
+    innerSize: vi.fn(),
+    outerPosition: vi.fn(),
+    setSize: vi.fn(),
+    setPosition: vi.fn(),
+    center: vi.fn(),
+    maximize: vi.fn(),
+    onResized: vi.fn(),
+    onMoved: vi.fn(),
   },
 }));
 
-vi.mock("@tauri-apps/api/webviewWindow", () => ({ getCurrentWebviewWindow: () => mocks.appWindow }));
+vi.mock("@tauri-apps/api/webviewWindow", () => ({
+  getCurrentWebviewWindow: () => mocks.appWindow,
+}));
 vi.mock("@tauri-apps/api/window", () => ({ availableMonitors: mocks.monitors }));
 vi.mock("./index", () => ({ isTauri: () => true }));
 vi.mock("@/stores/preferences", () => ({
-  preferencesStore: { getState: () => ({ windowGeometry: mocks.geometry, setWindowGeometry: mocks.save }) },
+  preferencesStore: {
+    getState: () => ({ windowGeometry: mocks.geometry, setWindowGeometry: mocks.save }),
+  },
 }));
 
 import { initWindowGeometry } from "./window";
@@ -58,17 +69,26 @@ describe("desktop window geometry", () => {
   it.each([
     { x: -32000, y: -32000, width: 0, height: 0 },
     { x: 100, y: 100, width: NaN, height: Infinity },
-  ])("recovers corrupt dimensions with a default size and persists the repair", async (geometry) => {
-    mocks.geometry = geometry;
-    const cleanup = await initWindowGeometry();
-    expect(mocks.appWindow.setSize).toHaveBeenCalledWith(new LogicalSize(1280, 800));
-    expect(mocks.save).toHaveBeenCalledWith({ x: 100, y: 100, width: 1280, height: 800, maximized: false });
-    if (geometry.x === -32000) {
-      expect(mocks.appWindow.center).toHaveBeenCalledOnce();
-      expect(mocks.appWindow.setPosition).not.toHaveBeenCalled();
-    }
-    cleanup();
-  });
+  ])(
+    "recovers corrupt dimensions with a default size and persists the repair",
+    async (geometry) => {
+      mocks.geometry = geometry;
+      const cleanup = await initWindowGeometry();
+      expect(mocks.appWindow.setSize).toHaveBeenCalledWith(new LogicalSize(1280, 800));
+      expect(mocks.save).toHaveBeenCalledWith({
+        x: 100,
+        y: 100,
+        width: 1280,
+        height: 800,
+        maximized: false,
+      });
+      if (geometry.x === -32000) {
+        expect(mocks.appWindow.center).toHaveBeenCalledOnce();
+        expect(mocks.appWindow.setPosition).not.toHaveBeenCalled();
+      }
+      cleanup();
+    },
+  );
 
   it("preserves a valid position on a monitor left of the primary display", async () => {
     mocks.geometry = { x: -1800, y: 100, width: 1400, height: 900 };
@@ -94,12 +114,19 @@ describe("desktop window geometry", () => {
     });
     const cleanup = await initWindowGeometry();
     expect(mocks.appWindow.maximize).toHaveBeenCalledOnce();
-    expect(mocks.save).toHaveBeenCalledWith({ x: 100, y: 100, width: 1280, height: 800, maximized: true });
+    expect(mocks.save).toHaveBeenCalledWith({
+      x: 100,
+      y: 100,
+      width: 1280,
+      height: 800,
+      maximized: true,
+    });
     cleanup();
   });
 
   it.each(["minimized", "hidden", "minimized during capture", "zero size"])(
-    "keeps the last usable geometry when the window is %s", async (state) => {
+    "keeps the last usable geometry when the window is %s",
+    async (state) => {
       const cleanup = await initWindowGeometry();
       if (state === "minimized") mocks.appWindow.isMinimized.mockResolvedValue(true);
       if (state === "hidden") mocks.appWindow.isVisible.mockResolvedValue(false);
@@ -108,7 +135,8 @@ describe("desktop window geometry", () => {
         mocks.appWindow.innerSize.mockResolvedValue({ width: 0, height: 0 });
         mocks.appWindow.outerPosition.mockResolvedValue({ x: -32000, y: -32000 });
       }
-      if (state === "zero size") mocks.appWindow.innerSize.mockResolvedValue({ width: 0, height: 0 });
+      if (state === "zero size")
+        mocks.appWindow.innerSize.mockResolvedValue({ width: 0, height: 0 });
       mocks.resized!();
       mocks.moved!();
       await vi.advanceTimersByTimeAsync(500);
@@ -124,7 +152,13 @@ describe("desktop window geometry", () => {
     mocks.appWindow.outerPosition.mockResolvedValue({ x: 200, y: 150 });
     mocks.moved!();
     await vi.advanceTimersByTimeAsync(500);
-    expect(mocks.save).toHaveBeenLastCalledWith({ x: 200, y: 150, width: 1280, height: 800, maximized: false });
+    expect(mocks.save).toHaveBeenLastCalledWith({
+      x: 200,
+      y: 150,
+      width: 1280,
+      height: 800,
+      maximized: false,
+    });
     mocks.appWindow.isMaximized.mockResolvedValue(true);
     mocks.resized!();
     await vi.advanceTimersByTimeAsync(500);

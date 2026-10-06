@@ -108,7 +108,11 @@ function parseHistoryError(value: unknown): FixtureHistoryError | null {
   return { code, message };
 }
 
-function parseFixtureFile(raw: unknown, harness: HarnessKind, scenario: string): FixtureFile | null {
+function parseFixtureFile(
+  raw: unknown,
+  harness: HarnessKind,
+  scenario: string,
+): FixtureFile | null {
   const record = asRecord(raw);
   const framesValue = record?.["frames"];
   if (!Array.isArray(framesValue)) {

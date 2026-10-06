@@ -107,7 +107,10 @@
   padding-top: 8px;
 }
 @media (prefers-reduced-motion: reduce) {
-  .transcript-spin { display: none; animation: none; }
+  .transcript-spin {
+    display: none;
+    animation: none;
+  }
 }
 .transcript-jump {
   font-size: var(--font-size-small);
@@ -145,7 +148,12 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
-.tr-thinking-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.tr-thinking-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
 
 /* Keep the navigation control outside the reading and diff surfaces. */
 .transcript-navigation {
@@ -168,5 +176,9 @@
 }
 
 /* Match the virtual transcript's initial inset and row spacing before creation. */
-.transcript-inner--startup { padding-top: 24px; }
-.transcript-item--static { position: relative; }
+.transcript-inner--startup {
+  padding-top: 24px;
+}
+.transcript-item--static {
+  position: relative;
+}

@@ -90,8 +90,13 @@ beforeEach(() => {
 it("rejects stale turn events after metadata updates and a reconnect snapshot", () => {
   const store = sessionsStore.getState();
   const session = seed("s", "claude", "live", "Session");
-  const start: EventMessage = { topic: "session.s", source: "claude", seq: 5, ts: 100,
-    raw: { type: "assistant", message: { id: "message" } } };
+  const start: EventMessage = {
+    topic: "session.s",
+    source: "claude",
+    seq: 5,
+    ts: 100,
+    raw: { type: "assistant", message: { id: "message" } },
+  };
   store.ingestFrame(snapshotFrame([session]));
   store.ingestFrame(start);
   store.renameLocal("s", "Renamed");

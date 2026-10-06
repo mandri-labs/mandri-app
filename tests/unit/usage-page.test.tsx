@@ -6,7 +6,9 @@ import { connectionStore } from "@/stores/connection";
 import { initI18n } from "@/i18n";
 import { parseHash, routeToHash } from "@/app/useHashRoute";
 import { metrics, overview } from "./usage-fixtures";
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 beforeEach(() => {
   connectionStore.getState().setStatus("online");
   Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
@@ -15,23 +17,49 @@ beforeEach(() => {
   vi.spyOn(usageApi, "accounts").mockResolvedValue({ accounts: [], as_of: 1, revision: 1 });
   vi.spyOn(usageApi, "refresh").mockResolvedValue({ status: "queued", retry_after_ms: 15000 });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 it("discloses excluded source overlaps even when retained facts have complete counters", async () => {
-  vi.mocked(usageApi.overview).mockResolvedValue(overview({ sync_state: {
-    scope: "daemon", status: "partial", source_count: 0, gap_count: 2, status_counts: {},
-  } }));
+  vi.mocked(usageApi.overview).mockResolvedValue(
+    overview({
+      sync_state: {
+        scope: "daemon",
+        status: "partial",
+        source_count: 0,
+        gap_count: 2,
+        status_counts: {},
+      },
+    }),
+  );
   render(<UsagePage />);
   await screen.findByText(/2 collection gaps/);
   expect(screen.getByText("Partial data")).toBeTruthy();
 });
 
 it("round trips global, project, and session usage deep links", () => {
-  for (const route of [{ name: "usage" as const }, { name: "usage" as const, sessionId: "s/?&" }, { name: "usage" as const, projectPath: "/a b/project" }]) expect(parseHash(routeToHash(route))).toEqual(route);
+  for (const route of [
+    { name: "usage" as const },
+    { name: "usage" as const, sessionId: "s/?&" },
+    { name: "usage" as const, projectPath: "/a b/project" },
+  ])
+    expect(parseHash(routeToHash(route))).toEqual(route);
 });
 
 it("renders known zero distinctly from missing values and offers an accessible daily table", async () => {
-  vi.mocked(usageApi.overview).mockResolvedValue(overview({ summary: metrics({ usd_equivalent: "0", total_tokens: null, request_count: 0, missing_fields: { total_tokens: 1 }, unpriced_fact_count: 1 }) }));
+  vi.mocked(usageApi.overview).mockResolvedValue(
+    overview({
+      summary: metrics({
+        usd_equivalent: "0",
+        total_tokens: null,
+        request_count: 0,
+        missing_fields: { total_tokens: 1 },
+        unpriced_fact_count: 1,
+      }),
+    }),
+  );
   render(<UsagePage />);
   await screen.findByText("$0.00", { selector: "strong" });
   expect(screen.getAllByText("—").length).toBeGreaterThan(0);
@@ -47,16 +75,38 @@ it("renders known zero distinctly from missing values and offers an accessible d
 it("defaults global/project to last 30 days, session to lifetime and includes deleted records", async () => {
   const mounted = render(<UsagePage projectPath="/historical/project" />);
   await waitFor(() => expect(usageApi.overview).toHaveBeenCalled());
-  expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0]).toMatchObject({ period: "last30d", includeDeleted: true, scope: { kind: "project", id: "/historical/project" } });
-  mounted.unmount(); render(<UsagePage sessionId="deleted-session" />);
-  await waitFor(() => expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0].period).toBe("lifetime"));
+  expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0]).toMatchObject({
+    period: "last30d",
+    includeDeleted: true,
+    scope: { kind: "project", id: "/historical/project" },
+  });
+  mounted.unmount();
+  render(<UsagePage sessionId="deleted-session" />);
+  await waitFor(() =>
+    expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0].period).toBe("lifetime"),
+  );
   fireEvent.click(screen.getByLabelText("Include attributed descendants"));
-  await waitFor(() => expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0].includeDescendants).toBe(false));
+  await waitFor(() =>
+    expect(vi.mocked(usageApi.overview).mock.calls.at(-1)?.[0].includeDescendants).toBe(false),
+  );
   expect(screen.getByText(/Direct session usage only/)).toBeTruthy();
 });
 
 it("distinguishes empty coverage from zero consumption and discloses undated usage", async () => {
-  vi.mocked(usageApi.overview).mockResolvedValue(overview({ summary: metrics({ fact_count: 0, usd_equivalent: null, total_tokens: null, request_count: null }), timeseries: [], breakdown: [], breakdown_total: 0, undated: metrics() }));
+  vi.mocked(usageApi.overview).mockResolvedValue(
+    overview({
+      summary: metrics({
+        fact_count: 0,
+        usd_equivalent: null,
+        total_tokens: null,
+        request_count: null,
+      }),
+      timeseries: [],
+      breakdown: [],
+      breakdown_total: 0,
+      undated: metrics(),
+    }),
+  );
   render(<UsagePage />);
   await screen.findByText(/This does not establish zero consumption/);
   expect(screen.getByText("Undated history")).toBeTruthy();
@@ -64,12 +114,44 @@ it("distinguishes empty coverage from zero consumption and discloses undated usa
 });
 
 it("renders account allowances without technical status badges or invented gauges", async () => {
-  vi.mocked(usageApi.accounts).mockResolvedValue({ revision: 1, as_of: 1789900000000, accounts: [
-    { account_id: "unknown", harness: "claude", observed_at: 1789900000000, status: "unavailable", verified: false, plan: null, auth_mode: null, windows: [] },
-    { account_id: "old", harness: "codex", observed_at: 1789900000000, status: "stale", verified: true, plan: "Plus", auth_mode: "native", windows: [{ label: "Five hour", used_percent: 0, resets_at: null }] },
-    { account_id: "current", harness: "agy", observed_at: 1789900000000, status: "available", verified: true, plan: null, auth_mode: "native", windows: [{ label: "Weekly", used_percent: 70, resets_at: 1789900000 }] },
-  ] });
-  render(<UsagePage />); fireEvent.click(screen.getByRole("button", { name: "Accounts" }));
+  vi.mocked(usageApi.accounts).mockResolvedValue({
+    revision: 1,
+    as_of: 1789900000000,
+    accounts: [
+      {
+        account_id: "unknown",
+        harness: "claude",
+        observed_at: 1789900000000,
+        status: "unavailable",
+        verified: false,
+        plan: null,
+        auth_mode: null,
+        windows: [],
+      },
+      {
+        account_id: "old",
+        harness: "codex",
+        observed_at: 1789900000000,
+        status: "stale",
+        verified: true,
+        plan: "Plus",
+        auth_mode: "native",
+        windows: [{ label: "Five hour", used_percent: 0, resets_at: null }],
+      },
+      {
+        account_id: "current",
+        harness: "agy",
+        observed_at: 1789900000000,
+        status: "available",
+        verified: true,
+        plan: null,
+        auth_mode: "native",
+        windows: [{ label: "Weekly", used_percent: 70, resets_at: 1789900000 }],
+      },
+    ],
+  });
+  render(<UsagePage />);
+  fireEvent.click(screen.getByRole("button", { name: "Accounts" }));
   await screen.findByText("ChatGPT Plus");
   expect(screen.queryByText("Stale snapshot")).toBeNull();
   expect(screen.queryByText("Unavailable")).toBeNull();
@@ -113,14 +195,22 @@ it("keeps cards and chart mounted when toggling the directly visible inclusion c
   const cards = container.querySelector(".usage-cards");
   const chart = container.querySelector(".usage-chart-panel");
   let resolve!: (value: ReturnType<typeof overview>) => void;
-  vi.mocked(usageApi.overview).mockReturnValueOnce(new Promise((done) => { resolve = done; }));
+  vi.mocked(usageApi.overview).mockReturnValueOnce(
+    new Promise((done) => {
+      resolve = done;
+    }),
+  );
   fireEvent.click(checkbox);
-  await waitFor(() => expect(container.querySelector(".usage-results")?.getAttribute("aria-busy")).toBe("true"));
+  await waitFor(() =>
+    expect(container.querySelector(".usage-results")?.getAttribute("aria-busy")).toBe("true"),
+  );
   expect(container.querySelector(".usage-cards")).toBe(cards);
   expect(container.querySelector(".usage-chart-panel")).toBe(chart);
   expect(container.querySelector(".usage-skeleton")).toBeNull();
   resolve(overview({ revision: 2 }));
-  await waitFor(() => expect(container.querySelector(".usage-results")?.getAttribute("aria-busy")).toBe("false"));
+  await waitFor(() =>
+    expect(container.querySelector(".usage-results")?.getAttribute("aria-busy")).toBe("false"),
+  );
   expect(container.querySelector(".usage-cards")).toBe(cards);
   expect(container.querySelector(".usage-chart-panel")).toBe(chart);
 });

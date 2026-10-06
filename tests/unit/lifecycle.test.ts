@@ -14,7 +14,11 @@ import {
 import { sessionsStore } from "@/stores/sessions";
 import type { SessionView } from "@/stores/sessions";
 
-type FetchHandler = (url: string, method: string, body: unknown) => {
+type FetchHandler = (
+  url: string,
+  method: string,
+  body: unknown,
+) => {
   status: number;
   body?: unknown;
 };
@@ -303,7 +307,9 @@ describe("fs REST router", () => {
       if (url.includes("/v1/fs/list?path=")) {
         return {
           status: 200,
-          body: [{ name: "alpha", path: "D:/Dev/alpha", is_dir: true, size: null, modified_at: null }],
+          body: [
+            { name: "alpha", path: "D:/Dev/alpha", is_dir: true, size: null, modified_at: null },
+          ],
         };
       }
       if (url.endsWith("/v1/fs/projects")) {
@@ -396,7 +402,10 @@ describe("lifecycle actions", () => {
   it("deleteSessionAction tombstones the session", async () => {
     seedSession({ id: "s1" });
     stubFetch((url, method) => {
-      if (url.split("?")[0] === `${"http://127.0.0.1:8787"}/v1/sessions/s1` && method === "DELETE") {
+      if (
+        url.split("?")[0] === `${"http://127.0.0.1:8787"}/v1/sessions/s1` &&
+        method === "DELETE"
+      ) {
         return { status: 204 };
       }
       return { status: 404 };
@@ -548,8 +557,16 @@ describe("KeepAliveManager", () => {
 });
 
 it("retains the chosen permissions when resume fails", async () => {
-  seedSession({ id: "permission-failure", state: "stopped", interactionMode: "default", resumeMode: "acceptEdits" });
-  stubFetch(() => ({ status: 400, body: { error: { code: "validation_error", message: "invalid" } } }));
+  seedSession({
+    id: "permission-failure",
+    state: "stopped",
+    interactionMode: "default",
+    resumeMode: "acceptEdits",
+  });
+  stubFetch(() => ({
+    status: 400,
+    body: { error: { code: "validation_error", message: "invalid" } },
+  }));
   await expect(resumeSessionAction("permission-failure")).rejects.toBeDefined();
   expect(viewOf("permission-failure").interactionMode).toBe("default");
   expect(viewOf("permission-failure").resumeMode).toBe("acceptEdits");
@@ -557,7 +574,13 @@ it("retains the chosen permissions when resume fails", async () => {
 });
 
 it("releases a hidden session after native completion despite stale metadata activity", () => {
-  seedSession({ id: "completed", harness: "opencode", nativeId: "native", nativeTurnActive: true, activity: "active" });
+  seedSession({
+    id: "completed",
+    harness: "opencode",
+    nativeId: "native",
+    nativeTurnActive: true,
+    activity: "active",
+  });
   const unsubscribe = vi.fn();
   const final = vi.fn();
   const manager = new KeepAliveManager({ subscribe: vi.fn(), unsubscribe, onFinalRelease: final });
@@ -565,7 +588,10 @@ it("releases a hidden session after native completion despite stale metadata act
   manager.release("completed", "pane");
   expect(unsubscribe).not.toHaveBeenCalled();
   sessionsStore.getState().ingestFrame({
-    topic: "session.completed", seq: 1, ts: 1, source: "opencode",
+    topic: "session.completed",
+    seq: 1,
+    ts: 1,
+    source: "opencode",
     raw: { type: "session.status", properties: { sessionID: "native", status: { type: "idle" } } },
   });
   expect(unsubscribe).toHaveBeenCalledWith("completed");

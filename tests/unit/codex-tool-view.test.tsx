@@ -30,13 +30,37 @@ const tool = (nodes: TranscriptNode[]) => {
 
 describe("structured Codex tools", () => {
   it("resolves task paths within the current family and retains both names", () => {
-    const base = { native_id: "native", parent_agent_id: null, session_id: null, harness: "codex" as const, state: "completed" as const, delegation_id: null, capabilities: { message: false, stop: false }, created_at: 0, updated_at: 0, task_id: "/root/review" };
-    agentsStore.setState({ agents: {
-      wrong: { ...base, id: "wrong", parent_session_id: "other", title: "Wrong" },
-      right: { ...base, id: "right", parent_session_id: "parent", title: "Cicero" },
-    } });
+    const base = {
+      native_id: "native",
+      parent_agent_id: null,
+      session_id: null,
+      harness: "codex" as const,
+      state: "completed" as const,
+      delegation_id: null,
+      capabilities: { message: false, stop: false },
+      created_at: 0,
+      updated_at: 0,
+      task_id: "/root/review",
+    };
+    agentsStore.setState({
+      agents: {
+        wrong: { ...base, id: "wrong", parent_session_id: "other", title: "Wrong" },
+        right: { ...base, id: "right", parent_session_id: "parent", title: "Cicero" },
+      },
+    });
     try {
-      render(<CodexTool sessionId="parent" node={{ kind: "tool", tool: "send_message", label: "", status: "done", codex: { input: { target: "review", message: "gAAAAABhidden" } } }} />);
+      render(
+        <CodexTool
+          sessionId="parent"
+          node={{
+            kind: "tool",
+            tool: "send_message",
+            label: "",
+            status: "done",
+            codex: { input: { target: "review", message: "gAAAAABhidden" } },
+          }}
+        />,
+      );
       expect(screen.getByText("Cicero (review) : update completed")).toBeTruthy();
       expect(screen.queryByText(/Wrong|gAAAAABhidden/)).toBeNull();
       expect(screen.queryByRole("button")).toBeNull();

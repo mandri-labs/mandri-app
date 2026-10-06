@@ -13,6 +13,8 @@ export function ensureDesktopDaemon(): Promise<string> {
       setDaemonCredentials(baseUrl, token);
       return baseUrl;
     })
-    .finally(() => { pending = null; });
+    .finally(() => {
+      pending = null;
+    });
   return pending;
 }

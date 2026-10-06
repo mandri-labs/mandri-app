@@ -10,9 +10,7 @@ const meta = {
   title: "App/ShortcutSheet",
   component: ShortcutSheet,
   parameters: { layout: "fullscreen" },
-  decorators: [
-    (Story: () => ReactNode) => <StoryGate>{<Story />}</StoryGate>,
-  ],
+  decorators: [(Story: () => ReactNode) => <StoryGate>{<Story />}</StoryGate>],
 } satisfies Meta<typeof ShortcutSheet>;
 
 export default meta;

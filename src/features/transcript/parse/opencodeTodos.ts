@@ -16,7 +16,11 @@ export function opencodeTodos(part: Record<string, unknown>): TranscriptNode | u
   const metadata = asRecord(state?.metadata);
   let todos = asArray(metadata?.todos) ?? asArray(input?.todos);
   if (!todos && typeof state?.output === "string") {
-    try { todos = asArray(JSON.parse(state.output)); } catch { return undefined; }
+    try {
+      todos = asArray(JSON.parse(state.output));
+    } catch {
+      return undefined;
+    }
   }
   if (!todos) return undefined;
   const steps = todos.map((value) => {
@@ -26,6 +30,9 @@ export function opencodeTodos(part: Record<string, unknown>): TranscriptNode | u
     return text && status ? { text, status } : undefined;
   });
   if (steps.some((step) => step === undefined)) return undefined;
-  return { kind: "plan", steps: steps.filter((step) => step !== undefined),
-    key: stringAt(part, "callID") ?? stringAt(part, "id") };
+  return {
+    kind: "plan",
+    steps: steps.filter((step) => step !== undefined),
+    key: stringAt(part, "callID") ?? stringAt(part, "id"),
+  };
 }

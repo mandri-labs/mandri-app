@@ -68,8 +68,12 @@
   line-height: 1.4;
 }
 
-[data-setting-tone="amber"] { --setting-color: var(--color-ember); }
-[data-setting-tone="danger"] { --setting-color: var(--color-danger); }
+[data-setting-tone="amber"] {
+  --setting-color: var(--color-ember);
+}
+[data-setting-tone="danger"] {
+  --setting-color: var(--color-danger);
+}
 button.composer-chip[data-setting-tone],
 button.permission-option[data-setting-tone] {
   color: var(--setting-color);

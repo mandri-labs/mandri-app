@@ -134,7 +134,8 @@ try {
   await page.goto(base);
   await page.waitForFunction(
     async () =>
-      (await import(String("/src/stores/connection.ts"))).connectionStore.getState().status === "online",
+      (await import(String("/src/stores/connection.ts"))).connectionStore.getState().status ===
+      "online",
   );
   await page.clock.install();
   await page.evaluate(async () => {

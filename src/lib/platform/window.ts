@@ -13,7 +13,12 @@ const MIN_WIDTH = 1024;
 const MIN_HEIGHT = 720;
 
 function usableSize(width: number | undefined, height: number | undefined): boolean {
-  return Number.isFinite(width) && Number.isFinite(height) && width! >= MIN_WIDTH && height! >= MIN_HEIGHT;
+  return (
+    Number.isFinite(width) &&
+    Number.isFinite(height) &&
+    width! >= MIN_WIDTH &&
+    height! >= MIN_HEIGHT
+  );
 }
 
 export function setCloseToTray(enabled: boolean): void {
@@ -33,7 +38,7 @@ export async function minimizeToTray(): Promise<void> {
 
 async function captureGeometry(): Promise<WindowGeometry | undefined> {
   const appWindow = getCurrentWebviewWindow();
-  if (await appWindow.isMinimized() || !await appWindow.isVisible()) {
+  if ((await appWindow.isMinimized()) || !(await appWindow.isVisible())) {
     return undefined;
   }
   const maximized = await appWindow.isMaximized();
@@ -43,9 +48,13 @@ async function captureGeometry(): Promise<WindowGeometry | undefined> {
   const size = await appWindow.innerSize();
   const position = await appWindow.outerPosition();
   // Minimizing can happen while the native size/position requests are in flight.
-  if (await appWindow.isMinimized() || !await appWindow.isVisible() ||
-      !usableSize(size.width, size.height) ||
-      !Number.isFinite(position.x) || !Number.isFinite(position.y)) {
+  if (
+    (await appWindow.isMinimized()) ||
+    !(await appWindow.isVisible()) ||
+    !usableSize(size.width, size.height) ||
+    !Number.isFinite(position.x) ||
+    !Number.isFinite(position.y)
+  ) {
     return undefined;
   }
   return {
@@ -68,14 +77,22 @@ export async function initWindowGeometry(): Promise<() => void> {
     const size = usableSize(geometry.width, geometry.height)
       ? new PhysicalSize(geometry.width!, geometry.height!)
       : defaultSize;
-    await appWindow.setSize(size).catch(() => appWindow.setSize(defaultSize).catch(() => undefined));
+    await appWindow
+      .setSize(size)
+      .catch(() => appWindow.setSize(defaultSize).catch(() => undefined));
     const monitors = await availableMonitors().catch(() => []);
     // Keep the title bar reachable, including on monitors with negative coordinates.
-    const reachable = Number.isFinite(geometry.x) && Number.isFinite(geometry.y) &&
+    const reachable =
+      Number.isFinite(geometry.x) &&
+      Number.isFinite(geometry.y) &&
       monitors.some(({ workArea }) => {
         const { position, size: area } = workArea;
-        return geometry.x! >= position.x && geometry.x! + 64 <= position.x + area.width &&
-          geometry.y! >= position.y && geometry.y! + 32 <= position.y + area.height;
+        return (
+          geometry.x! >= position.x &&
+          geometry.x! + 64 <= position.x + area.width &&
+          geometry.y! >= position.y &&
+          geometry.y! + 32 <= position.y + area.height
+        );
       });
     const center = () => appWindow.center().catch(() => undefined);
     if (reachable) {
@@ -88,9 +105,13 @@ export async function initWindowGeometry(): Promise<() => void> {
     if (geometry.maximized) {
       await appWindow.maximize().catch(() => undefined);
     }
-    preferencesStore.getState().setWindowGeometry(restored
-      ? { ...restored, maximized: geometry.maximized === true }
-      : { maximized: geometry.maximized === true });
+    preferencesStore
+      .getState()
+      .setWindowGeometry(
+        restored
+          ? { ...restored, maximized: geometry.maximized === true }
+          : { maximized: geometry.maximized === true },
+      );
   }
   let saveTimer: ReturnType<typeof setTimeout> | null = null;
   const scheduleSave = (): void => {
@@ -110,7 +131,9 @@ export async function initWindowGeometry(): Promise<() => void> {
         .catch(() => undefined);
     }, GEOMETRY_SAVE_DEBOUNCE_MS);
   };
-  const unlistenResized = await appWindow.onResized(() => scheduleSave()).catch(() => () => undefined);
+  const unlistenResized = await appWindow
+    .onResized(() => scheduleSave())
+    .catch(() => () => undefined);
   const unlistenMoved = await appWindow.onMoved(() => scheduleSave()).catch(() => () => undefined);
   return () => {
     unlistenResized();

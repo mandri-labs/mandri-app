@@ -15,7 +15,13 @@ export type ResolvedApprovalStatus = Exclude<ApprovalStatus, "pending">;
 export type ApprovalDecision =
   "allow" | "deny" | "once" | "always" | "accept" | "acceptForSession" | "decline" | "cancel";
 
-export type ModeApplication = "at_launch" | "restarted" | "mid_session_applied" | "next_turn_applied" | "hook_policy_applied" | "requires_restart";
+export type ModeApplication =
+  | "at_launch"
+  | "restarted"
+  | "mid_session_applied"
+  | "next_turn_applied"
+  | "hook_policy_applied"
+  | "requires_restart";
 
 export type AppliedMode = Exclude<ModeApplication, "requires_restart">;
 
@@ -157,7 +163,12 @@ export type RequestAction =
 
 export type RequestMessage =
   | CommandRequest
-  | { type: "request"; op_id: string; action: "conversation.read"; params: { target: string; through_revision: number; completion_key: string } }
+  | {
+      type: "request";
+      op_id: string;
+      action: "conversation.read";
+      params: { target: string; through_revision: number; completion_key: string };
+    }
   | AgentRequest
   | { type: "request"; op_id: string; action: "session.list"; params: Record<string, never> }
   | {
@@ -201,25 +212,26 @@ export type SessionInterruptResult = {
   interrupted: boolean;
 };
 
-export type ActionResultMap = CommandResults & AgentResults & {
-  "conversation.read": ConversationStatus;
-  "session.list": { sessions: import("./rest.gen").components["schemas"]["SessionOut"][] };
-  "session.history": {
-    completion_revision?: number | null;
-    completion_target?: string | null;
-    entries: string[];
-    next_cursor: string | null;
-    has_more: boolean;
-    turn_active?: boolean | null;
-    external_busy?: boolean | null;
-    external_model?: string | null;
+export type ActionResultMap = CommandResults &
+  AgentResults & {
+    "conversation.read": ConversationStatus;
+    "session.list": { sessions: import("./rest.gen").components["schemas"]["SessionOut"][] };
+    "session.history": {
+      completion_revision?: number | null;
+      completion_target?: string | null;
+      entries: string[];
+      next_cursor: string | null;
+      has_more: boolean;
+      turn_active?: boolean | null;
+      external_busy?: boolean | null;
+      external_model?: string | null;
+    };
+    "approval.answer": ApprovalAnswerResult;
+    "approval.cancel": ApprovalCancelResult;
+    "session.mode": SessionModeResult;
+    "session.prompt": SessionPromptResult;
+    "session.interrupt": SessionInterruptResult;
   };
-  "approval.answer": ApprovalAnswerResult;
-  "approval.cancel": ApprovalCancelResult;
-  "session.mode": SessionModeResult;
-  "session.prompt": SessionPromptResult;
-  "session.interrupt": SessionInterruptResult;
-};
 
 export interface SubscribedMessage {
   op: "subscribed";
@@ -255,7 +267,13 @@ export type DegradationMessage = EventMessage & {
 };
 
 export interface ApprovalPendingMessage {
-  kind?: "command_execution" | "file_change" | "permission_scope" | "user_input" | "elicitation" | "unknown";
+  kind?:
+    | "command_execution"
+    | "file_change"
+    | "permission_scope"
+    | "user_input"
+    | "elicitation"
+    | "unknown";
   permission_modes?: string[];
   agent_id?: string | null;
   type: "approval.pending";
@@ -346,7 +364,12 @@ export type ServerMessage =
   | SubscribedMessage
   | UnsubscribedMessage
   | SnapshotMessage
-  | { type: "conversation_status"; topic: "conversations.all"; seq: number; status: ConversationStatus }
+  | {
+      type: "conversation_status";
+      topic: "conversations.all";
+      seq: number;
+      status: ConversationStatus;
+    }
   | EventMessage
   | DegradationMessage
   | ApprovalPendingMessage

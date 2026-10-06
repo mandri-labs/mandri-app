@@ -15,52 +15,96 @@ const socketRequest = vi.hoisted(() => vi.fn());
 vi.mock("@/app/connection", () => ({ getDaemonSocket: () => ({ request: socketRequest }) }));
 
 const availability = {
-  owner: "unowned", activity: "idle", can_resume: true,
-  can_release: false, can_restore: true, reason: null,
+  owner: "unowned",
+  activity: "idle",
+  can_resume: true,
+  can_release: false,
+  can_restore: true,
+  reason: null,
 } as const;
 
 function Panel() {
   const session = useStore(sessionsStore, (state) => state.sessions.s1!);
-  return <><LifecycleMenu session={session} /><Composer sessionId="s1" /></>;
+  return (
+    <>
+      <LifecycleMenu session={session} />
+      <Composer sessionId="s1" />
+    </>
+  );
 }
 
-beforeAll(async () => { await initI18n("en"); });
-beforeEach(() => { vi.mocked(request).mockReset(); });
+beforeAll(async () => {
+  await initI18n("en");
+});
+beforeEach(() => {
+  vi.mocked(request).mockReset();
+});
 afterEach(cleanup);
 
 function seed(harness: "claude" | "codex") {
   sessionsStore.setState({
-    sessions: { s1: {
-      id: "s1", harness, state: "stopped", title: "Synthetic session",
-      deleted: false, pendingApprovals: 0, nativeId: "native-s1",
-      model: "fixture/gateway", gatewayRouteId: "route", reasoningEffort: "high", availability,
-    } }, order: ["s1"], drafts: {},
+    sessions: {
+      s1: {
+        id: "s1",
+        harness,
+        state: "stopped",
+        title: "Synthetic session",
+        deleted: false,
+        pendingApprovals: 0,
+        nativeId: "native-s1",
+        model: "fixture/gateway",
+        gatewayRouteId: "route",
+        reasoningEffort: "high",
+        availability,
+      },
+    },
+    order: ["s1"],
+    drafts: {},
   });
 }
 
-it.each(["codex", "claude"] as const)("refreshes the %s model displayed after clicking Restore", async (harness) => {
-  seed(harness);
-  const model = harness === "codex" ? "gpt-5.6-luna" : "default";
-  vi.mocked(request).mockImplementation(async (path) => {
-    if (path.endsWith("/restore-native-model")) return availability;
-    if (path === "/v1/sessions/s1") return {
-      id: "s1", harness, native_id: "native-s1", state: "stopped", title: "Synthetic session",
-      project_path: "/workspace", model, model_source: "native", reasoning_effort: null,
-    };
-    if (path.endsWith("/models")) return [{ id: model, display_name: "Native model", reasoning_efforts: [] }];
-    return [];
-  });
-  render(<Panel />);
-  expect(screen.getByRole("button", { name: "Model" }).textContent).toContain("fixture/gateway");
-  fireEvent.click(screen.getByRole("button", { name: "Session actions" }));
-  fireEvent.click(screen.getByRole("menuitem", { name: "Restore native model" }));
-  await waitFor(() => expect(sessionsStore.getState().sessions.s1?.model).toBe(`native:${harness}/${model}`));
-  expect(sessionsStore.getState().sessions.s1?.gatewayRouteId).toBeUndefined();
-  expect(sessionsStore.getState().sessions.s1?.reasoningEffort).toBeNull();
-  expect(screen.getByRole("button", { name: "Model" }).textContent).not.toContain("fixture/gateway");
-  expect(request).toHaveBeenCalledWith("/v1/sessions/s1/restore-native-model", { method: "POST", timeoutMs: null });
-  expect(request).toHaveBeenCalledWith("/v1/sessions/s1", {});
-});
+it.each(["codex", "claude"] as const)(
+  "refreshes the %s model displayed after clicking Restore",
+  async (harness) => {
+    seed(harness);
+    const model = harness === "codex" ? "gpt-5.6-luna" : "default";
+    vi.mocked(request).mockImplementation(async (path) => {
+      if (path.endsWith("/restore-native-model")) return availability;
+      if (path === "/v1/sessions/s1")
+        return {
+          id: "s1",
+          harness,
+          native_id: "native-s1",
+          state: "stopped",
+          title: "Synthetic session",
+          project_path: "/workspace",
+          model,
+          model_source: "native",
+          reasoning_effort: null,
+        };
+      if (path.endsWith("/models"))
+        return [{ id: model, display_name: "Native model", reasoning_efforts: [] }];
+      return [];
+    });
+    render(<Panel />);
+    expect(screen.getByRole("button", { name: "Model" }).textContent).toContain("fixture/gateway");
+    fireEvent.click(screen.getByRole("button", { name: "Session actions" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Restore native model" }));
+    await waitFor(() =>
+      expect(sessionsStore.getState().sessions.s1?.model).toBe(`native:${harness}/${model}`),
+    );
+    expect(sessionsStore.getState().sessions.s1?.gatewayRouteId).toBeUndefined();
+    expect(sessionsStore.getState().sessions.s1?.reasoningEffort).toBeNull();
+    expect(screen.getByRole("button", { name: "Model" }).textContent).not.toContain(
+      "fixture/gateway",
+    );
+    expect(request).toHaveBeenCalledWith("/v1/sessions/s1/restore-native-model", {
+      method: "POST",
+      timeoutMs: null,
+    });
+    expect(request).toHaveBeenCalledWith("/v1/sessions/s1", {});
+  },
+);
 
 it("preserves the current selection when native restoration fails", async () => {
   seed("codex");
@@ -73,11 +117,23 @@ it("preserves the current selection when native restoration fails", async () => 
 it("discards a stale session list that arrives after native restoration", async () => {
   seed("codex");
   const restored = {
-    id: "s1", harness: "codex", native_id: "native-s1", state: "stopped", title: "Synthetic session",
-    project_path: "/workspace", model: "gpt-5.6-luna", model_source: "native", reasoning_effort: null,
+    id: "s1",
+    harness: "codex",
+    native_id: "native-s1",
+    state: "stopped",
+    title: "Synthetic session",
+    project_path: "/workspace",
+    model: "gpt-5.6-luna",
+    model_source: "native",
+    reasoning_effort: null,
   };
   let finish!: (value: unknown) => void;
-  socketRequest.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  socketRequest.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
   const loading = refreshSessionMetadata();
   vi.mocked(request).mockImplementation(async (path) =>
     path.endsWith("/restore-native-model") ? availability : restored,

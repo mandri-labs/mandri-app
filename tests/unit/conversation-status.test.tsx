@@ -19,7 +19,10 @@ const working: ConversationStatus = {
 
 function receive(status: unknown, topic = "conversations.all") {
   const frame = parseServerMessage({
-    topic, seq: 1, source: "daemon", ts: 1,
+    topic,
+    seq: 1,
+    source: "daemon",
+    ts: 1,
     raw: { type: "conversation_status", status },
   });
   expect(frame).not.toBeNull();
@@ -34,15 +37,30 @@ it("updates the indicator from the daemon's enveloped status events without reco
   render(<ConversationIndicator target="session:session" />);
   act(() => receive(working));
   expect(screen.getByRole("img").className).toContain("--working");
-  act(() => receive({
-    ...working, revision: 2, work_state: "idle", cycle_active: false,
-    completion_revision: 1, completion_key: "completion", outcome: "completed",
-  }));
+  act(() =>
+    receive({
+      ...working,
+      revision: 2,
+      work_state: "idle",
+      cycle_active: false,
+      completion_revision: 1,
+      completion_key: "completion",
+      outcome: "completed",
+    }),
+  );
   expect(screen.getByRole("img").className).toContain("--unread");
-  act(() => receive({
-    ...working, revision: 3, work_state: "idle", cycle_active: false,
-    completion_revision: 1, read_revision: 1, completion_key: "completion", outcome: "completed",
-  }));
+  act(() =>
+    receive({
+      ...working,
+      revision: 3,
+      work_state: "idle",
+      cycle_active: false,
+      completion_revision: 1,
+      read_revision: 1,
+      completion_key: "completion",
+      outcome: "completed",
+    }),
+  );
   expect(screen.queryByRole("img")).toBeNull();
   act(() => receive(working));
   expect(screen.queryByRole("img")).toBeNull();
@@ -57,7 +75,11 @@ it("rejects malformed statuses and status-shaped harness events", () => {
 
 it("loads statuses from the initial snapshot", () => {
   ingestConversationFrame({
-    type: "snapshot", topic: "sessions.all", sessions: [], runtimes: [], statuses: [working],
+    type: "snapshot",
+    topic: "sessions.all",
+    sessions: [],
+    runtimes: [],
+    statuses: [working],
   });
   expect(conversationStatusStore.getState().statuses[working.target]).toEqual(working);
 });

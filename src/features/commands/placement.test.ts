@@ -3,7 +3,11 @@ import type { CommandInvocation } from "@/daemon/types/commands";
 import { commandsForPlacement } from "./placement";
 
 const record = (name: string, id = name, kind = "command"): CommandInvocation => ({
-  invocation_id: id, session_id: "s", command: { id, name, kind, description: "", aliases: [] }, state: "succeeded", cancellable: false,
+  invocation_id: id,
+  session_id: "s",
+  command: { id, name, kind, description: "", aliases: [] },
+  state: "succeeded",
+  cancellable: false,
 });
 
 describe("native command placement", () => {
@@ -15,12 +19,16 @@ describe("native command placement", () => {
     expect(commandsForPlacement([old, goal, reload], "transcript")).toEqual([reload]);
   });
   it("leaves arbitrary commands and skills in the transcript across harnesses", () => {
-    const records = [record("custom"), record("goal", "goal-skill", "skill"), record("usage"), record("my-goal")];
+    const records = [
+      record("custom"),
+      record("goal", "goal-skill", "skill"),
+      record("usage"),
+      record("my-goal"),
+    ];
     expect(commandsForPlacement(records, "composer")).toEqual([]);
     expect(commandsForPlacement(records, "transcript")).toEqual(records);
   });
 });
-
 
 it("pins OpenCode review once without moving ordinary commands or another harness's review", () => {
   const old = record("review", "old-review");

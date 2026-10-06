@@ -3,31 +3,57 @@ import { useState } from "react";
 import { initI18n } from "@/i18n";
 import { AsyncQuestions } from "./AsyncQuestions";
 
-const choices = [{
-  title: "How should completed tasks appear?",
-  options: ["Keep them in the list", "Move them to a separate section", "Hide them by default"],
-}];
+const choices = [
+  {
+    title: "How should completed tasks appear?",
+    options: ["Keep them in the list", "Move them to a separate section", "Hide them by default"],
+  },
+];
 
 const meta = {
   title: "Features/Transcript/AsyncQuestions",
   component: AsyncQuestions,
   parameters: { layout: "centered" },
-  loaders: [async () => { await initI18n("en"); return {}; }],
+  loaders: [
+    async () => {
+      await initI18n("en");
+      return {};
+    },
+  ],
   args: { questions: choices, disabled: false, onAnswer: () => {} },
   argTypes: {
     questions: { control: "object" },
     disabled: { control: "boolean" },
     onAnswer: { control: false },
   },
-  decorators: [(Story) => <div style={{ width: "min(800px, calc(100vw - 48px))" }}><Story /></div>],
+  decorators: [
+    (Story) => (
+      <div style={{ width: "min(800px, calc(100vw - 48px))" }}>
+        <Story />
+      </div>
+    ),
+  ],
   render: function InteractiveQuestion(args) {
     const [answer, setAnswer] = useState("");
-    return <>
-      <AsyncQuestions {...args} onAnswer={(value) => { setAnswer(value); args.onAnswer(value); }} />
-      {answer && <output aria-live="polite" style={{ display: "block", marginTop: 16, whiteSpace: "pre-wrap" }}>
-        {answer}
-      </output>}
-    </>;
+    return (
+      <>
+        <AsyncQuestions
+          {...args}
+          onAnswer={(value) => {
+            setAnswer(value);
+            args.onAnswer(value);
+          }}
+        />
+        {answer && (
+          <output
+            aria-live="polite"
+            style={{ display: "block", marginTop: 16, whiteSpace: "pre-wrap" }}
+          >
+            {answer}
+          </output>
+        )}
+      </>
+    );
   },
 } satisfies Meta<typeof AsyncQuestions>;
 
@@ -53,23 +79,39 @@ export const FreeAnswer: Story = {
 };
 
 export const MultipleQuestions: Story = {
-  args: { questions: [
-    ...choices,
-    { title: "Which order should the remaining tasks use?", options: ["Priority", "Creation date", "Due date"] },
-    { title: "Any additional requirements?", options: [] },
-  ] },
+  args: {
+    questions: [
+      ...choices,
+      {
+        title: "Which order should the remaining tasks use?",
+        options: ["Priority", "Creation date", "Due date"],
+      },
+      { title: "Any additional requirements?", options: [] },
+    ],
+  },
 };
 
 export const Disabled: Story = { args: { disabled: true } };
 
 export const NarrowWithLongOptions: Story = {
-  decorators: [(Story) => <div style={{ width: "min(342px, 100%)" }}><Story /></div>],
-  args: { questions: [{
-    title: "How should the task list behave when several completed tasks belong to the same project?",
-    options: [
-      "Keep completed tasks next to the remaining tasks so that the full project history stays visible.",
-      "Group completed tasks in a collapsible section at the bottom of each project, ordered by completion date.",
-      "Show only unfinished tasks and make completed tasks available through a separate filter.",
+  decorators: [
+    (Story) => (
+      <div style={{ width: "min(342px, 100%)" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  args: {
+    questions: [
+      {
+        title:
+          "How should the task list behave when several completed tasks belong to the same project?",
+        options: [
+          "Keep completed tasks next to the remaining tasks so that the full project history stays visible.",
+          "Group completed tasks in a collapsible section at the bottom of each project, ordered by completion date.",
+          "Show only unfinished tasks and make completed tasks available through a separate filter.",
+        ],
+      },
     ],
-  }] },
+  },
 };

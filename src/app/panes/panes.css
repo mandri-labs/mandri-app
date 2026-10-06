@@ -110,7 +110,10 @@
   opacity: 1;
 }
 @media (hover: none), (pointer: coarse) {
-  .pane-controls, .pane-close { opacity: 1; }
+  .pane-controls,
+  .pane-close {
+    opacity: 1;
+  }
 }
 .pane-controls button:disabled {
   opacity: 0.35;
@@ -227,7 +230,10 @@
 .pane-divider--horizontal {
   left: 0;
   right: 0;
-  top: calc((max(100%, var(--pane-grid-min-height)) - var(--pane-gap)) * var(--pane-row-ratio) + var(--pane-gap) / 2 - 8px);
+  top: calc(
+    (max(100%, var(--pane-grid-min-height)) - var(--pane-gap)) * var(--pane-row-ratio) +
+      var(--pane-gap) / 2 - 8px
+  );
   height: 16px;
   cursor: row-resize;
 }

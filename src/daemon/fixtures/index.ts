@@ -1,7 +1,4 @@
-export {
-  listFixtures,
-  loadFixture,
-} from "./load";
+export { listFixtures, loadFixture } from "./load";
 export type {
   FixtureFile,
   FixtureFrame,

@@ -172,7 +172,9 @@ export class MandriSocket {
     }
     log.debug("opening websocket", { url: this.url, attempt: this.attempt });
     const token = daemonToken(this.url);
-    const socket = token ? new WebSocket(this.url, ["mandri", `mandri-token.${token}`]) : new WebSocket(this.url);
+    const socket = token
+      ? new WebSocket(this.url, ["mandri", `mandri-token.${token}`])
+      : new WebSocket(this.url);
     this.ws = socket;
     socket.onopen = () => {
       if (this.ws === socket) this.handleOpen();
@@ -305,9 +307,10 @@ export class MandriSocket {
   private sendSubscribe(topic: WsTopic, since?: number | null): void {
     // Keep the caller's replay position across a connecting socket or a lost
     // subscription acknowledgement. Once frames arrive, the tracker takes over.
-    const effectiveSince = since === undefined
-      ? this.tracker.getSince(topic) ?? this.requestedSince.get(topic)
-      : since;
+    const effectiveSince =
+      since === undefined
+        ? (this.tracker.getSince(topic) ?? this.requestedSince.get(topic))
+        : since;
     const message: SubscribeMessage =
       effectiveSince === undefined
         ? { op: "subscribe", topic }

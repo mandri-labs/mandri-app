@@ -47,12 +47,24 @@ export function parseHistoryLine(
     const record = parseArguments(line);
     if (typeof record?.["byte_length"] === "number") {
       const nativeKind = record["event_kind"];
-      const eventKind = nativeKind === "compaction" || nativeKind === "command" || nativeKind === "file_change"
-        ? nativeKind : harness === "codex" ? codexRecordKind(record) : undefined;
-      return [{ kind: "record",
-        preview: typeof record["preview"] === "string" ? record["preview"] : undefined,
-        ...(eventKind ? { eventKind } : {}),
-        byteLength: record["byte_length"], key: typeof record["record_token"] === "string" ? `record:${record["record_token"]}` : undefined }];
+      const eventKind =
+        nativeKind === "compaction" || nativeKind === "command" || nativeKind === "file_change"
+          ? nativeKind
+          : harness === "codex"
+            ? codexRecordKind(record)
+            : undefined;
+      return [
+        {
+          kind: "record",
+          preview: typeof record["preview"] === "string" ? record["preview"] : undefined,
+          ...(eventKind ? { eventKind } : {}),
+          byteLength: record["byte_length"],
+          key:
+            typeof record["record_token"] === "string"
+              ? `record:${record["record_token"]}`
+              : undefined,
+        },
+      ];
     }
   }
   switch (harness) {
@@ -71,13 +83,20 @@ export function parseHistoryLine(
 
 export { createClaudeStreamState } from "./claudeStream";
 
-function codexRecordKind(record: Record<string, unknown>): "compaction" | "command" | "file_change" | undefined {
+function codexRecordKind(
+  record: Record<string, unknown>,
+): "compaction" | "command" | "file_change" | undefined {
   if (record["original_type"] === "compacted") return "compaction";
-  if (record["original_type"] !== "event_msg" || record["original_event_type"] !== "item_completed") return undefined;
+  if (record["original_type"] !== "event_msg" || record["original_event_type"] !== "item_completed")
+    return undefined;
   switch (record["original_item_type"]) {
-    case "ContextCompaction": return "compaction";
-    case "CommandExecution": return "command";
-    case "FileChange": return "file_change";
-    default: return undefined;
+    case "ContextCompaction":
+      return "compaction";
+    case "CommandExecution":
+      return "command";
+    case "FileChange":
+      return "file_change";
+    default:
+      return undefined;
   }
 }

@@ -128,8 +128,8 @@ function Playground({
     <div ref={root} style={{ minHeight: 570, display: "flex", flexDirection: "column", gap: 16 }}>
       <p style={{ color: "var(--color-text-muted)", fontSize: 13, lineHeight: 1.6 }}>
         Synthetic interaction fixture. Try /go or /ol, then Enter. With /i, Enter waits for a unique
-        match. Select /custom-check, then type arguments directly in the composer. The goal command is a search example,
-        not a claimed Codex capability.
+        match. Select /custom-check, then type arguments directly in the composer. The goal command
+        is a search example, not a claimed Codex capability.
       </p>
       <CommandHistory sessionId={sessionId} transport={transport} />
       <div style={{ marginTop: "auto", paddingTop: 320 }}>

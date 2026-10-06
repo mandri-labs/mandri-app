@@ -40,9 +40,7 @@ function pendingFrame(overrides: Partial<ApprovalPendingMessage> = {}): Approval
   };
 }
 
-function resolvedFrame(
-  overrides: Partial<ApprovalResolvedMessage> = {},
-): ApprovalResolvedMessage {
+function resolvedFrame(overrides: Partial<ApprovalResolvedMessage> = {}): ApprovalResolvedMessage {
   return {
     type: "approval.resolved",
     topic: "session.s1",
@@ -82,9 +80,7 @@ class RecordingTransport implements ApprovalTransport {
   answer(params: ApprovalAnswerParams): Promise<ApprovalAnswerResult> {
     this.answers.push(params);
     if (this.failWith !== null) {
-      return Promise.reject(
-        new DaemonError({ code: this.failWith.code, message: "rejected" }),
-      );
+      return Promise.reject(new DaemonError({ code: this.failWith.code, message: "rejected" }));
     }
     return Promise.resolve({ approval_id: params.approval_id, status: "answered" });
   }
@@ -92,9 +88,7 @@ class RecordingTransport implements ApprovalTransport {
   cancel(params: ApprovalCancelParams): Promise<ApprovalCancelResult> {
     this.cancels.push(params);
     if (this.failWith !== null) {
-      return Promise.reject(
-        new DaemonError({ code: this.failWith.code, message: "rejected" }),
-      );
+      return Promise.reject(new DaemonError({ code: this.failWith.code, message: "rejected" }));
     }
     return Promise.resolve({ approval_id: params.approval_id, status: "cancelled" });
   }
@@ -117,10 +111,12 @@ async function fixtureApprovalFrames(harness: "claude" | "opencode") {
   expect(fixture).not.toBeNull();
   const { frames } = validateFixtureFrames(fixture as NonNullable<typeof fixture>);
   const pending = frames.filter(
-    (frame): frame is ApprovalPendingMessage => "type" in frame && frame.type === "approval.pending",
+    (frame): frame is ApprovalPendingMessage =>
+      "type" in frame && frame.type === "approval.pending",
   );
   const resolved = frames.filter(
-    (frame): frame is ApprovalResolvedMessage => "type" in frame && frame.type === "approval.resolved",
+    (frame): frame is ApprovalResolvedMessage =>
+      "type" in frame && frame.type === "approval.resolved",
   );
   return { pending, resolved };
 }
@@ -209,9 +205,7 @@ describe("answer flow with reconciling resolved frame", () => {
     setApprovalTransport(transport);
     state().ingestFrame(codexPendingFrame("cx-1", BASE_TS + 120_000));
     await state().answer("cx-1", "acceptForSession");
-    expect(transport.answers).toEqual([
-      { approval_id: "cx-1", decision: "acceptForSession" },
-    ]);
+    expect(transport.answers).toEqual([{ approval_id: "cx-1", decision: "acceptForSession" }]);
     expect(state().pending).toEqual({});
     expect(state().recent[0]?.status).toBe("answered");
   });
@@ -313,12 +307,12 @@ describe("harness variant sets", () => {
 describe("kind classification", () => {
   it("classifies synthetic codex and opencode raws and unknown payloads", async () => {
     const { classifyKind } = await import("@/stores/approvals");
-    expect(classifyKind("codex", { method: "execApproval/request", params: { command: ["ls"] } })).toBe(
-      "command_execution",
-    );
-    expect(classifyKind("codex", { method: "applyPatchApproval/request", params: { patch: "***" } })).toBe(
-      "file_change",
-    );
+    expect(
+      classifyKind("codex", { method: "execApproval/request", params: { command: ["ls"] } }),
+    ).toBe("command_execution");
+    expect(
+      classifyKind("codex", { method: "applyPatchApproval/request", params: { patch: "***" } }),
+    ).toBe("file_change");
     expect(
       classifyKind("opencode", {
         type: "permission.asked",

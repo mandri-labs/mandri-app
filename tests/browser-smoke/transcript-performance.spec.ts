@@ -119,12 +119,26 @@ try {
     current = socket;
     socket.onMessage((data) => {
       const frame = JSON.parse(String(data));
-      if (frame.action === "command.catalogs" || frame.action === "command.catalog" || frame.action === "command.list") {
-        const result = frame.action === "command.list" ? { invocations: [] } : frame.action === "command.catalogs"
-          ? { default_cwd: "/mock-project", catalogs: [] }
-          : { ...frame.params, cwd: frame.params.cwd ?? "/mock-project", profile_id: null,
-              execution_backend: frame.params.execution_backend ?? "host", privacy_mode: frame.params.privacy_mode ?? "none",
-              state: "ready", commands: [], reason: null };
+      if (
+        frame.action === "command.catalogs" ||
+        frame.action === "command.catalog" ||
+        frame.action === "command.list"
+      ) {
+        const result =
+          frame.action === "command.list"
+            ? { invocations: [] }
+            : frame.action === "command.catalogs"
+              ? { default_cwd: "/mock-project", catalogs: [] }
+              : {
+                  ...frame.params,
+                  cwd: frame.params.cwd ?? "/mock-project",
+                  profile_id: null,
+                  execution_backend: frame.params.execution_backend ?? "host",
+                  privacy_mode: frame.params.privacy_mode ?? "none",
+                  state: "ready",
+                  commands: [],
+                  reason: null,
+                };
         socket.send(JSON.stringify({ type: "response", op_id: frame.op_id, ok: true, result }));
         return;
       }
@@ -134,7 +148,11 @@ try {
             type: "response",
             op_id: frame.op_id,
             ok: true,
-            result: { agents: [], parent_capabilities: {}, classified_session_ids: sessions.map((session) => session.id) },
+            result: {
+              agents: [],
+              parent_capabilities: {},
+              classified_session_ids: sessions.map((session) => session.id),
+            },
           }),
         );
         return;
@@ -237,7 +255,11 @@ try {
     el.scrollTop = 700;
   });
   await page.locator(".transcript-status-top").waitFor();
-  assert.deepEqual(await viewport.boundingBox(), viewportBeforeHistory, "Loading history must not move or resize the viewport");
+  assert.deepEqual(
+    await viewport.boundingBox(),
+    viewportBeforeHistory,
+    "Loading history must not move or resize the viewport",
+  );
   assert.equal(cursors.at(-1), "older-1", "History must prefetch before reaching the top");
   assert.equal(pending.length, 1, "Only one older page may be in flight");
   // Continue moving while the page is deliberately held in the mocked socket.
@@ -251,8 +273,15 @@ try {
   await page.waitForTimeout(250);
   const after = await anchor(page, before.text);
   assert.ok(Math.abs(after.offset - before.offset) < 2, JSON.stringify({ before, after }));
-  assert.ok(Math.abs(after.screenTop - before.screenTop) < 2, "Removing the loading indicator moved the visible message on screen");
-  assert.deepEqual(await viewport.boundingBox(), viewportBeforeHistory, "Finishing history must not move or resize the viewport");
+  assert.ok(
+    Math.abs(after.screenTop - before.screenTop) < 2,
+    "Removing the loading indicator moved the visible message on screen",
+  );
+  assert.deepEqual(
+    await viewport.boundingBox(),
+    viewportBeforeHistory,
+    "Finishing history must not move or resize the viewport",
+  );
 
   // Capture every painted frame, not just the final scroll position. Periodic
   // pings, history refreshes and content growth must not drag a reader around.
@@ -329,10 +358,20 @@ try {
   await page.waitForTimeout(100);
   const pausedTop = await viewport.evaluate((el) => el.scrollTop);
   recent[199] = line(1199, "\n\n" + "More streamed text. ".repeat(650));
-  current!.send(JSON.stringify({ topic: "session.perf-0", seq: ++seq, source: "mandri", ts: seq,
-    raw: { type: "history_changed" } }));
+  current!.send(
+    JSON.stringify({
+      topic: "session.perf-0",
+      seq: ++seq,
+      source: "mandri",
+      ts: seq,
+      raw: { type: "history_changed" },
+    }),
+  );
   await page.waitForTimeout(300);
-  assert.ok(Math.abs(await viewport.evaluate((el) => el.scrollTop) - pausedTop) < 2, "Small upward scroll was overridden by streaming");
+  assert.ok(
+    Math.abs((await viewport.evaluate((el) => el.scrollTop)) - pausedTop) < 2,
+    "Small upward scroll was overridden by streaming",
+  );
   await page.mouse.wheel(0, 10000);
   await atEnd(page);
   assert.equal(await page.locator(".transcript-jump").count(), 0);
@@ -364,7 +403,9 @@ try {
   await group.click();
   const tool = page.locator(".tr-tool").last();
   await tool.waitFor();
-  assert.ok(Math.abs(await group.evaluate((el) => el.getBoundingClientRect().top) - groupTop) < 2);
+  assert.ok(
+    Math.abs((await group.evaluate((el) => el.getBoundingClientRect().top)) - groupTop) < 2,
+  );
   const toolTop = await tool.evaluate((el) => el.getBoundingClientRect().top);
   await tool.locator("button").click();
   await page.waitForTimeout(250);

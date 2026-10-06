@@ -117,7 +117,9 @@ describe("WelcomeComposer", () => {
     render(<WelcomeComposer />);
     expect(listRuntimesMock).not.toHaveBeenCalled();
     expect(screen.queryByRole("alert")).toBeNull();
-    await act(async () => { connectionStore.getState().setStatus("online"); });
+    await act(async () => {
+      connectionStore.getState().setStatus("online");
+    });
     await screen.findByText("Claude Code");
     expect(listRuntimesMock).toHaveBeenCalledTimes(1);
     expect(screen.queryByRole("alert")).toBeNull();
@@ -127,9 +129,13 @@ describe("WelcomeComposer", () => {
     listRuntimesMock.mockRejectedValueOnce(new Error("Network request failed"));
     render(<WelcomeComposer />);
     await screen.findByRole("alert");
-    await act(async () => { connectionStore.getState().setStatus("reconnecting"); });
+    await act(async () => {
+      connectionStore.getState().setStatus("reconnecting");
+    });
     expect(screen.queryByRole("alert")).toBeNull();
-    await act(async () => { connectionStore.getState().setStatus("online"); });
+    await act(async () => {
+      connectionStore.getState().setStatus("online");
+    });
     await screen.findByText("Claude Code");
     expect(listRuntimesMock).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole("alert")).toBeNull();
@@ -146,41 +152,74 @@ describe("WelcomeComposer", () => {
     fireEvent.click(screen.getByRole("button", { name: /Codex/ }));
     fireEvent.click(screen.getByLabelText("Permission mode"));
     fireEvent.click(screen.getByRole("button", { name: /^Full access/ }));
-    await act(async () => { connectionStore.getState().setStatus("reconnecting"); });
-    await act(async () => { connectionStore.getState().setStatus("online"); });
+    await act(async () => {
+      connectionStore.getState().setStatus("reconnecting");
+    });
+    await act(async () => {
+      connectionStore.getState().setStatus("online");
+    });
     expect(screen.getByLabelText("Harness").textContent).toContain("Codex");
     expect(screen.getByLabelText("Permission mode").textContent).toContain("Full access");
   });
 
   it("ignores a late runtime failure from a disconnected request", async () => {
     let reject!: (error: Error) => void;
-    listRuntimesMock.mockImplementationOnce(() => new Promise((_resolve, fail) => { reject = fail; }));
+    listRuntimesMock.mockImplementationOnce(
+      () =>
+        new Promise((_resolve, fail) => {
+          reject = fail;
+        }),
+    );
     render(<WelcomeComposer />);
-    await act(async () => { connectionStore.getState().setStatus("reconnecting"); });
-    await act(async () => { connectionStore.getState().setStatus("online"); });
+    await act(async () => {
+      connectionStore.getState().setStatus("reconnecting");
+    });
+    await act(async () => {
+      connectionStore.getState().setStatus("online");
+    });
     await screen.findByText("Claude Code");
-    await act(async () => { reject(new Error("Old request failed")); });
+    await act(async () => {
+      reject(new Error("Old request failed"));
+    });
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  it.each(["host", "docker"] as const)("shows the first message and status immediately while %s starts", async (backend) => {
-    let rejectStart!: (error: Error) => void;
-    startSessionMock.mockImplementationOnce(() => new Promise((_resolve, reject) => { rejectStart = reject; }));
-    preferencesStore.setState({ defaultModel: "fixture/model" });
-    render(<WelcomeComposer initialCwd="D:/Dev/alpha" initialProtection={backend === "docker" ? "docker" : "standard"} />);
-    await screen.findByText("Claude Code");
-    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Inspect the workspace" } });
-    fireEvent.click(screen.getByLabelText("Send"));
-    // Assert synchronously, before the startup request can resolve.
-    expect(screen.getByText("Inspect the workspace").className).toBe("tr-user-bubble");
-    expect(screen.getByRole("status").textContent).toBe(backend === "docker"
-      ? "Preparing the selected execution environment…" : "Thinking");
-    expect(screen.queryByRole("button", { name: "Cancel startup" })).toBeNull();
-    await act(async () => { rejectStart(new Error("unavailable")); });
-    await screen.findByRole("alert");
-    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Inspect the workspace");
-    expect(document.querySelector(".transcript-activity")).toBeNull();
-  });
+  it.each(["host", "docker"] as const)(
+    "shows the first message and status immediately while %s starts",
+    async (backend) => {
+      let rejectStart!: (error: Error) => void;
+      startSessionMock.mockImplementationOnce(
+        () =>
+          new Promise((_resolve, reject) => {
+            rejectStart = reject;
+          }),
+      );
+      preferencesStore.setState({ defaultModel: "fixture/model" });
+      render(
+        <WelcomeComposer
+          initialCwd="D:/Dev/alpha"
+          initialProtection={backend === "docker" ? "docker" : "standard"}
+        />,
+      );
+      await screen.findByText("Claude Code");
+      fireEvent.change(screen.getByRole("textbox"), { target: { value: "Inspect the workspace" } });
+      fireEvent.click(screen.getByLabelText("Send"));
+      // Assert synchronously, before the startup request can resolve.
+      expect(screen.getByText("Inspect the workspace").className).toBe("tr-user-bubble");
+      expect(screen.getByRole("status").textContent).toBe(
+        backend === "docker" ? "Preparing the selected execution environment…" : "Thinking",
+      );
+      expect(screen.queryByRole("button", { name: "Cancel startup" })).toBeNull();
+      await act(async () => {
+        rejectStart(new Error("unavailable"));
+      });
+      await screen.findByRole("alert");
+      expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe(
+        "Inspect the workspace",
+      );
+      expect(document.querySelector(".transcript-activity")).toBeNull();
+    },
+  );
 
   it.each([
     ["codex", "Ask for approval", "Full access", "full-access"],
@@ -445,11 +484,15 @@ describe("WelcomeComposer", () => {
   });
 });
 
-
 it("uploads a file-only first message to the created session", async () => {
-  const send = vi.spyOn(sessionFeed, "sendPrompt").mockResolvedValue({ state: "queued", code: null });
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockResolvedValue({ state: "queued", code: null });
   const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
-  vi.mocked(request).mockResolvedValue({ id: "attachment", reference: "[notes.txt](/session/notes.txt)" });
+  vi.mocked(request).mockResolvedValue({
+    id: "attachment",
+    reference: "[notes.txt](/session/notes.txt)",
+  });
   try {
     render(<WelcomeComposer />);
     await screen.findByText("Claude Code");
@@ -471,16 +514,29 @@ it("uploads a file-only first message to the created session", async () => {
   }
 });
 
-
 it("shows commands before a session exists and runs a unique match through the native path", async () => {
-  const command = { id: "discovered:check", name: "workspace-check", description: "Check the workspace", aliases: [], kind: "command" };
+  const command = {
+    id: "discovered:check",
+    name: "workspace-check",
+    description: "Check the workspace",
+    aliases: [],
+    kind: "command",
+  };
   const transport: CommandTransport = {
     catalog: vi.fn(async () => ({ commands: [command] })),
-    invoke: vi.fn(async (sessionId, invocationId) => ({ session_id: sessionId, invocation_id: invocationId, command, state: "running" as const, cancellable: false })),
+    invoke: vi.fn(async (sessionId, invocationId) => ({
+      session_id: sessionId,
+      invocation_id: invocationId,
+      command,
+      state: "running" as const,
+      cancellable: false,
+    })),
     list: vi.fn(async () => []),
     cancel: vi.fn(),
   };
-  const send = vi.spyOn(sessionFeed, "sendPrompt").mockResolvedValue({ state: "queued", code: null });
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockResolvedValue({ state: "queued", code: null });
   const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
   try {
     render(<WelcomeComposer initialCwd="D:/Dev/alpha" commands={transport} />);
@@ -489,7 +545,14 @@ it("shows commands before a session exists and runs a unique match through the n
     await screen.findByRole("option", { name: /workspace-check/ });
     expect(startSessionMock).not.toHaveBeenCalled();
     fireEvent.keyDown(screen.getByRole("combobox"), { key: "Enter" });
-    await waitFor(() => expect(transport.invoke).toHaveBeenCalledWith("session-1", expect.any(String), "discovered:check", "exact arguments"));
+    await waitFor(() =>
+      expect(transport.invoke).toHaveBeenCalledWith(
+        "session-1",
+        expect.any(String),
+        "discovered:check",
+        "exact arguments",
+      ),
+    );
     expect(startSessionMock).toHaveBeenCalledTimes(1);
     expect(send).not.toHaveBeenCalled();
     await waitFor(() => expect(window.location.hash).toBe("#/session/session-1"));
@@ -502,7 +565,9 @@ it("shows commands before a session exists and runs a unique match through the n
 it("does not turn an unknown slash command into the first prompt", async () => {
   const transport: CommandTransport = {
     catalog: vi.fn(async () => ({ commands: [] })),
-    invoke: vi.fn(), list: vi.fn(async () => []), cancel: vi.fn(),
+    invoke: vi.fn(),
+    list: vi.fn(async () => []),
+    cancel: vi.fn(),
   };
   render(<WelcomeComposer initialCwd="D:/Dev/alpha" commands={transport} />);
   await screen.findByText("Claude Code");
@@ -515,10 +580,18 @@ it("does not turn an unknown slash command into the first prompt", async () => {
 });
 
 it("requires a working folder only when executing a discovered command", async () => {
-  const command = { id: "discovered:check", name: "check", description: "Check", aliases: [], kind: "command" };
+  const command = {
+    id: "discovered:check",
+    name: "check",
+    description: "Check",
+    aliases: [],
+    kind: "command",
+  };
   const transport: CommandTransport = {
     catalog: vi.fn(async () => ({ commands: [command] })),
-    invoke: vi.fn(), list: vi.fn(async () => []), cancel: vi.fn(),
+    invoke: vi.fn(),
+    list: vi.fn(async () => []),
+    cancel: vi.fn(),
   };
   render(<WelcomeComposer commands={transport} />);
   await screen.findByText("Claude Code");
@@ -530,19 +603,32 @@ it("requires a working folder only when executing a discovered command", async (
   expect(transport.invoke).not.toHaveBeenCalled();
 });
 
-
 it("integrates the initial image into the bubble before session creation and upload finish", async () => {
   let finishStart!: (value: typeof SESSION_PAYLOAD) => void;
   let finishUpload!: (value: unknown) => void;
-  startSessionMock.mockImplementation(() => new Promise((resolve) => { finishStart = resolve; }));
-  vi.mocked(request).mockImplementation(() => new Promise((resolve) => { finishUpload = resolve; }));
-  const send = vi.spyOn(sessionFeed, "sendPrompt").mockResolvedValue({ state: "queued", code: null });
+  startSessionMock.mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finishStart = resolve;
+      }),
+  );
+  vi.mocked(request).mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finishUpload = resolve;
+      }),
+  );
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockResolvedValue({ state: "queued", code: null });
   const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
   try {
     render(<WelcomeComposer />);
     await screen.findByText("Claude Code");
     await pickFolder();
-    const file = new File([new Uint8Array([137, 80, 78, 71])], "capture.png", { type: "image/png" });
+    const file = new File([new Uint8Array([137, 80, 78, 71])], "capture.png", {
+      type: "image/png",
+    });
     fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file] } });
     await submitPrompt("Describe this");
     expect(document.querySelector(".tr-user-bubble")?.textContent).toContain("capture.png");
@@ -553,7 +639,9 @@ it("integrates the initial image into the bubble before session creation and upl
     const node = transcriptStore.getState().transcripts["session-1"]!.pendingUsers!.at(-1)!.node;
     expect(node.images?.[0]?.file).toBe(file);
     expect(send).not.toHaveBeenCalled();
-    await act(async () => finishUpload({ id: "image", reference: "[capture.png](/files/capture.png)" }));
+    await act(async () =>
+      finishUpload({ id: "image", reference: "[capture.png](/files/capture.png)" }),
+    );
     await waitFor(() => expect(send).toHaveBeenCalledWith("session-1", "Describe this", ["image"]));
   } finally {
     send.mockRestore();
@@ -561,13 +649,17 @@ it("integrates the initial image into the bubble before session creation and upl
   }
 });
 
-
 it("restores welcome text and every setting without additional UI", async () => {
   const { composerStorageKey, writeComposerStorage } = await import("@/lib/composerStorage");
   const saved = {
-    text: "Continue this prompt", harness: "claude", mode: "plan",
-    protection: "worktree_surrogate", worktreeId: "saved-tree",
-    model: "provider/saved-model", effort: "high", cwd: "D:/Dev/saved",
+    text: "Continue this prompt",
+    harness: "claude",
+    mode: "plan",
+    protection: "worktree_surrogate",
+    worktreeId: "saved-tree",
+    model: "provider/saved-model",
+    effort: "high",
+    cwd: "D:/Dev/saved",
   };
   writeComposerStorage(composerStorageKey("welcome"), saved);
   const first = render(<WelcomeComposer />);
@@ -578,14 +670,18 @@ it("restores welcome text and every setting without additional UI", async () => 
   first.unmount();
   render(<WelcomeComposer />);
   expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Edited prompt");
-  expect(JSON.parse(localStorage.getItem(composerStorageKey("welcome"))!)).toEqual({ ...saved, text: "Edited prompt" });
+  expect(JSON.parse(localStorage.getItem(composerStorageKey("welcome"))!)).toEqual({
+    ...saved,
+    text: "Edited prompt",
+  });
 });
 
-
 it("retains the first message after a lost acknowledgement and recovers it after reload", async () => {
-  const send = vi.spyOn(sessionFeed, "sendPrompt").mockRejectedValueOnce(
-    new DaemonError({ code: "delivery_unknown", message: "Acknowledgement lost" }),
-  );
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockRejectedValueOnce(
+      new DaemonError({ code: "delivery_unknown", message: "Acknowledgement lost" }),
+    );
   try {
     sessionsStore.setState({ drafts: {} });
     const view = render(<WelcomeComposer />);
@@ -607,11 +703,17 @@ it("retains the first message after a lost acknowledgement and recovers it after
   }
 });
 
-
 it("restores the first message and files when stopped during upload", async () => {
   let finishUpload!: (value: unknown) => void;
-  vi.mocked(request).mockImplementation(() => new Promise((resolve) => { finishUpload = resolve; }));
-  const send = vi.spyOn(sessionFeed, "sendPrompt").mockResolvedValue({ state: "queued", code: null });
+  vi.mocked(request).mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finishUpload = resolve;
+      }),
+  );
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockResolvedValue({ state: "queued", code: null });
   const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
   try {
     sessionsStore.setState({ drafts: {} });
@@ -623,10 +725,15 @@ it("restores the first message and files when stopped during upload", async () =
     });
     await submitPrompt("Keep my notes");
     await waitFor(() => expect(request).toHaveBeenCalled());
-    act(() => sessionsStore.getState().ingestFrame({
-      topic: "sessions.all", seq: 1, ts: 1, source: "mandri",
-      raw: { type: "session_stopped", session_id: "session-1", cause: "user" },
-    }));
+    act(() =>
+      sessionsStore.getState().ingestFrame({
+        topic: "sessions.all",
+        seq: 1,
+        ts: 1,
+        source: "mandri",
+        raw: { type: "session_stopped", session_id: "session-1", cause: "user" },
+      }),
+    );
     await act(async () => finishUpload({ id: "file", reference: "[notes.txt](/files/notes.txt)" }));
     await waitFor(() => expect(sessionsStore.getState().drafts["session-1"]).toBe("Keep my notes"));
     expect(await filesFor("session-1")[0]!.file.text()).toBe("notes");

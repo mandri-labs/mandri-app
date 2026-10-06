@@ -12,9 +12,12 @@ afterEach(cleanup);
 
 describe("conversation presentation regressions", () => {
   it("retains completed Markdown elements when text streams below them", () => {
-    const text = "# Heading\n\n```js\nconst value = 1;\n```\n\n| A | B |\n| - | - |\n| one | two |\n\n[Reference](https://example.com)";
+    const text =
+      "# Heading\n\n```js\nconst value = 1;\n```\n\n| A | B |\n| - | - |\n| one | two |\n\n[Reference](https://example.com)";
     const view = render(<MarkdownText text={text} />);
-    const elements = ["h1", "pre", "table", "a"].map((selector) => view.container.querySelector(selector));
+    const elements = ["h1", "pre", "table", "a"].map((selector) =>
+      view.container.querySelector(selector),
+    );
     expect(elements.every(Boolean)).toBe(true);
     for (let i = 1; i <= 3; i++) {
       view.rerender(<MarkdownText text={text + "\n\nMore text.".repeat(i)} />);

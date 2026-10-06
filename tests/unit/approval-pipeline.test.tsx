@@ -9,16 +9,34 @@ import type { ApprovalPendingMessage } from "@/daemon/types/ws";
 import { DaemonError } from "@/daemon/errors";
 
 function pending(): ApprovalPendingMessage {
-  return { type: "approval.pending", topic: "session.s1", seq: 1, source: "claude",
-    ts: Date.now(), approval_id: "a1", deadline: Date.now() + 120000, status: "pending",
-    raw: { type: "control_request", request_id: "r1", request: {
-      subtype: "can_use_tool", tool_name: "Bash", input: { command: "git --version" },
-    } },
+  return {
+    type: "approval.pending",
+    topic: "session.s1",
+    seq: 1,
+    source: "claude",
+    ts: Date.now(),
+    approval_id: "a1",
+    deadline: Date.now() + 120000,
+    status: "pending",
+    raw: {
+      type: "control_request",
+      request_id: "r1",
+      request: {
+        subtype: "can_use_tool",
+        tool_name: "Bash",
+        input: { command: "git --version" },
+      },
+    },
   };
 }
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 beforeEach(() => approvalsStore.getState().reset());
-afterEach(() => { cleanup(); setApprovalTransport(null); });
+afterEach(() => {
+  cleanup();
+  setApprovalTransport(null);
+});
 it("delivers a native approval through the pipeline and allows answering in the session", async () => {
   const answer = vi.fn(async () => ({ approval_id: "a1", status: "answered" as const }));
   setApprovalTransport({ answer, cancel: vi.fn() });
@@ -26,17 +44,39 @@ it("delivers a native approval through the pipeline and allows answering in the 
   render(<SessionApprovals sessionId="s1" />);
   expect(screen.getByText("git --version")).toBeTruthy();
   fireEvent.click(screen.getByRole("button", { name: "Allow" }));
-  await waitFor(() => expect(answer).toHaveBeenCalledWith({ approval_id: "a1", decision: "allow" }));
+  await waitFor(() =>
+    expect(answer).toHaveBeenCalledWith({ approval_id: "a1", decision: "allow" }),
+  );
   expect(approvalsStore.getState().pending.a1).toBeUndefined();
   await waitFor(() => expect(screen.queryByRole("article")).toBeNull());
 });
 it("deduplicates replayed approvals and removes expired cards", () => {
-  sessionsStore.setState({ sessions: { s1: { id: "s1", harness: "claude", state: "live", deleted: false, title: "Session", pendingApprovals: 0 } } });
+  sessionsStore.setState({
+    sessions: {
+      s1: {
+        id: "s1",
+        harness: "claude",
+        state: "live",
+        deleted: false,
+        title: "Session",
+        pendingApprovals: 0,
+      },
+    },
+  });
   dispatchFrame(pending());
   dispatchFrame({ ...pending(), seq: 2 });
   expect(sessionsStore.getState().sessions.s1?.pendingApprovals).toBe(1);
-  dispatchFrame({ type: "approval.resolved", topic: "session.s1", seq: 3, source: "mandri",
-    ts: Date.now(), raw: {}, approval_id: "a1", outcome: "expired", decision: null });
+  dispatchFrame({
+    type: "approval.resolved",
+    topic: "session.s1",
+    seq: 3,
+    source: "mandri",
+    ts: Date.now(),
+    raw: {},
+    approval_id: "a1",
+    outcome: "expired",
+    decision: null,
+  });
   render(<SessionApprovals sessionId="s1" />);
   expect(screen.queryByRole("article")).toBeNull();
   expect(screen.queryByRole("button", { name: "Allow" })).toBeNull();
@@ -51,7 +91,12 @@ it("does not show another session's approvals", () => {
 
 it("keeps the request visible during delivery and permits retry after a failure", async () => {
   let reject!: (error: unknown) => void;
-  const answer = vi.fn(() => new Promise<never>((_, fail) => { reject = fail; }));
+  const answer = vi.fn(
+    () =>
+      new Promise<never>((_, fail) => {
+        reject = fail;
+      }),
+  );
   setApprovalTransport({ answer, cancel: vi.fn() });
   dispatchFrame(pending());
   render(<SessionApprovals sessionId="s1" />);
@@ -61,18 +106,27 @@ it("keeps the request visible during delivery and permits retry after a failure"
   expect(answer).toHaveBeenCalledTimes(1);
   expect(allow.disabled).toBe(true);
   expect(screen.getByText("git --version")).toBeTruthy();
-  await act(async () => reject(new DaemonError({ code: "service_unavailable", message: "offline" })));
+  await act(async () =>
+    reject(new DaemonError({ code: "service_unavailable", message: "offline" })),
+  );
   expect(allow.disabled).toBe(false);
   expect(screen.getByRole("alert")).toBeTruthy();
   fireEvent.click(allow);
   expect(answer).toHaveBeenCalledTimes(2);
-  await act(async () => reject(new DaemonError({ code: "service_unavailable", message: "offline" })));
+  await act(async () =>
+    reject(new DaemonError({ code: "service_unavailable", message: "offline" })),
+  );
 });
 
 it("does not repeat a command from Claude's permission suggestions", () => {
   const frame = pending();
-  frame.raw = { request: { tool_name: "Bash", input: { command: "git --version" },
-    permission_suggestions: [{ rules: [{ ruleContent: "git --version" }] }] } };
+  frame.raw = {
+    request: {
+      tool_name: "Bash",
+      input: { command: "git --version" },
+      permission_suggestions: [{ rules: [{ ruleContent: "git --version" }] }],
+    },
+  };
   dispatchFrame(frame);
   const { container } = render(<SessionApprovals sessionId="s1" />);
   expect(screen.getAllByText("git --version")).toHaveLength(1);

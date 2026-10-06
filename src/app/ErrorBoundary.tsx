@@ -26,7 +26,10 @@ function buildDiagnostics(state: ErrorBoundaryState): string {
 function ErrorFallback({ state, onCopied }: { state: ErrorBoundaryState; onCopied: () => void }) {
   const { t } = useTranslation();
   const copy = (): void => {
-    navigator.clipboard.writeText(buildDiagnostics(state)).then(onCopied).catch(() => undefined);
+    navigator.clipboard
+      .writeText(buildDiagnostics(state))
+      .then(onCopied)
+      .catch(() => undefined);
   };
   return (
     <div className="error-boundary">
@@ -75,7 +78,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       copied: false,
     });
     const stack = error.stack ?? "";
-    void appLog("error", stack.length > 0 ? `${error.name}: ${error.message}\n${stack}` : `${error.name}: ${error.message}`);
+    void appLog(
+      "error",
+      stack.length > 0
+        ? `${error.name}: ${error.message}\n${stack}`
+        : `${error.name}: ${error.message}`,
+    );
   }
 
   private handleCopied = (): void => {

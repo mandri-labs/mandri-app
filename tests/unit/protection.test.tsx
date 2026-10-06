@@ -322,7 +322,8 @@ it("preserves confirmed policy across absent/stale metadata without overwriting 
   );
   expect(stale.privacyMode).toBe("surrogate");
   const updated = policyFromWire(
-    { execution_backend: "host", privacy_mode: "none", policy_revision: 4 }, previous,
+    { execution_backend: "host", privacy_mode: "none", policy_revision: 4 },
+    previous,
   );
   expect(updated).toMatchObject({ privacyMode: "none", policyRevision: 4 });
   const conflict = policyFromWire(
@@ -418,9 +419,7 @@ it("forks execution context with the supported API contract and preserves permis
   expect(screen.queryByRole("button", { name: "Create new session" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
   fireEvent.click(screen.getByRole("button", { name: "Create new session" }));
-  await waitFor(() =>
-    expect(sessionsStore.getState().sessions.forked?.privacyMode).toBe("none"),
-  );
+  await waitFor(() => expect(sessionsStore.getState().sessions.forked?.privacyMode).toBe("none"));
   expect(request).toHaveBeenCalledWith(
     "/v1/sessions/protected/fork",
     expect.objectContaining({
@@ -487,14 +486,21 @@ it("rejects an unconfirmed fork result and preserves the source session", async 
 it("shows startup activity without a cancel button and preserves the draft on failure", async () => {
   preferencesStore.setState({ defaultModel: "fixture/model" });
   let rejectStart!: (error: Error) => void;
-  vi.mocked(startSession).mockImplementation(() => new Promise((_resolve, reject) => { rejectStart = reject; }));
+  vi.mocked(startSession).mockImplementation(
+    () =>
+      new Promise((_resolve, reject) => {
+        rejectStart = reject;
+      }),
+  );
   render(<WelcomeComposer initialCwd="/workspace" />);
   await screen.findByText("Claude Code");
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "Keep this draft" } });
   fireEvent.click(screen.getByLabelText("Send"));
   expect(screen.getByRole("status").textContent).toBe("Thinking");
   expect(screen.queryByRole("button", { name: "Cancel startup" })).toBeNull();
-  await act(async () => { rejectStart(new Error("Startup failed")); });
+  await act(async () => {
+    rejectStart(new Error("Startup failed"));
+  });
   await screen.findByRole("alert");
   expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Keep this draft");
   expect(cancelStartup).not.toHaveBeenCalled();
@@ -543,7 +549,12 @@ it("ignores malformed and stale policy evidence even with a newer execution gene
 it("keeps startup visible after delivery until the session route replaces it", async () => {
   preferencesStore.setState({ defaultModel: "fixture/model" });
   let finishStart!: (result: Awaited<ReturnType<typeof startSession>>) => void;
-  vi.mocked(startSession).mockImplementation(() => new Promise((resolve) => { finishStart = resolve; }));
+  vi.mocked(startSession).mockImplementation(
+    () =>
+      new Promise((resolve) => {
+        finishStart = resolve;
+      }),
+  );
   render(<WelcomeComposer initialCwd="/workspace" />);
   await screen.findByText("Claude Code");
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "Hello" } });
@@ -556,7 +567,10 @@ it("keeps startup visible after delivery until the session route replaces it", a
   expect(screen.getByRole("status").textContent).toBe("Thinking");
   expect(screen.getByText("Hello").className).toBe("tr-user-bubble");
   expect(screen.queryByRole("button", { name: "Cancel startup" })).toBeNull();
-  expect(sessionsStore.getState().sessions.new).toMatchObject({ sending: false, awaitingResponse: true });
+  expect(sessionsStore.getState().sessions.new).toMatchObject({
+    sending: false,
+    awaitingResponse: true,
+  });
 });
 
 it("keeps Docker available independently of the selected permission mode", async () => {
@@ -603,9 +617,9 @@ it("shows the selected protection without claiming the agent is ready", () => {
   expect(screen.getByRole("dialog").textContent).not.toContain("Stop the session");
   fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
   expect(screen.getByRole("status").textContent).toContain("Stop the session");
-  expect((screen.getByRole("switch", { name: /^Pseudonymized/ }) as HTMLButtonElement).disabled).toBe(
-    true,
-  );
+  expect(
+    (screen.getByRole("switch", { name: /^Pseudonymized/ }) as HTMLButtonElement).disabled,
+  ).toBe(true);
 });
 
 it("shows a terminal execution failure in the composer context", () => {
@@ -703,22 +717,32 @@ it("clears resume feedback on a rejected startup without claiming a live session
   expect(isSessionWorking(current)).toBe(false);
 });
 
-it.each(["", "feature/search"])("creates a worktree with optional name %s and separate privacy", async (name) => {
-  preferencesStore.setState({ defaultModel: "fixture/model" });
-  vi.mocked(startSession).mockRejectedValue(new DaemonError({ code: "worktree_repository_required", message: "Synthetic refusal" }));
-  render(<WelcomeComposer initialCwd="/workspace" />);
-  await screen.findByText("Claude Code");
-  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Build search" } });
-  fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
-  fireEvent.click(screen.getByRole("button", { name: /^Worktree/ }));
-  fireEvent.change(screen.getByPlaceholderText("Random name"), { target: { value: name } });
-  fireEvent.click(screen.getByRole("switch"));
-  fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
-  fireEvent.click(screen.getByLabelText("Send"));
-  await waitFor(() => expect(startSession).toHaveBeenCalled());
-  const payload = vi.mocked(startSession).mock.calls[0]![0];
-  expect(payload).toMatchObject({ worktree: true, execution_backend: "host", privacy_mode: "surrogate", cwd: "/workspace" });
-  expect(payload.worktree_id).toBe(name || undefined);
-  expect((await screen.findByRole("alert")).textContent).toContain("Git repository");
-  expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Build search");
-});
+it.each(["", "feature/search"])(
+  "creates a worktree with optional name %s and separate privacy",
+  async (name) => {
+    preferencesStore.setState({ defaultModel: "fixture/model" });
+    vi.mocked(startSession).mockRejectedValue(
+      new DaemonError({ code: "worktree_repository_required", message: "Synthetic refusal" }),
+    );
+    render(<WelcomeComposer initialCwd="/workspace" />);
+    await screen.findByText("Claude Code");
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "Build search" } });
+    fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Worktree/ }));
+    fireEvent.change(screen.getByPlaceholderText("Random name"), { target: { value: name } });
+    fireEvent.click(screen.getByRole("switch"));
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
+    fireEvent.click(screen.getByLabelText("Send"));
+    await waitFor(() => expect(startSession).toHaveBeenCalled());
+    const payload = vi.mocked(startSession).mock.calls[0]![0];
+    expect(payload).toMatchObject({
+      worktree: true,
+      execution_backend: "host",
+      privacy_mode: "surrogate",
+      cwd: "/workspace",
+    });
+    expect(payload.worktree_id).toBe(name || undefined);
+    expect((await screen.findByRole("alert")).textContent).toContain("Git repository");
+    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toBe("Build search");
+  },
+);

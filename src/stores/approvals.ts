@@ -133,7 +133,12 @@ export interface ApprovalsState {
   errors: Record<string, string>;
   submitting: Record<string, boolean>;
   ingestFrame: (message: ServerMessage) => void;
-  answer: (approvalId: string, decision: ApprovalDecision, answers?: ApprovalAnswerParams["answers"], response?: ApprovalResponse) => Promise<void>;
+  answer: (
+    approvalId: string,
+    decision: ApprovalDecision,
+    answers?: ApprovalAnswerParams["answers"],
+    response?: ApprovalResponse,
+  ) => Promise<void>;
   cancel: (approvalId: string) => Promise<void>;
   tick: (now: number) => void;
   clearError: (approvalId: string) => void;
@@ -337,8 +342,12 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
               : existing.sessionId;
           const kind = message.kind ?? existing.kind;
           const permissionModes = message.permission_modes ?? existing.permissionModes;
-          if (sessionId !== existing.sessionId || (agentId && agentId !== existing.agentId)
-            || kind !== existing.kind || permissionModes !== existing.permissionModes) {
+          if (
+            sessionId !== existing.sessionId ||
+            (agentId && agentId !== existing.agentId) ||
+            kind !== existing.kind ||
+            permissionModes !== existing.permissionModes
+          ) {
             set({
               pending: {
                 ...state.pending,
@@ -396,7 +405,12 @@ export const approvalsStore = createStore<ApprovalsState>()((set, get) => {
       const answeredAt = Date.now();
       setSubmitting(approvalId, true);
       try {
-        await transport.answer({ approval_id: approvalId, decision, ...(answers ? { answers } : {}), ...response });
+        await transport.answer({
+          approval_id: approvalId,
+          decision,
+          ...(answers ? { answers } : {}),
+          ...response,
+        });
         if (get().pending[approvalId])
           resolveView(approvalId, "answered", { decision, answeredAt });
         set((current) => {

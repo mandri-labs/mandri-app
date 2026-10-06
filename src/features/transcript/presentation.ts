@@ -15,7 +15,8 @@ export function presentationKey(node: TranscriptNode): string {
 
 export function transcriptRowKey(node: TranscriptNode): string {
   return node.kind === "user" && node.localPresentation
-    ? `user:${node.localPresentation.key}` : presentationKey(node);
+    ? `user:${node.localPresentation.key}`
+    : presentationKey(node);
 }
 
 export function presentTranscript(
@@ -36,8 +37,14 @@ export function presentTranscript(
       }
     }
     const previous = visible.at(-1);
-    if (node.kind === "user" && node.messageId && previous?.kind === "user" && previous.messageId === node.messageId) {
-      visible[visible.length - 1] = { ...previous,
+    if (
+      node.kind === "user" &&
+      node.messageId &&
+      previous?.kind === "user" &&
+      previous.messageId === node.messageId
+    ) {
+      visible[visible.length - 1] = {
+        ...previous,
         text: [previous.text, node.text].filter(Boolean).join("\n"),
         images: [...(previous.images ?? []), ...(node.images ?? [])],
       };

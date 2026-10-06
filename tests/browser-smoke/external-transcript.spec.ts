@@ -58,12 +58,26 @@ try {
     socket = current;
     current.onMessage((data) => {
       const frame = JSON.parse(String(data));
-      if (frame.action === "command.catalogs" || frame.action === "command.catalog" || frame.action === "command.list") {
-        const result = frame.action === "command.list" ? { invocations: [] } : frame.action === "command.catalogs"
-          ? { default_cwd: "/mock-project", catalogs: [] }
-          : { ...frame.params, cwd: frame.params.cwd ?? "/mock-project", profile_id: null,
-              execution_backend: frame.params.execution_backend ?? "host", privacy_mode: frame.params.privacy_mode ?? "none",
-              state: "ready", commands: [], reason: null };
+      if (
+        frame.action === "command.catalogs" ||
+        frame.action === "command.catalog" ||
+        frame.action === "command.list"
+      ) {
+        const result =
+          frame.action === "command.list"
+            ? { invocations: [] }
+            : frame.action === "command.catalogs"
+              ? { default_cwd: "/mock-project", catalogs: [] }
+              : {
+                  ...frame.params,
+                  cwd: frame.params.cwd ?? "/mock-project",
+                  profile_id: null,
+                  execution_backend: frame.params.execution_backend ?? "host",
+                  privacy_mode: frame.params.privacy_mode ?? "none",
+                  state: "ready",
+                  commands: [],
+                  reason: null,
+                };
         current.send(JSON.stringify({ type: "response", op_id: frame.op_id, ok: true, result }));
         return;
       }
@@ -111,9 +125,20 @@ try {
               entries: [
                 JSON.stringify({
                   type: "message.part.updated",
-                  properties: { part: { id: "edit-part", callID: "edit-call", type: "tool", tool: "edit",
-                    state: { status: "completed", input: { filePath: "/project/config.json" },
-                      metadata: { diff: "@@ -1 +1 @@\n-old\n+new" }, output: "Updated" } } },
+                  properties: {
+                    part: {
+                      id: "edit-part",
+                      callID: "edit-call",
+                      type: "tool",
+                      tool: "edit",
+                      state: {
+                        status: "completed",
+                        input: { filePath: "/project/config.json" },
+                        metadata: { diff: "@@ -1 +1 @@\n-old\n+new" },
+                        output: "Updated",
+                      },
+                    },
+                  },
                 }),
                 JSON.stringify({
                   type: "message.updated",

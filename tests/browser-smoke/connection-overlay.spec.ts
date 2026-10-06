@@ -29,10 +29,18 @@ try {
       readyState = 0;
       onopen: (() => void) | null = null;
       onclose: ((event: { code: number; reason: string; wasClean: boolean }) => void) | null = null;
-      constructor() { sockets.push(this); }
+      constructor() {
+        sockets.push(this);
+      }
       send() {}
-      open() { this.readyState = 1; this.onopen?.(); }
-      close() { this.readyState = 3; this.onclose?.({ code: 1006, reason: "Synthetic outage", wasClean: false }); }
+      open() {
+        this.readyState = 1;
+        this.onopen?.();
+      }
+      close() {
+        this.readyState = 3;
+        this.onclose?.({ code: 1006, reason: "Synthetic outage", wasClean: false });
+      }
     }
     Object.assign(window, {
       WebSocket: TestSocket,
@@ -78,7 +86,9 @@ try {
   await overlay.getByRole("region", { name: "Connection settings" }).waitFor();
   await page.setViewportSize({ width: 390, height: 700 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.evaluate(() => { document.documentElement.dataset.theme = "light"; });
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "light";
+  });
   assert(await overlay.evaluate((el) => el.scrollWidth <= el.clientWidth));
   assert.equal(await overlay.locator(".tr-shimmer").count(), 0);
   if (output) await page.screenshot({ path: `${output}/recovery-mobile-light.png` });
@@ -88,7 +98,9 @@ try {
   assert.equal(await draft.inputValue(), "Keep this draft through the outage");
   assert(await draft.evaluate((el) => el === document.activeElement));
   assert.deepEqual(errors, []);
-  console.log("PASS: startup, full-window overlay, 20-second reconnect grace, draft/focus preservation, recovery, narrow light layout");
+  console.log(
+    "PASS: startup, full-window overlay, 20-second reconnect grace, draft/focus preservation, recovery, narrow light layout",
+  );
 } finally {
   await browser.close();
   await server.close();

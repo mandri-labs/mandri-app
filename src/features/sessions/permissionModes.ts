@@ -24,7 +24,13 @@ export function permissionLabel(harness: HarnessKind, mode: string, t: TFunction
 }
 
 export function permissionTone(harness: HarnessKind, mode: string): "amber" | "danger" | undefined {
-  if ((harness === "claude" || harness === "opencode" || harness === "codex") && mode === "auto") return "amber";
-  if (((harness === "claude" || harness === "agy" || harness === "pi") && mode === "bypassPermissions") || (harness === "codex" && mode === "full-access")) return "danger";
+  if ((harness === "claude" || harness === "opencode" || harness === "codex") && mode === "auto")
+    return "amber";
+  if (
+    ((harness === "claude" || harness === "agy" || harness === "pi") &&
+      mode === "bypassPermissions") ||
+    (harness === "codex" && mode === "full-access")
+  )
+    return "danger";
   return undefined;
 }

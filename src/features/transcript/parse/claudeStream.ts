@@ -48,15 +48,34 @@ export function parseClaudeStreamEvent(
     let node: TranscriptNode;
     if (kind === "text" || kind === "thinking") {
       const nodeKind = kind === "text" ? "assistant" : "thinking";
-      node = { kind: nodeKind, text: stringAt(block, kind) ?? "", streaming: true,
-        delta: false, claude: { messageId: message.id, blockIndex: index }, key: `${message.id}:${nodeKind}:${index}` };
+      node = {
+        kind: nodeKind,
+        text: stringAt(block, kind) ?? "",
+        streaming: true,
+        delta: false,
+        claude: { messageId: message.id, blockIndex: index },
+        key: `${message.id}:${nodeKind}:${index}`,
+      };
     } else if (kind === "tool_use") {
       const input = asRecord(block.input);
       const name = stringAt(block, "name") ?? "tool";
-      node = { kind: "tool", tool: name, label: name, status: "pending",
-        actions: nativeToolActions(name, input, "claude"), title: stringAt(input, "description"), details: { input },
-        native: { messageId: message.id, callId: stringAt(block, "id"), parentCallId: streamKey || undefined },
-        key: stringAt(block, "id"), target: toolTargetFromInput(input), detailText: outputText(input) };
+      node = {
+        kind: "tool",
+        tool: name,
+        label: name,
+        status: "pending",
+        actions: nativeToolActions(name, input, "claude"),
+        title: stringAt(input, "description"),
+        details: { input },
+        native: {
+          messageId: message.id,
+          callId: stringAt(block, "id"),
+          parentCallId: streamKey || undefined,
+        },
+        key: stringAt(block, "id"),
+        target: toolTargetFromInput(input),
+        detailText: outputText(input),
+      };
     } else {
       return [];
     }
@@ -75,8 +94,10 @@ export function parseClaudeStreamEvent(
   if (type !== "content_block_delta") return [];
   const delta = asRecord(event.delta);
   if (!delta) return [];
-  if ((delta.type === "text_delta" && block.node.kind === "assistant") ||
-      (delta.type === "thinking_delta" && block.node.kind === "thinking")) {
+  if (
+    (delta.type === "text_delta" && block.node.kind === "assistant") ||
+    (delta.type === "thinking_delta" && block.node.kind === "thinking")
+  ) {
     const text = stringAt(delta, delta.type === "text_delta" ? "text" : "thinking");
     if (text === undefined) return [];
     block.node = { ...block.node, text: block.node.text + text, streaming: true, delta: false };
@@ -86,8 +107,14 @@ export function parseClaudeStreamEvent(
     block.input += stringAt(delta, "partial_json") ?? "";
     try {
       const input = asRecord(JSON.parse(block.input));
-      block.node = { ...block.node, target: toolTargetFromInput(input), detailText: outputText(input),
-        actions: nativeToolActions(block.node.tool, input, "claude"), title: stringAt(input, "description"), details: { input } };
+      block.node = {
+        ...block.node,
+        target: toolTargetFromInput(input),
+        detailText: outputText(input),
+        actions: nativeToolActions(block.node.tool, input, "claude"),
+        title: stringAt(input, "description"),
+        details: { input },
+      };
       return [block.node];
     } catch {
       return [];

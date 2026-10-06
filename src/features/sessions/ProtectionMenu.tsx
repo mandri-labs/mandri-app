@@ -84,7 +84,11 @@ export function ProtectionMenu({
           </button>
         );
       })}
-      {contextNotice ? <p role="status" className="protection-note">{contextNotice}</p> : null}
+      {contextNotice ? (
+        <p role="status" className="protection-note">
+          {contextNotice}
+        </p>
+      ) : null}
       {environment === "worktree" && onWorktreeIdChange ? (
         <div className="worktree-name-field">
           <label htmlFor={inputId}>{t("core.protection.worktree_name")}</label>

@@ -107,7 +107,6 @@ export function AgentView({
     <div className="session-view" data-conversation-width={conversationWidth}>
       <div className="session-view-column">
         <div className="agents-toolbar">
-
           {agent.capabilities.stop && (
             <button
               className="agents-stop"

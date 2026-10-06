@@ -29,8 +29,12 @@
   border: 1px solid var(--color-text-muted);
 }
 @keyframes conversation-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .conversation-indicator--working { animation: none; }
+  .conversation-indicator--working {
+    animation: none;
+  }
 }

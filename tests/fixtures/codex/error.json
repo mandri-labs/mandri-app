@@ -96,9 +96,7 @@
             "modelProvider": "mandri",
             "serviceTier": null,
             "cwd": "__CWD__\\codex\\error",
-            "runtimeWorkspaceRoots": [
-              "__CWD__\\codex\\error"
-            ],
+            "runtimeWorkspaceRoots": ["__CWD__\\codex\\error"],
             "instructionSources": [],
             "approvalPolicy": "never",
             "approvalsReviewer": "user",

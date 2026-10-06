@@ -4,9 +4,21 @@ import { parseCodexEvent, parseCodexHistoryLine } from "@/features/transcript/pa
 
 describe("Codex output presentation", () => {
   it("omits successful turn markers but retains turn errors", () => {
-    expect(parseCodexEvent({ method: "turn/completed", params: { turn: { status: "completed" } } }, "codex")).toEqual([]);
-    expect(parseCodexEvent({ method: "turn/completed", params: { turn: { status: "failed", error: { message: "Failure" } } } }, "codex"))
-      .toEqual([{ kind: "system", level: "error", text: "Turn failed: Failure" }]);
+    expect(
+      parseCodexEvent(
+        { method: "turn/completed", params: { turn: { status: "completed" } } },
+        "codex",
+      ),
+    ).toEqual([]);
+    expect(
+      parseCodexEvent(
+        {
+          method: "turn/completed",
+          params: { turn: { status: "failed", error: { message: "Failure" } } },
+        },
+        "codex",
+      ),
+    ).toEqual([{ kind: "system", level: "error", text: "Turn failed: Failure" }]);
   });
   it("decodes exec output without destroying Windows paths or literal escapes", () => {
     const output = 'C:\\new\\test.ts\r\nconst pattern = "\\n";\r\nsecond line';

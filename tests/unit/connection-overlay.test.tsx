@@ -1,31 +1,47 @@
 import { StrictMode } from "react";
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { ConnectionOverlay, CONNECTION_FADE_MS, CONNECTION_GRACE_MS } from "@/app/ConnectionOverlay";
+import {
+  ConnectionOverlay,
+  CONNECTION_FADE_MS,
+  CONNECTION_GRACE_MS,
+} from "@/app/ConnectionOverlay";
 import { Shell } from "@/app/Shell";
 import { connectionStore, type ConnectionStatus } from "@/stores/connection";
 import { initI18n } from "@/i18n";
 
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 beforeEach(() => {
   vi.useFakeTimers();
   connectionStore.setState({ ...connectionStore.getInitialState(), disconnectedAt: Date.now() });
 });
-afterEach(() => { cleanup(); vi.useRealTimers(); });
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
-const advance = async (ms: number) => { await act(() => vi.advanceTimersByTimeAsync(ms)); };
+const advance = async (ms: number) => {
+  await act(() => vi.advanceTimersByTimeAsync(ms));
+};
 const status = (next: ConnectionStatus) => act(() => connectionStore.getState().setStatus(next));
 const overlay = () => screen.queryByRole("dialog", { name: "Connecting to Mandri" });
 function mount() {
   return render(
     <StrictMode>
       <ConnectionOverlay onRetry={() => connectionStore.getState().setStatus("connecting")}>
-        <Shell route={{ name: "dashboard" }}><input aria-label="Draft" defaultValue="Keep my work" /></Shell>
+        <Shell route={{ name: "dashboard" }}>
+          <input aria-label="Draft" defaultValue="Keep my work" />
+        </Shell>
       </ConnectionOverlay>
     </StrictMode>,
   );
 }
-async function connect() { status("online"); await advance(CONNECTION_FADE_MS); }
+async function connect() {
+  status("online");
+  await advance(CONNECTION_FADE_MS);
+}
 
 it("always covers initial startup and fades out when the daemon connects", async () => {
   mount();
@@ -35,7 +51,9 @@ it("always covers initial startup and fades out when the daemon connects", async
   expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
   status("online");
   expect(document.querySelector(".connection-overlay--leaving")).toBeTruthy();
-  expect(document.querySelector(".connection-overlay-status")?.textContent).toBe("Starting Mandri…");
+  expect(document.querySelector(".connection-overlay-status")?.textContent).toBe(
+    "Starting Mandri…",
+  );
   expect(document.querySelector(".connection-app")?.hasAttribute("inert")).toBe(false);
   await advance(CONNECTION_FADE_MS);
   expect(document.querySelector(".connection-overlay")).toBeNull();

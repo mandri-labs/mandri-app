@@ -2,13 +2,29 @@ import { CanvasLayout } from "@/features/canvas/CanvasLayout";
 import { sidebarPreferencesStore } from "@/stores/sidebarPreferences";
 import { isTemporaryPath } from "@/lib/temporaryPath";
 import { LifecycleMenu } from "@/features/sessions/LifecycleMenu";
-import { BarChart3, Bell, Folder, FolderOpen, GitBranch, LockKeyhole, Pencil, Search, Settings, SquarePen } from "lucide-react";
+import {
+  BarChart3,
+  Bell,
+  Folder,
+  FolderOpen,
+  GitBranch,
+  LockKeyhole,
+  Pencil,
+  Search,
+  Settings,
+  SquarePen,
+} from "lucide-react";
 import { Fragment, memo, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { lastSegment, SessionDot } from "@/features/sessions/SessionRow";
 import { AntigravityLogo, ClaudeLogo, OpenAILogo, OpencodeLogo, PiLogo } from "@/design/logos";
-import { selectByProject, sessionWorkspace, sessionsStore, UNGROUPED_PROJECT } from "@/stores/sessions";
+import {
+  selectByProject,
+  sessionWorkspace,
+  sessionsStore,
+  UNGROUPED_PROJECT,
+} from "@/stores/sessions";
 import type { SessionView } from "@/stores/sessions";
 import { isSessionBusy } from "@/features/transcript/turnActivity";
 import { navigate, routeTitleKey, routeToHash, withPaneWorkspace } from "./useHashRoute";
@@ -41,7 +57,13 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
   active: boolean;
 }) {
   const { t } = useTranslation();
-  const Logo = { claude: ClaudeLogo, codex: OpenAILogo, opencode: OpencodeLogo, agy: AntigravityLogo, pi: PiLogo }[session.harness];
+  const Logo = {
+    claude: ClaudeLogo,
+    codex: OpenAILogo,
+    opencode: OpencodeLogo,
+    agy: AntigravityLogo,
+    pi: PiLogo,
+  }[session.harness];
   const integratedWorktree = Boolean(session.worktree?.integrated_commit);
   const worktreeLabel = t(integratedWorktree ? "worktree.integrated" : "core.protection.worktree");
   return (
@@ -62,12 +84,18 @@ const SidebarSessionRow = memo(function SidebarSessionRow({
           {session.worktree ? (
             <span
               className={`shell-worktree-icon${integratedWorktree ? " shell-worktree-icon--integrated" : ""}`}
-              title={integratedWorktree ? `${session.worktree.id} (${worktreeLabel})` : session.worktree.id}
+              title={
+                integratedWorktree
+                  ? `${session.worktree.id} (${worktreeLabel})`
+                  : session.worktree.id
+              }
             >
               <GitBranch size={12} aria-label={worktreeLabel} />
             </span>
           ) : null}
-          {session.availability?.owner === "external" ? <LockKeyhole size={12} aria-label={t("core.sessions.external_locked")} /> : null}
+          {session.availability?.owner === "external" ? (
+            <LockKeyhole size={12} aria-label={t("core.sessions.external_locked")} />
+          ) : null}
 
           {session.pendingApprovals > 0 ? (
             <span className="shell-session-attention" aria-hidden="true">
@@ -104,11 +132,15 @@ function ProjectsSection({
   const sessions = useStore(sessionsStore, (state) => state.sessions);
   const order = useStore(sessionsStore, (state) => state.order);
   const filters = useStore(sessionsStore, (state) => state.filters);
-  const hideTemporaryFolders = useStore(sidebarPreferencesStore, (state) => state.hideTemporaryFolders);
+  const hideTemporaryFolders = useStore(
+    sidebarPreferencesStore,
+    (state) => state.hideTemporaryFolders,
+  );
   const groups = useMemo(
-    () => selectByProject({ sessions, order, filters }).filter(
-      (group) => !hideTemporaryFolders || !isTemporaryPath(group.project),
-    ),
+    () =>
+      selectByProject({ sessions, order, filters }).filter(
+        (group) => !hideTemporaryFolders || !isTemporaryPath(group.project),
+      ),
     [sessions, order, filters, hideTemporaryFolders],
   );
   return (
@@ -128,59 +160,65 @@ function ProjectsSection({
           return (
             <div key={group.project} className="shell-project">
               <div className="shell-project-heading">
-              <button
-                type="button"
-                className={`shell-project-row${isActive ? " shell-project-row--active" : ""}`}
-                title={group.project === UNGROUPED_PROJECT ? undefined : group.project}
-                aria-expanded={visibleCount > 0}
-                onClick={() =>
-                  setVisibleCounts((counts) => ({
-                    ...counts,
-                    [group.project]: (counts[group.project] ?? 5) > 0 ? 0 : 5,
-                  }))
-                }
-              >
-                {isActive ? (
-                  <FolderOpen size={16} aria-hidden="true" />
-                ) : (
-                  <Folder size={16} aria-hidden="true" />
-                )}
-                <span className="shell-project-name">
-                  {group.project === UNGROUPED_PROJECT
-                    ? t("core.sessions.ungrouped")
-                    : lastSegment(group.project)}
-                </span>
-              </button>
-              {group.project !== UNGROUPED_PROJECT && (
                 <button
                   type="button"
-                  className="shell-icon-button shell-project-new"
-                  title={t("core.shell.newChatInProject", { project: lastSegment(group.project) })}
-                  aria-label={t("core.shell.newChatInProject", { project: lastSegment(group.project) })}
-                  onClick={() => {
-                    navigate({ name: "dashboard", cwd: group.project });
-                    requestFocusComposer();
-                  }}
+                  className={`shell-project-row${isActive ? " shell-project-row--active" : ""}`}
+                  title={group.project === UNGROUPED_PROJECT ? undefined : group.project}
+                  aria-expanded={visibleCount > 0}
+                  onClick={() =>
+                    setVisibleCounts((counts) => ({
+                      ...counts,
+                      [group.project]: (counts[group.project] ?? 5) > 0 ? 0 : 5,
+                    }))
+                  }
                 >
-                  <SquarePen size={14} aria-hidden="true" />
-                </button>
-              )}
-              </div>
-              {roots.filter((session, index) => index < visibleCount || session.id === activeSessionId).map((session) => (
-                <Fragment key={session.id}>
-                  <SidebarSessionRow
-                    key={session.id}
-                    session={session}
-                    active={route.name === "session" && route.id === session.id}
-                  />
-                  {session.id === activeSessionId && (
-                    <AgentSidebar
-                      agents={agentRows.filter((agent) => agent.parent_session_id === session.id)}
-                      activeId={route.name === "agent" ? route.id : undefined}
-                    />
+                  {isActive ? (
+                    <FolderOpen size={16} aria-hidden="true" />
+                  ) : (
+                    <Folder size={16} aria-hidden="true" />
                   )}
-                </Fragment>
-              ))}
+                  <span className="shell-project-name">
+                    {group.project === UNGROUPED_PROJECT
+                      ? t("core.sessions.ungrouped")
+                      : lastSegment(group.project)}
+                  </span>
+                </button>
+                {group.project !== UNGROUPED_PROJECT && (
+                  <button
+                    type="button"
+                    className="shell-icon-button shell-project-new"
+                    title={t("core.shell.newChatInProject", {
+                      project: lastSegment(group.project),
+                    })}
+                    aria-label={t("core.shell.newChatInProject", {
+                      project: lastSegment(group.project),
+                    })}
+                    onClick={() => {
+                      navigate({ name: "dashboard", cwd: group.project });
+                      requestFocusComposer();
+                    }}
+                  >
+                    <SquarePen size={14} aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              {roots
+                .filter((session, index) => index < visibleCount || session.id === activeSessionId)
+                .map((session) => (
+                  <Fragment key={session.id}>
+                    <SidebarSessionRow
+                      key={session.id}
+                      session={session}
+                      active={route.name === "session" && route.id === session.id}
+                    />
+                    {session.id === activeSessionId && (
+                      <AgentSidebar
+                        agents={agentRows.filter((agent) => agent.parent_session_id === session.id)}
+                        activeId={route.name === "agent" ? route.id : undefined}
+                      />
+                    )}
+                  </Fragment>
+                ))}
               {visibleCount > 0 && !loaded && (
                 <div className="shell-project-loading" role="status">
                   {t("core.shell.sessions_loading")}
@@ -303,77 +341,94 @@ export function Shell({ route, children }: ShellProps) {
   }, []);
   return (
     <ShellHeaderActionsContext.Provider value={headerActions}>
-    <div className={`shell${route.name === "usage" ? " shell--usage" : ""}`}>
-      <aside className="shell-sidebar">
-        <div className="shell-top">
-          <button
-            type="button"
-            className="shell-brand"
-            aria-label={t("core.app.title")}
-            onClick={() => navigate({ name: "dashboard" })}
-          >
-            <span className="shell-brand-name" aria-hidden="true">Mandri</span>
-          </button>
-          <div className="shell-top-actions">
+      <div className={`shell${route.name === "usage" ? " shell--usage" : ""}`}>
+        <aside className="shell-sidebar">
+          <div className="shell-top">
             <button
               type="button"
-              className="shell-icon-button"
-              aria-label={t("core.shell.search")}
-              onClick={() => toggleCommandPalette()}
+              className="shell-brand"
+              aria-label={t("core.app.title")}
+              onClick={() => navigate({ name: "dashboard" })}
             >
-              <Search size={16} aria-hidden="true" />
+              <span className="shell-brand-name" aria-hidden="true">
+                Mandri
+              </span>
             </button>
-            {pendingTarget !== undefined && (
+            <div className="shell-top-actions">
               <button
                 type="button"
                 className="shell-icon-button"
-                aria-label={t("core.shell.notifications")}
-                onClick={() => {
-                  if (pendingTarget !== undefined) {
-                    navigate({ name: "session", id: pendingTarget.id });
-                  }
-                }}
+                aria-label={t("core.shell.search")}
+                onClick={() => toggleCommandPalette()}
               >
-                <Bell size={16} aria-hidden="true" />
+                <Search size={16} aria-hidden="true" />
               </button>
-            )}
+              {pendingTarget !== undefined && (
+                <button
+                  type="button"
+                  className="shell-icon-button"
+                  aria-label={t("core.shell.notifications")}
+                  onClick={() => {
+                    if (pendingTarget !== undefined) {
+                      navigate({ name: "session", id: pendingTarget.id });
+                    }
+                  }}
+                >
+                  <Bell size={16} aria-hidden="true" />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-        <nav className="shell-nav">
-          <button type="button" className="shell-row" onClick={openNewSession}>
-            <Pencil size={16} aria-hidden="true" />
-            <span>{t("core.shell.newChat")}</span>
-          </button>
-          <button
-            type="button"
-            className={`shell-row${route.name === "settings" ? " shell-row--active" : ""}`}
-            onClick={() => navigate({ name: "settings" })}
-          >
-            <Settings size={16} aria-hidden="true" />
-            <span>{t("core.route.settings")}</span>
-          </button>
-          <button type="button" className={`shell-row${route.name === "usage" ? " shell-row--active" : ""}`} aria-current={route.name === "usage" ? "page" : undefined} onClick={() => navigate({ name: "usage" })}>
-            <BarChart3 size={16} aria-hidden="true" /><span>{t("usage.title")}</span>
-          </button>
-        </nav>
-        <ProjectsSection
-          route={route}
-          activeSessionId={route.name === "session" ? route.id : (parentSessionId ?? null)}
-        />
-        <EndpointMenu />
-      </aside>
-      <CanvasLayout sessionId={route.name === "session" || route.name === "agent" ? paneKey({ kind: route.name, id: route.id }) : undefined} showReopen={!hideHeader}>
-      <div className="shell-main">
-        {!hideHeader && <header className="shell-header">
-          <Breadcrumb route={route} />
-          <div className="shell-header-actions" ref={setHeaderActions} />
-        </header>}
-        <div className="shell-content">
-          <div className="shell-content-scroll">{children}</div>
-        </div>
+          <nav className="shell-nav">
+            <button type="button" className="shell-row" onClick={openNewSession}>
+              <Pencil size={16} aria-hidden="true" />
+              <span>{t("core.shell.newChat")}</span>
+            </button>
+            <button
+              type="button"
+              className={`shell-row${route.name === "settings" ? " shell-row--active" : ""}`}
+              onClick={() => navigate({ name: "settings" })}
+            >
+              <Settings size={16} aria-hidden="true" />
+              <span>{t("core.route.settings")}</span>
+            </button>
+            <button
+              type="button"
+              className={`shell-row${route.name === "usage" ? " shell-row--active" : ""}`}
+              aria-current={route.name === "usage" ? "page" : undefined}
+              onClick={() => navigate({ name: "usage" })}
+            >
+              <BarChart3 size={16} aria-hidden="true" />
+              <span>{t("usage.title")}</span>
+            </button>
+          </nav>
+          <ProjectsSection
+            route={route}
+            activeSessionId={route.name === "session" ? route.id : (parentSessionId ?? null)}
+          />
+          <EndpointMenu />
+        </aside>
+        <CanvasLayout
+          sessionId={
+            route.name === "session" || route.name === "agent"
+              ? paneKey({ kind: route.name, id: route.id })
+              : undefined
+          }
+          showReopen={!hideHeader}
+        >
+          <div className="shell-main">
+            {!hideHeader && (
+              <header className="shell-header">
+                <Breadcrumb route={route} />
+                <div className="shell-header-actions" ref={setHeaderActions} />
+              </header>
+            )}
+            <div className="shell-content">
+              <div className="shell-content-scroll">{children}</div>
+            </div>
+          </div>
+        </CanvasLayout>
       </div>
-      </CanvasLayout>
-    </div>
     </ShellHeaderActionsContext.Provider>
   );
 }

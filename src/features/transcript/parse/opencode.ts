@@ -63,22 +63,38 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
   const tool = stringAt(part, "tool") ?? "tool";
   const input = asRecord(state?.["input"]);
   const statusRaw = stringAt(state, "status");
-  const status = statusRaw === "completed" ? "done" : statusRaw === "error" ? "failed" : statusRaw === "pending" ? "pending" : "running";
+  const status =
+    statusRaw === "completed"
+      ? "done"
+      : statusRaw === "error"
+        ? "failed"
+        : statusRaw === "pending"
+          ? "pending"
+          : "running";
   const title = stringAt(state, "title");
   const time = asRecord(state?.["time"]);
   const start = numberAt(time, "start");
   const end = numberAt(time, "end");
-  const durationMs = start !== undefined && end !== undefined && end >= start ? end - start : undefined;
+  const durationMs =
+    start !== undefined && end !== undefined && end >= start ? end - start : undefined;
   const key = stringAt(part, "callID") ?? stringAt(part, "id");
   const node: TranscriptNode = {
     kind: "tool",
     tool,
     label: tool,
-    title: stringAt(input, "description") ?? (nativeToolActions(tool, input, "opencode")[0]?.kind === "tool" ? title : undefined),
+    title:
+      stringAt(input, "description") ??
+      (nativeToolActions(tool, input, "opencode")[0]?.kind === "tool" ? title : undefined),
     actions: nativeToolActions(tool, input, "opencode"),
-    native: { callId: key, partId: stringAt(part, "id"), messageId: stringAt(part, "messageID"),
-      sessionId: stringAt(part, "sessionID"), startedAt: start,
-      metadata: { ...asRecord(state?.["metadata"]), title }, attachments: state?.["attachments"] },
+    native: {
+      callId: key,
+      partId: stringAt(part, "id"),
+      messageId: stringAt(part, "messageID"),
+      sessionId: stringAt(part, "sessionID"),
+      startedAt: start,
+      metadata: { ...asRecord(state?.["metadata"]), title },
+      attachments: state?.["attachments"],
+    },
     details: { input, output: state?.["output"] ?? state?.["error"] },
     target: toolTargetFromInput(input),
     detailText: outputText(state?.["output"] ?? state?.["error"] ?? input),
@@ -92,17 +108,30 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
   const metadata = asRecord(state?.["metadata"]);
   const files = asArray(metadata?.["files"]);
   if (files?.length) {
-    return [node, ...files.flatMap((file): TranscriptNode[] => {
-      const entry = asRecord(file);
-      const path = stringAt(entry, "movePath") ?? stringAt(entry, "filePath") ?? stringAt(entry, "relativePath");
-      const patch = stringAt(entry, "patch") ?? stringAt(entry, "diff");
-      if (!path || patch === undefined) return [];
-      const type = stringAt(entry, "type");
-      return [{ kind: "diff", path, ...parseUnifiedDiff(patch), callId: key,
-        change: type === "add" ? "add" : type === "delete" ? "delete" : "update",
-        oldPath: entry?.["movePath"] ? stringAt(entry, "filePath") : undefined,
-        key: `${key ?? path}:diff:${path}` }];
-    })];
+    return [
+      node,
+      ...files.flatMap((file): TranscriptNode[] => {
+        const entry = asRecord(file);
+        const path =
+          stringAt(entry, "movePath") ??
+          stringAt(entry, "filePath") ??
+          stringAt(entry, "relativePath");
+        const patch = stringAt(entry, "patch") ?? stringAt(entry, "diff");
+        if (!path || patch === undefined) return [];
+        const type = stringAt(entry, "type");
+        return [
+          {
+            kind: "diff",
+            path,
+            ...parseUnifiedDiff(patch),
+            callId: key,
+            change: type === "add" ? "add" : type === "delete" ? "delete" : "update",
+            oldPath: entry?.["movePath"] ? stringAt(entry, "filePath") : undefined,
+            key: `${key ?? path}:diff:${path}`,
+          },
+        ];
+      }),
+    ];
   }
   const patch = stringAt(metadata, "diff");
   if (patch === undefined || patch.length === 0) {
@@ -141,7 +170,15 @@ function parsePartUpdated(
     return parseTextPart(record, context);
   }
   if (type === "file" && stringAt(record, "mime")?.startsWith("image/")) {
-    return [{ kind: "user", text: "", images: contentImages([record]), key: stringAt(record, "id"), messageId: stringAt(record, "messageID") }];
+    return [
+      {
+        kind: "user",
+        text: "",
+        images: contentImages([record]),
+        key: stringAt(record, "id"),
+        messageId: stringAt(record, "messageID"),
+      },
+    ];
   }
   if (type === "reasoning") {
     return parseReasoningPart(record);
@@ -171,7 +208,11 @@ function parseDelta(
   const partId = stringAt(properties, "partID") ?? stringAt(properties, "partId");
   const kind = partId === undefined ? undefined : context?.partKinds?.get(partId);
   if (kind === "reasoning") {
-    return [partId === undefined ? { kind: "thinking", text: delta, streaming: true } : { kind: "thinking", text: delta, streaming: true, key: partId }];
+    return [
+      partId === undefined
+        ? { kind: "thinking", text: delta, streaming: true }
+        : { kind: "thinking", text: delta, streaming: true, key: partId },
+    ];
   }
   return [
     partId === undefined
@@ -192,7 +233,8 @@ function parseSessionDiff(
       nodes.push(rawNode(harness, element));
       continue;
     }
-    const path = stringAt(record, "file") ?? stringAt(record, "path") ?? stringAt(record, "file_path");
+    const path =
+      stringAt(record, "file") ?? stringAt(record, "path") ?? stringAt(record, "file_path");
     const patch = stringAt(record, "patch") ?? stringAt(record, "diff");
     if (patch !== undefined && patch.length > 0) {
       const parsed = parseUnifiedDiff(patch);
@@ -216,7 +258,10 @@ function parseSessionDiff(
   return nodes;
 }
 
-function parseSessionError(properties: Record<string, unknown>, harness: HarnessKind): TranscriptNode[] {
+function parseSessionError(
+  properties: Record<string, unknown>,
+  harness: HarnessKind,
+): TranscriptNode[] {
   const message = stringAt(properties, "message");
   if (message !== undefined) {
     return [{ kind: "system", level: "error", text: message }];
@@ -253,8 +298,16 @@ export function parseOpenCodeEvent(
     return parseDelta(properties, context, harness);
   }
   if (type === "session.diff") {
-    return [{ kind: "file_snapshot", scope: "session", key: `opencode:files:${stringAt(properties, "sessionID") ?? "session"}`,
-      files: parseSessionDiff(properties, harness).filter((node): node is Extract<TranscriptNode, { kind: "diff" }> => node.kind === "diff") }];
+    return [
+      {
+        kind: "file_snapshot",
+        scope: "session",
+        key: `opencode:files:${stringAt(properties, "sessionID") ?? "session"}`,
+        files: parseSessionDiff(properties, harness).filter(
+          (node): node is Extract<TranscriptNode, { kind: "diff" }> => node.kind === "diff",
+        ),
+      },
+    ];
   }
   if (type === "session.error") {
     return parseSessionError(properties, harness);

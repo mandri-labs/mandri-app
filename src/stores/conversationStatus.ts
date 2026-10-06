@@ -12,11 +12,16 @@ daemonIdentity.subscribe(() => conversationStatusStore.setState({ statuses: {} }
 function statusFromWire(value: unknown): ConversationStatus | undefined {
   if (!value || typeof value !== "object") return;
   const status = value as ConversationStatus;
-  if (typeof status.target !== "string" || !/^(session|agent):.+$/.test(status.target) ||
+  if (
+    typeof status.target !== "string" ||
+    !/^(session|agent):.+$/.test(status.target) ||
     !["idle", "working", "waiting", "unknown"].includes(status.work_state) ||
     ![status.revision, status.completion_revision, status.read_revision].every(
       (revision) => Number.isSafeInteger(revision) && revision >= 0,
-    ) || status.read_revision > status.completion_revision) return;
+    ) ||
+    status.read_revision > status.completion_revision
+  )
+    return;
   return status;
 }
 
@@ -37,8 +42,13 @@ export function ingestConversationFrame(frame: ServerMessage): void {
     ingestConversationStatus(frame.status);
   } else if ("topic" in frame && frame.topic === "conversations.all" && "raw" in frame) {
     const payload = frame.raw;
-    if (payload && typeof payload === "object" && "type" in payload &&
-      payload.type === "conversation_status" && "status" in payload) {
+    if (
+      payload &&
+      typeof payload === "object" &&
+      "type" in payload &&
+      payload.type === "conversation_status" &&
+      "status" in payload
+    ) {
       ingestConversationStatus(payload.status);
     }
   }

@@ -10,12 +10,18 @@ afterEach(cleanup);
 
 describe("technical events", () => {
   it("hides every technical event when disabled while preserving conversation warnings", () => {
-    const nodes = ["usage", "error", "approval", "session_context", "permission-mode"].map((type) => ({
-      kind: "raw" as const,
-      harness: "codex",
-      payload: { type },
-    }));
-    const warning = { kind: "system" as const, level: "warning" as const, text: "Connection interrupted" };
+    const nodes = ["usage", "error", "approval", "session_context", "permission-mode"].map(
+      (type) => ({
+        kind: "raw" as const,
+        harness: "codex",
+        payload: { type },
+      }),
+    );
+    const warning = {
+      kind: "system" as const,
+      level: "warning" as const,
+      text: "Connection interrupted",
+    };
     expect(presentTranscript([...nodes, warning])).toEqual([warning]);
     expect(presentTranscript([...nodes, warning], false)).toEqual([warning]);
     expect(presentTranscript([...nodes, warning], true)).toEqual([

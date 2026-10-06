@@ -47,7 +47,11 @@ export function DiffCard({ path, additions, deletions, lines, unavailable }: Dif
           ))}
         </div>
       )}
-      {!hasLines && <p className="tr-tool-detail">{t(unavailable ? "core.transcript.diff_unavailable" : "core.transcript.no_diff")}</p>}
+      {!hasLines && (
+        <p className="tr-tool-detail">
+          {t(unavailable ? "core.transcript.diff_unavailable" : "core.transcript.no_diff")}
+        </p>
+      )}
     </Disclosure>
   );
 }

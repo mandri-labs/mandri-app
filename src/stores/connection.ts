@@ -67,8 +67,7 @@ export const connectionStore = createStore<ConnectionState>()((set) => ({
   recordGap: (topic, reason) => {
     set((state) => ({
       gaps: { ...state.gaps, [topic]: reason },
-      lastSeqByTopic:
-        reason === "history_lost" ? {} : state.lastSeqByTopic,
+      lastSeqByTopic: reason === "history_lost" ? {} : state.lastSeqByTopic,
     }));
   },
   clearSeqs: () => {

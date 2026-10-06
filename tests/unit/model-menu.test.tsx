@@ -27,9 +27,7 @@ const OPENAI_MODELS = [
   { id: "o4-mini", reasoning_efforts: [], default_effort: null },
 ];
 
-const ANTHROPIC_MODELS = [
-  { id: "claude-sonnet-4", reasoning_efforts: [], default_effort: null },
-];
+const ANTHROPIC_MODELS = [{ id: "claude-sonnet-4", reasoning_efforts: [], default_effort: null }];
 
 function seedStore(): void {
   providersStore.getState().hydrateProviders(PROVIDER_ROWS);
@@ -264,9 +262,20 @@ describe("ModelMenu thinking section", () => {
   });
 
   it("orders supported standard levels by intensity and supports keyboard selection", () => {
-    providersStore.getState().setCatalog("openai", [{ id: "gpt-5", reasoning_efforts: ["max", "high", "low"], default_effort: "low" }]);
+    providersStore
+      .getState()
+      .setCatalog("openai", [
+        { id: "gpt-5", reasoning_efforts: ["max", "high", "low"], default_effort: "low" },
+      ]);
     const onSelectEffort = vi.fn();
-    render(<ModelMenu onSelect={() => undefined} currentModel="openai/gpt-5" currentEffort="low" onSelectEffort={onSelectEffort} />);
+    render(
+      <ModelMenu
+        onSelect={() => undefined}
+        currentModel="openai/gpt-5"
+        currentEffort="low"
+        onSelectEffort={onSelectEffort}
+      />,
+    );
     const slider = screen.getByRole("slider");
     expect(slider.getAttribute("max")).toBe("2");
     fireEvent.change(slider, { target: { value: "2" } });
@@ -275,8 +284,18 @@ describe("ModelMenu thinking section", () => {
   });
 
   it("keeps custom levels and handles a single available level", () => {
-    providersStore.getState().setCatalog("openai", [{ id: "gpt-5", reasoning_efforts: ["adaptive"], default_effort: "adaptive" }]);
-    render(<ModelMenu onSelect={() => undefined} currentModel="openai/gpt-5" onSelectEffort={() => undefined} />);
+    providersStore
+      .getState()
+      .setCatalog("openai", [
+        { id: "gpt-5", reasoning_efforts: ["adaptive"], default_effort: "adaptive" },
+      ]);
+    render(
+      <ModelMenu
+        onSelect={() => undefined}
+        currentModel="openai/gpt-5"
+        onSelectEffort={() => undefined}
+      />,
+    );
     const slider = screen.getByRole("slider") as HTMLInputElement;
     expect(slider.disabled).toBe(true);
     expect(slider.getAttribute("aria-valuetext")).toBe("adaptive");
@@ -285,9 +304,17 @@ describe("ModelMenu thinking section", () => {
   });
 
   it("positions the sole max level on the right without writing an effort", () => {
-    providersStore.getState().setCatalog("openai", [{ id: "gpt-5", reasoning_efforts: ["max"], default_effort: null }]);
+    providersStore
+      .getState()
+      .setCatalog("openai", [{ id: "gpt-5", reasoning_efforts: ["max"], default_effort: null }]);
     const onSelectEffort = vi.fn();
-    render(<ModelMenu onSelect={() => undefined} currentModel="openai/gpt-5" onSelectEffort={onSelectEffort} />);
+    render(
+      <ModelMenu
+        onSelect={() => undefined}
+        currentModel="openai/gpt-5"
+        onSelectEffort={onSelectEffort}
+      />,
+    );
     const slider = screen.getByRole("slider") as HTMLInputElement;
     expect(slider.disabled).toBe(true);
     expect(slider.value).toBe(slider.max);

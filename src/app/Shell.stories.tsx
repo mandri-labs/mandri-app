@@ -44,9 +44,7 @@ const meta = {
   title: "App/Shell",
   component: Shell,
   parameters: { layout: "fullscreen" },
-  decorators: [
-    (Story) => <StoryGate>{<Story />}</StoryGate>,
-  ],
+  decorators: [(Story) => <StoryGate>{<Story />}</StoryGate>],
 } satisfies Meta<typeof Shell>;
 
 export default meta;

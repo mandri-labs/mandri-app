@@ -32,24 +32,30 @@ export function AgentSidebar({ agents, activeId }: { agents: AgentView[]; active
       </button>
       {expanded &&
         rows.map(({ agent, depth }) => (
-          <div key={agent.id} className={`shell-session-container${activeId === agent.id ? " shell-session-container--active" : ""}`}><button
-            type="button"
-            title={agent.title}
-            className={`shell-session-row shell-agent-row${activeId === agent.id ? " shell-session-row--active" : ""}`}
-            style={{ paddingLeft: 22 + Math.min(depth, 8) * 12 }}
-            aria-label={`${agent.title} — ${t(`core.agents.state.${agent.state}`)}`}
-            aria-current={activeId === agent.id ? "page" : undefined}
-            onClick={() => navigate({ name: "agent", id: agent.id })}
+          <div
+            key={agent.id}
+            className={`shell-session-container${activeId === agent.id ? " shell-session-container--active" : ""}`}
           >
-            <span className="shell-session-icon-slot" aria-hidden="true" />
-            <span className="shell-session-title">{agent.title}</span>
-            <span className="shell-session-status-slot">
-              <ConversationIndicator
-                target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`}
-              />
-            </span>
-          </button>
-          <ConversationReadMenu target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`} />
+            <button
+              type="button"
+              title={agent.title}
+              className={`shell-session-row shell-agent-row${activeId === agent.id ? " shell-session-row--active" : ""}`}
+              style={{ paddingLeft: 22 + Math.min(depth, 8) * 12 }}
+              aria-label={`${agent.title} — ${t(`core.agents.state.${agent.state}`)}`}
+              aria-current={activeId === agent.id ? "page" : undefined}
+              onClick={() => navigate({ name: "agent", id: agent.id })}
+            >
+              <span className="shell-session-icon-slot" aria-hidden="true" />
+              <span className="shell-session-title">{agent.title}</span>
+              <span className="shell-session-status-slot">
+                <ConversationIndicator
+                  target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`}
+                />
+              </span>
+            </button>
+            <ConversationReadMenu
+              target={agent.session_id ? `session:${agent.session_id}` : `agent:${agent.id}`}
+            />
           </div>
         ))}
     </div>

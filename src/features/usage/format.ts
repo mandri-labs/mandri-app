@@ -36,8 +36,13 @@ export function formatUsageUsdAxis(value: number, locale: string): string {
 }
 
 export function formatUsageUsdDetail(value: string | null | undefined, locale: string): string {
-  if (value != null && value.trim() !== "" && Number.isFinite(Number(value)) &&
-    Math.round(Number(value) * 1_000_000) / 1_000_000 !== Number(value)) return `${value.trim()} USD`;
+  if (
+    value != null &&
+    value.trim() !== "" &&
+    Number.isFinite(Number(value)) &&
+    Math.round(Number(value) * 1_000_000) / 1_000_000 !== Number(value)
+  )
+    return `${value.trim()} USD`;
   return formatUsageUsd(value, locale);
 }
 

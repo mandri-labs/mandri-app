@@ -1772,15 +1772,11 @@
             "id": "per_06e1a55dd0011j6J9L61jW1zKY",
             "sessionID": "ses_f91e5c940ffe3dNwKYMICq343i",
             "permission": "bash",
-            "patterns": [
-              "git --version"
-            ],
+            "patterns": ["git --version"],
             "metadata": {
               "command": "git --version"
             },
-            "always": [
-              "git --version *"
-            ],
+            "always": ["git --version *"],
             "tool": {
               "messageID": "msg_06e1a3985001sr0RL3QVCasXox",
               "callID": "chatcmpl-tool-820e878e59aa366b"
@@ -1806,15 +1802,11 @@
             "id": "per_06e1a55dd0011j6J9L61jW1zKY",
             "sessionID": "ses_f91e5c940ffe3dNwKYMICq343i",
             "permission": "bash",
-            "patterns": [
-              "git --version"
-            ],
+            "patterns": ["git --version"],
             "metadata": {
               "command": "git --version"
             },
-            "always": [
-              "git --version *"
-            ],
+            "always": ["git --version *"],
             "tool": {
               "messageID": "msg_06e1a3985001sr0RL3QVCasXox",
               "callID": "chatcmpl-tool-820e878e59aa366b"

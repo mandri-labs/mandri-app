@@ -223,13 +223,7 @@ export const NoRuntimes: Story = {
   ],
 };
 
-function StoryWithFetch({
-  routes,
-  children,
-}: {
-  routes: StubRoute[];
-  children: ReactNode;
-}) {
+function StoryWithFetch({ routes, children }: { routes: StubRoute[]; children: ReactNode }) {
   useEffect(() => withFetchStub(routes), [routes]);
   return <>{children}</>;
 }
@@ -325,15 +319,33 @@ export const StartedSuccess: Story = {
   ],
 };
 
-
 const welcomeCommands: CommandTransport = {
-  catalog: async () => ({ commands: [
-    { id: "fixture:workspace-check", name: "workspace-check", description: "Check this project's conventions", aliases: [], kind: "command", argument_hint: "What should be checked?" },
-    { id: "fixture:guide", name: "guide", description: "Use the workspace guide", aliases: [], kind: "skill" },
-  ] }),
-  invoke: async () => { throw new Error("This preview does not execute native commands"); },
+  catalog: async () => ({
+    commands: [
+      {
+        id: "fixture:workspace-check",
+        name: "workspace-check",
+        description: "Check this project's conventions",
+        aliases: [],
+        kind: "command",
+        argument_hint: "What should be checked?",
+      },
+      {
+        id: "fixture:guide",
+        name: "guide",
+        description: "Use the workspace guide",
+        aliases: [],
+        kind: "skill",
+      },
+    ],
+  }),
+  invoke: async () => {
+    throw new Error("This preview does not execute native commands");
+  },
   list: async () => [],
-  cancel: async () => { throw new Error("No command is running in this preview"); },
+  cancel: async () => {
+    throw new Error("No command is running in this preview");
+  },
 };
 
 function WelcomeCommandsPreview() {
@@ -343,15 +355,22 @@ function WelcomeCommandsPreview() {
     setReady(true);
     return restore;
   }, []);
-  return ready ? <div style={{ width: 720, maxWidth: "100%", padding: 24, paddingTop: 180 }}>
-    <SeedDefaults />
-    <WelcomeComposer commands={welcomeCommands} />
-  </div> : null;
+  return ready ? (
+    <div style={{ width: 720, maxWidth: "100%", padding: 24, paddingTop: 180 }}>
+      <SeedDefaults />
+      <WelcomeComposer commands={welcomeCommands} />
+    </div>
+  ) : null;
 }
 
 export const CommandsBeforeSession: Story = {
   parameters: {
-    docs: { description: { story: "The welcome composer uses a discovered catalog before any session exists. These synthetic commands demonstrate the UI; execution requires choosing a working folder." } },
+    docs: {
+      description: {
+        story:
+          "The welcome composer uses a discovered catalog before any session exists. These synthetic commands demonstrate the UI; execution requires choosing a working folder.",
+      },
+    },
   },
   render: () => <WelcomeCommandsPreview />,
   play: async ({ canvasElement }) => {

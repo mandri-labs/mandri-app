@@ -32,7 +32,13 @@ export interface AgentResults {
     parent_capabilities: Record<string, { create: boolean }>;
     classified_session_ids: string[];
   };
-  "agent.history": { entries: string[]; next_cursor: string | null; has_more: boolean; completion_revision?: number | null; completion_target?: string | null };
+  "agent.history": {
+    entries: string[];
+    next_cursor: string | null;
+    has_more: boolean;
+    completion_revision?: number | null;
+    completion_target?: string | null;
+  };
   "agent.create": { agent: AgentView };
   "agent.message": { agent_id: string; accepted: boolean };
   "agent.stop": { agent_id: string; stopped: boolean };

@@ -5,11 +5,24 @@ import { PriceSources } from "@/features/usage/PriceSources";
 import { initI18n } from "@/i18n";
 import { metrics, overview } from "./usage-fixtures";
 
-beforeAll(async () => { await initI18n("en"); });
+beforeAll(async () => {
+  await initI18n("en");
+});
 afterEach(cleanup);
 
 it("keeps pricing explanations behind an accessible info button", () => {
-  render(<Consumption data={overview({ summary: metrics({ valuation_bases: { current_price_comparison: 2 }, unpriced_fact_count: 1 }) })} group="model" onGroupChange={() => {}} />);
+  render(
+    <Consumption
+      data={overview({
+        summary: metrics({
+          valuation_bases: { current_price_comparison: 2 },
+          unpriced_fact_count: 1,
+        }),
+      })}
+      group="model"
+      onGroupChange={() => {}}
+    />,
+  );
   expect(screen.getByRole("heading", { name: "Current API equivalent" })).toBeTruthy();
   expect(screen.getByText("$0.00", { selector: "strong" })).toBeTruthy();
   expect(screen.queryByText(/Estimated at standard/)).toBeNull();
@@ -24,7 +37,17 @@ it("keeps pricing explanations behind an accessible info button", () => {
 });
 
 it("keeps mixed valuations distinct and price sources in their own info panel", () => {
-  render(<Consumption data={overview({ summary: metrics({ valuation_bases: { current_price_comparison: 1, historical_tariff: 1 } }) })} group="model" onGroupChange={() => {}} />);
+  render(
+    <Consumption
+      data={overview({
+        summary: metrics({
+          valuation_bases: { current_price_comparison: 1, historical_tariff: 1 },
+        }),
+      })}
+      group="model"
+      onGroupChange={() => {}}
+    />,
+  );
   expect(screen.getByRole("heading", { name: "Known USD equivalent" })).toBeTruthy();
   expect(screen.queryByRole("heading", { name: "Current API equivalent" })).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: "About this amount" }));
@@ -38,10 +61,13 @@ it("keeps mixed valuations distinct and price sources in their own info panel", 
 });
 
 it("shows equally weighted token metrics and explains missing values on hover", () => {
-  const { container } = render(<Consumption data={overview()} group="model" onGroupChange={() => {}} />);
+  const { container } = render(
+    <Consumption data={overview()} group="model" onGroupChange={() => {}} />,
+  );
   const tokens = container.querySelector(".usage-token-metrics")!;
   expect(tokens.querySelectorAll("strong")).toHaveLength(3);
-  for (const label of ["In", "Cache in", "Out"]) expect(within(tokens as HTMLElement).getByText(label)).toBeTruthy();
+  for (const label of ["In", "Cache in", "Out"])
+    expect(within(tokens as HTMLElement).getByText(label)).toBeTruthy();
   const unknowns = screen.getAllByTitle("Unavailable, not zero.");
   expect(unknowns.length).toBeGreaterThan(0);
   for (const unknown of unknowns) expect(unknown.getAttribute("tabindex")).toBe("0");
@@ -50,17 +76,43 @@ it("shows equally weighted token metrics and explains missing values on hover", 
 });
 
 it("consolidates incomplete, unclassified and excluded usage in one collapsed notice", () => {
-  const { container } = render(<Consumption data={overview({
-    summary: metrics({ incomplete_fact_count: 2, unpriced_fact_count: 1, unclassified_fact_count: 1, unpriced_reasons: { model_missing: 1 } }),
-    sync_state: { scope: "daemon", status: "available", discarded_event_count: 4, discard_reasons: { malformed_record: 1, oversize_record: 1, unproven_reset: 1, missing_model: 1 } },
-  })} group="model" onGroupChange={() => {}} />);
+  const { container } = render(
+    <Consumption
+      data={overview({
+        summary: metrics({
+          incomplete_fact_count: 2,
+          unpriced_fact_count: 1,
+          unclassified_fact_count: 1,
+          unpriced_reasons: { model_missing: 1 },
+        }),
+        sync_state: {
+          scope: "daemon",
+          status: "available",
+          discarded_event_count: 4,
+          discard_reasons: {
+            malformed_record: 1,
+            oversize_record: 1,
+            unproven_reset: 1,
+            missing_model: 1,
+          },
+        },
+      })}
+      group="model"
+      onGroupChange={() => {}}
+    />,
+  );
   expect(container.querySelectorAll(".usage-notice")).toHaveLength(1);
   expect(container.querySelector(".usage-badge")).toBeNull();
   const quality = container.querySelector<HTMLDetailsElement>(".usage-quality")!;
   expect(quality.open).toBe(false);
   expect(quality.querySelector("summary")?.textContent).toContain("4 excluded daemon events");
   expect(quality.querySelector("summary")?.textContent).toContain("1 unclassified");
-  for (const reason of ["Malformed records", "Oversized records", "Unverified counter resets", "Missing model identity"]) {
+  for (const reason of [
+    "Malformed records",
+    "Oversized records",
+    "Unverified counter resets",
+    "Missing model identity",
+  ]) {
     expect(within(quality).getByText(reason)).toBeTruthy();
   }
 });
@@ -99,7 +151,9 @@ it("uses each source's last successful review, keeps stale sources visible, and 
   const models = within(screen.getByText("models.dev").closest("li")!);
   expect(models.getByText("Available")).toBeTruthy();
   expect(
-    models.getByText(`Last successful price sync: ${new Date(reviewed + 3600000).toLocaleString("en")}`),
+    models.getByText(
+      `Last successful price sync: ${new Date(reviewed + 3600000).toLocaleString("en")}`,
+    ),
   ).toBeTruthy();
   expect(screen.getByText("Last update failed. Prices are stale.")).toBeTruthy();
   expect(screen.getByText("No successful price sync recorded")).toBeTruthy();

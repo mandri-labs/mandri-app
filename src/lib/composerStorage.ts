@@ -7,7 +7,7 @@ export function composerStorageKey(kind: string, id = ""): string {
 export function readComposerStorage<T>(key: string, fallback: T): T {
   try {
     const value: unknown = JSON.parse(localStorage.getItem(key) ?? "null");
-    return value === null ? fallback : value as T;
+    return value === null ? fallback : (value as T);
   } catch {
     return fallback;
   }
@@ -25,9 +25,14 @@ export function writeComposerStorage(key: string, value: unknown): boolean {
 
 export function readSessionDrafts(): Record<string, string> {
   const value = readComposerStorage<Record<string, unknown>>(composerStorageKey("text"), {});
-  const legacy = value && typeof value === "object" && !Array.isArray(value)
-    ? Object.fromEntries(Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string"))
-    : {};
+  const legacy =
+    value && typeof value === "object" && !Array.isArray(value)
+      ? Object.fromEntries(
+          Object.entries(value).filter(
+            (entry): entry is [string, string] => typeof entry[1] === "string",
+          ),
+        )
+      : {};
   const drafts = { ...legacy };
   const prefix = composerStorageKey("draft");
   const stored = new Set<string>();

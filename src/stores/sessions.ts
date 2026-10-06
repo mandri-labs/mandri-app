@@ -23,7 +23,11 @@ import { normalizeTurnEvent } from "@/features/transcript/turns/normalize";
 import { reduceTurnEvent } from "@/features/transcript/turns/reducer";
 import { turnCompleted, type TurnWork } from "@/features/transcript/turns/types";
 export type { TurnWork } from "@/features/transcript/turns/types";
-import { pendingUserBaseline, preserveLocalUserPresentation, reconcilePendingUsers } from "@/features/transcript/optimistic";
+import {
+  pendingUserBaseline,
+  preserveLocalUserPresentation,
+  reconcilePendingUsers,
+} from "@/features/transcript/optimistic";
 import { readPendingUsers, writePendingUsers } from "@/features/transcript/pendingUserStorage";
 import { userImages } from "@/features/transcript/parse/images";
 import { DaemonError } from "@/daemon/errors";
@@ -242,7 +246,9 @@ export function selectVisibleSessions(state: SessionsSnapshot): SessionView[] {
   return visible.sort(compareRecency);
 }
 
-export function sessionWorkspace(session: Pick<SessionView, "projectPath" | "worktree">): string | undefined {
+export function sessionWorkspace(
+  session: Pick<SessionView, "projectPath" | "worktree">,
+): string | undefined {
   return session.worktree?.source_path ?? session.projectPath;
 }
 
@@ -277,7 +283,11 @@ export function selectSessionById(state: SessionsSnapshot, id: string): SessionV
   return state.sessions[id];
 }
 
-export function stoppedPatch(session: SessionView, stoppedAt: number, cause?: SessionStopCause): Partial<SessionView> {
+export function stoppedPatch(
+  session: SessionView,
+  stoppedAt: number,
+  cause?: SessionStopCause,
+): Partial<SessionView> {
   const external = session.externalBusy === true;
   return {
     activity: "idle",
@@ -290,9 +300,17 @@ export function stoppedPatch(session: SessionView, stoppedAt: number, cause?: Se
     nativeTurnCompacting: false,
     availabilityStatus: "stale",
     availabilityUpdatedAt: undefined,
-    turnWork: external ? session.turnWork : session.turnWork?.map((turn) => !turnCompleted(turn)
-      ? { ...turn, endedAt: Math.max(turn.startedAt ?? stoppedAt, stoppedAt), outcome: cause === "crash" ? "failed" : "stopped" }
-      : turn),
+    turnWork: external
+      ? session.turnWork
+      : session.turnWork?.map((turn) =>
+          !turnCompleted(turn)
+            ? {
+                ...turn,
+                endedAt: Math.max(turn.startedAt ?? stoppedAt, stoppedAt),
+                outcome: cause === "crash" ? "failed" : "stopped",
+              }
+            : turn,
+        ),
   };
 }
 
@@ -334,7 +352,8 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         return state;
       }
       let next = patch(existing);
-      if (next.executionPhase !== existing.executionPhase) next = { ...next, executionPhaseUpdatedAt: Date.now() };
+      if (next.executionPhase !== existing.executionPhase)
+        next = { ...next, executionPhaseUpdatedAt: Date.now() };
       if (
         Object.keys(next).every((key) =>
           Object.is(existing[key as keyof SessionView], next[key as keyof SessionView]),
@@ -396,7 +415,9 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         const cleared = lifecycle.state === "live";
         patchSession(lifecycle.sessionId, (existing) => ({
           ...existing,
-          ...(lifecycle.state === "stopped" && existing.state !== "stopped" ? stoppedPatch(existing, ts) : {}),
+          ...(lifecycle.state === "stopped" && existing.state !== "stopped"
+            ? stoppedPatch(existing, ts)
+            : {}),
           state: lifecycle.state as SessionState,
           ...(lifecycle.state === "live" ? { lastStoppedAt: undefined } : {}),
           needsAttention: cleared ? false : existing.needsAttention,
@@ -453,8 +474,9 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         }),
         ...parsed,
         ...(parsed.state === "live" ? { lastStoppedAt: undefined } : {}),
-        ...(parsed.state === "stopped" && existing && (existing.state !== "stopped")
-          ? stoppedPatch(existing, Date.now()) : {}),
+        ...(parsed.state === "stopped" && existing && existing.state !== "stopped"
+          ? stoppedPatch(existing, Date.now())
+          : {}),
         ...policyFromWire(entry, existing),
         deleted: existing?.deleted ?? false,
         pendingApprovals: existing?.pendingApprovals ?? 0,
@@ -529,30 +551,46 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
             if (session.state === "stopped" && session.externalBusy !== true) return;
             if (session.lastStoppedAt !== undefined && event.ts <= session.lastStoppedAt) return;
             const cursor = turnEventCursors.get(session);
-            if (cursor && (event.ts < cursor.ts || (event.ts === cursor.ts && event.seq <= cursor.seq))) return;
+            if (
+              cursor &&
+              (event.ts < cursor.ts || (event.ts === cursor.ts && event.seq <= cursor.seq))
+            )
+              return;
             turnEventCursors.set(session, { seq: event.seq, ts: event.ts });
             const turnEvent = normalizeTurnEvent(session.harness, event.raw, {
-              key: `${event.topic}:${event.ts}:${event.seq}`, nativeId: session.nativeId, timestamp: event.ts,
+              key: `${event.topic}:${event.ts}:${event.seq}`,
+              nativeId: session.nativeId,
+              timestamp: event.ts,
             });
             const notice = nativeTurnNotice(session.harness, session.nativeId, event.raw);
             const compacting = nativeCompactionActive(session.harness, session.nativeId, event.raw);
             patchSession(id, (existing) => {
-              const turns = turnEvent ? reduceTurnEvent(existing.turnWork ?? [], turnEvent) : existing.turnWork;
+              const turns = turnEvent
+                ? reduceTurnEvent(existing.turnWork ?? [], turnEvent)
+                : existing.turnWork;
               const current = turns?.at(-1);
-              const active = turnEvent?.active === true && turnEvent.phase !== "finish" &&
-                ((existing.state === "stopped" && !existing.externalBusy) || (current && turnCompleted(current)))
-                ? existing.nativeTurnActive : turnEvent?.active;
+              const active =
+                turnEvent?.active === true &&
+                turnEvent.phase !== "finish" &&
+                ((existing.state === "stopped" && !existing.externalBusy) ||
+                  (current && turnCompleted(current)))
+                  ? existing.nativeTurnActive
+                  : turnEvent?.active;
               return {
                 ...existing,
                 ...(notice !== undefined ? { nativeTurnNotice: notice } : {}),
                 ...(compacting !== undefined ? { nativeTurnCompacting: compacting } : {}),
-                ...(active !== undefined ? {
-                  nativeTurnActive: active,
-                  nativeTurnStartedAt: active
-                    ? existing.nativeTurnActive ? existing.nativeTurnStartedAt : turnEvent?.startedAt ?? event.ts
-                    : existing.nativeTurnStartedAt,
-                  awaitingResponse: false,
-                } : {}),
+                ...(active !== undefined
+                  ? {
+                      nativeTurnActive: active,
+                      nativeTurnStartedAt: active
+                        ? existing.nativeTurnActive
+                          ? existing.nativeTurnStartedAt
+                          : (turnEvent?.startedAt ?? event.ts)
+                        : existing.nativeTurnStartedAt,
+                      awaitingResponse: false,
+                    }
+                  : {}),
                 turnWork: turns,
               };
             });
@@ -574,26 +612,33 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
         }
         const existing = get().sessions[row.id];
         const rowEffort = parseEffort((row as Record<string, unknown>)["reasoning_effort"]);
-        const modeIsCurrent = existing?.interactionModeUpdatedAt === undefined || row.updated_at >= existing.interactionModeUpdatedAt;
+        const modeIsCurrent =
+          existing?.interactionModeUpdatedAt === undefined ||
+          row.updated_at >= existing.interactionModeUpdatedAt;
         upsertView({
           id: row.id,
           harness,
           state: parseState(row.state) ?? "discovered",
           ...(row.state === "live" ? { lastStoppedAt: undefined } : {}),
-          ...(row.state === "stopped" && existing && (existing.state !== "stopped")
-            ? stoppedPatch(existing, Date.now()) : {}),
+          ...(row.state === "stopped" && existing && existing.state !== "stopped"
+            ? stoppedPatch(existing, Date.now())
+            : {}),
           deleted: existing?.deleted ?? false,
           title: row.title,
           projectPath: row.project_path.length > 0 ? row.project_path : existing?.projectPath,
           model: sessionModelRef(row) ?? existing?.model,
           ...policyFromWire(row, existing),
           interactionMode: modeIsCurrent
-            ? row.interaction_mode?.mode ?? existing?.interactionMode : existing?.interactionMode,
-          interactionModeUpdatedAt: row.interaction_mode && modeIsCurrent
-            ? row.updated_at : existing?.interactionModeUpdatedAt,
+            ? (row.interaction_mode?.mode ?? existing?.interactionMode)
+            : existing?.interactionMode,
+          interactionModeUpdatedAt:
+            row.interaction_mode && modeIsCurrent
+              ? row.updated_at
+              : existing?.interactionModeUpdatedAt,
           resumeMode: existing?.resumeMode,
           reasoningEffort: rowEffort === undefined ? existing?.reasoningEffort : rowEffort,
-          activity: row.state === "stopped" ? "idle" : parseActivity(row.activity) ?? existing?.activity,
+          activity:
+            row.state === "stopped" ? "idle" : (parseActivity(row.activity) ?? existing?.activity),
           lastActivityAt: row.last_activity_at ?? existing?.lastActivityAt,
           lastStopCause: existing?.lastStopCause,
           pendingApprovals: existing?.pendingApprovals ?? 0,
@@ -650,16 +695,32 @@ export interface TranscriptSnapshot {
 }
 
 export type TranscriptFlagPatch = Partial<
-  Pick<TranscriptSnapshot, "gapFlag" | "historyUnavailable" | "historyExhausted" | "loadedCompletionRevision" | "loadedCompletionTarget">
+  Pick<
+    TranscriptSnapshot,
+    | "gapFlag"
+    | "historyUnavailable"
+    | "historyExhausted"
+    | "loadedCompletionRevision"
+    | "loadedCompletionTarget"
+  >
 >;
 
 export interface TranscriptsState {
   transcripts: Record<string, TranscriptSnapshot>;
-  addPendingUser: (sessionId: string, text: string, images?: Extract<TranscriptNode, { kind: "user" }>["images"], delivery?: PendingDelivery) => string;
+  addPendingUser: (
+    sessionId: string,
+    text: string,
+    images?: Extract<TranscriptNode, { kind: "user" }>["images"],
+    delivery?: PendingDelivery,
+  ) => string;
   setDeliveryState: (sessionId: string, key: string, state: PendingDelivery["state"]) => boolean;
   updatePendingUser: (sessionId: string, key: string, text: string) => void;
   removePendingUser: (sessionId: string, key: string) => void;
-  setNodes: (sessionId: string, nodes: readonly TranscriptNode[], persistedNodes?: readonly TranscriptNode[]) => void;
+  setNodes: (
+    sessionId: string,
+    nodes: readonly TranscriptNode[],
+    persistedNodes?: readonly TranscriptNode[],
+  ) => void;
   setFlags: (sessionId: string, flags: TranscriptFlagPatch) => void;
   removeTranscript: (sessionId: string) => void;
   resetTranscripts: () => void;
@@ -670,15 +731,25 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
 
   addPendingUser: (sessionId, text, images, delivery) => {
     const existing = get().transcripts[sessionId];
-    const previousLocal = existing?.localUsers ?? existing?.pendingUsers ?? readPendingUsers(sessionId);
+    const previousLocal =
+      existing?.localUsers ?? existing?.pendingUsers ?? readPendingUsers(sessionId);
     const key = `local-${crypto.randomUUID()}`;
     const pending: PendingUser = {
-      node: { kind: "user", text, key, ...(images?.length ? { images } : {}), localPresentation: { key, images } },
+      node: {
+        kind: "user",
+        text,
+        key,
+        ...(images?.length ? { images } : {}),
+        localPresentation: { key, images },
+      },
       baseline: pendingUserBaseline(existing?.nodes ?? []),
       delivery,
     };
     if (delivery && !writePendingUsers(sessionId, [...previousLocal, pending])) {
-      throw new DaemonError({ code: "composer_storage_unavailable", message: "Unable to save the message" });
+      throw new DaemonError({
+        code: "composer_storage_unavailable",
+        message: "Unable to save the message",
+      });
     }
     set({
       transcripts: {
@@ -700,12 +771,22 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
   setDeliveryState: (sessionId, key, state) => {
     const existing = get().transcripts[sessionId];
     if (!existing) return true;
-    const localUsers = (existing.localUsers ?? []).map((entry) => entry.node.key === key && entry.delivery
-      ? { ...entry, delivery: { ...entry.delivery, state } } : entry);
+    const localUsers = (existing.localUsers ?? []).map((entry) =>
+      entry.node.key === key && entry.delivery
+        ? { ...entry, delivery: { ...entry.delivery, state } }
+        : entry,
+    );
     if (!writePendingUsers(sessionId, localUsers)) return false;
-    set({ transcripts: { ...get().transcripts, [sessionId]: {
-      ...existing, localUsers, pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
-    } } });
+    set({
+      transcripts: {
+        ...get().transcripts,
+        [sessionId]: {
+          ...existing,
+          localUsers,
+          pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
+        },
+      },
+    });
     return true;
   },
 
@@ -716,14 +797,28 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
       if (entry.node.key !== key) return entry;
       const previews = entry.node.localPresentation?.images;
       const references = userImages(text).images;
-      const images = previews?.length === references.length ? previews?.map((image, index) => ({
-        ...image, path: references[index]!.path ?? references[index]!.source,
-      })) : undefined;
-      return { ...entry, node: { ...entry.node, text, images: undefined, localPresentation: { key, images } } };
+      const images =
+        previews?.length === references.length
+          ? previews?.map((image, index) => ({
+              ...image,
+              path: references[index]!.path ?? references[index]!.source,
+            }))
+          : undefined;
+      return {
+        ...entry,
+        node: { ...entry.node, text, images: undefined, localPresentation: { key, images } },
+      };
     });
-    set({ transcripts: { ...get().transcripts, [sessionId]: {
-      ...existing, localUsers, pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
-    } } });
+    set({
+      transcripts: {
+        ...get().transcripts,
+        [sessionId]: {
+          ...existing,
+          localUsers,
+          pendingUsers: reconcilePendingUsers(localUsers, existing.nodes),
+        },
+      },
+    });
   },
 
   removePendingUser: (sessionId, key) => {
@@ -795,7 +890,8 @@ transcriptStore.subscribe((state, previous) => {
       if (saved) {
         const retained = new Set(transcript.localUsers.map((entry) => entry.node.key));
         for (const entry of previousLocal) {
-          if (!retained.has(entry.node.key) && entry.delivery?.filesKey) setFiles(entry.delivery.filesKey, []);
+          if (!retained.has(entry.node.key) && entry.delivery?.filesKey)
+            setFiles(entry.delivery.filesKey, []);
         }
       }
     }
@@ -812,12 +908,17 @@ export function selectTranscript(
 sessionsStore.subscribe((state, previous) => {
   if (state.sessions === previous.sessions) return;
   for (const [id, session] of Object.entries(state.sessions)) {
-    if (session.state !== "stopped" || session.externalBusy === true ||
-      (previous.sessions[id]?.state === "stopped" && previous.sessions[id]?.externalBusy !== true)) continue;
+    if (
+      session.state !== "stopped" ||
+      session.externalBusy === true ||
+      (previous.sessions[id]?.state === "stopped" && previous.sessions[id]?.externalBusy !== true)
+    )
+      continue;
     const nodes = transcriptStore.getState().transcripts[id]?.nodes;
     if (!nodes) continue;
     const settled = stoppedNodes(nodes);
-    if (settled.some((node, index) => node !== nodes[index])) transcriptStore.getState().setNodes(id, settled);
+    if (settled.some((node, index) => node !== nodes[index]))
+      transcriptStore.getState().setNodes(id, settled);
   }
 });
 

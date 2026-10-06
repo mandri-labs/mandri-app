@@ -54,7 +54,11 @@
   font-style: normal;
   font-optical-sizing: none;
   font-synthesis: none;
-  font-variation-settings: "wght" 540, "opsz" 60, "SOFT" 45, "WONK" 0;
+  font-variation-settings:
+    "wght" 540,
+    "opsz" 60,
+    "SOFT" 45,
+    "WONK" 0;
   letter-spacing: -0.034em;
   line-height: 1;
 }
@@ -198,7 +202,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shell-project-new { transition: none; }
+  .shell-project-new {
+    transition: none;
+  }
 }
 
 .shell-project-row {
@@ -224,7 +230,9 @@
   color: var(--color-text-muted);
 }
 
-.shell-project-row:hover { background: var(--color-raised-hover); }
+.shell-project-row:hover {
+  background: var(--color-raised-hover);
+}
 .shell-project-more {
   min-height: 28px;
   padding: 0 8px 0 34px;
@@ -236,7 +244,10 @@
   text-align: left;
   cursor: pointer;
 }
-.shell-project-more:hover { background: var(--color-raised-hover); color: var(--color-text-primary); }
+.shell-project-more:hover {
+  background: var(--color-raised-hover);
+  color: var(--color-text-primary);
+}
 
 .shell-project-row--active {
   color: var(--color-text-primary);
@@ -356,8 +367,13 @@
   color: var(--color-text-primary);
   cursor: pointer;
 }
-.shell-connection:hover { background: var(--color-base-hover); }
-.shell-connection:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.shell-connection:hover {
+  background: var(--color-base-hover);
+}
+.shell-connection:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
 .status-dot {
   flex: 0 0 auto;
@@ -522,7 +538,9 @@
   padding-right: 34px;
 }
 .shell-session-container .shell-session-icon-slot {
-  transition: color 140ms ease-out, opacity 140ms ease-out;
+  transition:
+    color 140ms ease-out,
+    opacity 140ms ease-out;
 }
 .shell-session-container:hover .shell-session-icon-slot,
 .shell-session-container:focus-within .shell-session-icon-slot {

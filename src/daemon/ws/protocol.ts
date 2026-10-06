@@ -22,16 +22,17 @@ import type {
 
 export const OP_TIMEOUT_MS = 10_000;
 
-export type RequestParamsOf<A extends RequestAction> = (CommandParams & AgentParams & {
-  "conversation.read": { target: string; through_revision: number; completion_key: string };
-  "session.list": Record<string, never>;
-  "session.history": { session_id: string; cursor: string | null; limit: number };
-  "approval.answer": ApprovalAnswerParams;
-  "approval.cancel": ApprovalCancelParams;
-  "session.mode": SessionModeParams;
-  "session.prompt": SessionPromptParams;
-  "session.interrupt": SessionInterruptParams;
-})[A];
+export type RequestParamsOf<A extends RequestAction> = (CommandParams &
+  AgentParams & {
+    "conversation.read": { target: string; through_revision: number; completion_key: string };
+    "session.list": Record<string, never>;
+    "session.history": { session_id: string; cursor: string | null; limit: number };
+    "approval.answer": ApprovalAnswerParams;
+    "approval.cancel": ApprovalCancelParams;
+    "session.mode": SessionModeParams;
+    "session.prompt": SessionPromptParams;
+    "session.interrupt": SessionInterruptParams;
+  })[A];
 
 export interface Clock {
   now: () => number;

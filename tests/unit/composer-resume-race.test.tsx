@@ -69,10 +69,14 @@ it.each(["none", "rest", "snapshot", "metadata", "stop"])(
     const storedBeforeResume = readPendingUsers("s1").map((entry) => entry.node.text);
     const revisionBefore = sessionsStore.getState().sessions.s1!.stopRevision ?? 0;
     act(() => {
-      if (sync === "stop") sessionsStore.getState().ingestFrame({
-        topic: "sessions.all", seq: 1, ts: 1, source: "mandri",
-        raw: { type: "session_stopped", session_id: "s1", cause: "user" },
-      });
+      if (sync === "stop")
+        sessionsStore.getState().ingestFrame({
+          topic: "sessions.all",
+          seq: 1,
+          ts: 1,
+          source: "mandri",
+          raw: { type: "session_stopped", session_id: "s1", cause: "user" },
+        });
       if (sync === "rest")
         sessionsStore.getState().upsertFromRest([
           {
@@ -97,7 +101,6 @@ it.each(["none", "rest", "snapshot", "metadata", "stop"])(
               harness: "codex",
               state: "stopped",
               title: "Synthetic",
-
             },
           ],
           runtimes: [],

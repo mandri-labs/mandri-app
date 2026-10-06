@@ -12,11 +12,7 @@ import type { EventMessage, WsTopic } from "@/daemon/types/ws";
 import type { FetchHandler } from "./helpers/fetchStub";
 import { errorResponse, jsonResponse, stubFetch } from "./helpers/fetchStub";
 
-function gatewayEvent(
-  event: string,
-  routeId: string,
-  providerName?: string,
-): EventMessage {
+function gatewayEvent(event: string, routeId: string, providerName?: string): EventMessage {
   return {
     topic: "gateway.events" as WsTopic,
     seq: 1,
@@ -198,9 +194,9 @@ describe("providers store", () => {
       api_base: "http://127.0.0.1:11434",
       state: "verified",
     });
-    providersStore.getState().setCatalog("local", [
-      { id: "ollama/llama3", reasoning_efforts: [], default_effort: null },
-    ]);
+    providersStore
+      .getState()
+      .setCatalog("local", [{ id: "ollama/llama3", reasoning_efforts: [], default_effort: null }]);
     providersStore.getState().hydrateProviders([
       { name: "local", kind: "ollama", api_base: "http://127.0.0.1:11434", state: "verified" },
       { name: "hosted", kind: "openai", api_base: null, state: "unverified" },
@@ -215,28 +211,28 @@ describe("providers store", () => {
   });
 
   it("removes a provider", () => {
-    providersStore.getState().hydrateProviders([
-      { name: "local", kind: "ollama", api_base: null, state: "verified" },
-    ]);
+    providersStore
+      .getState()
+      .hydrateProviders([{ name: "local", kind: "ollama", api_base: null, state: "verified" }]);
     providersStore.getState().removeProvider("local");
     expect(providersStore.getState().providers["local"]).toBeUndefined();
   });
 
   it("updates verification state", () => {
-    providersStore.getState().hydrateProviders([
-      { name: "local", kind: "ollama", api_base: null, state: "unverified" },
-    ]);
+    providersStore
+      .getState()
+      .hydrateProviders([{ name: "local", kind: "ollama", api_base: null, state: "unverified" }]);
     providersStore.getState().setVerification("local", "degraded");
     expect(providersStore.getState().providers["local"]?.state).toBe("degraded");
   });
 
   it("sets catalog loaded and unavailable states", () => {
-    providersStore.getState().hydrateProviders([
-      { name: "local", kind: "ollama", api_base: null, state: "verified" },
-    ]);
-    providersStore.getState().setCatalog("local", [
-      { id: "ollama/llama3", reasoning_efforts: [], default_effort: null },
-    ]);
+    providersStore
+      .getState()
+      .hydrateProviders([{ name: "local", kind: "ollama", api_base: null, state: "verified" }]);
+    providersStore
+      .getState()
+      .setCatalog("local", [{ id: "ollama/llama3", reasoning_efforts: [], default_effort: null }]);
     expect(providersStore.getState().providers["local"]?.catalogState).toBe("loaded");
     providersStore.getState().setCatalog("local", "unavailable");
     const view = providersStore.getState().providers["local"];
@@ -275,9 +271,7 @@ describe("providers store", () => {
       "route-1",
       "route-2",
     ]);
-    providersStore
-      .getState()
-      .applyGatewayEvent(gatewayEvent("route_updated", "route-1", "hosted"));
+    providersStore.getState().applyGatewayEvent(gatewayEvent("route_updated", "route-1", "hosted"));
     expect(providersStore.getState().routes[0]?.providerName).toBe("hosted");
     providersStore.getState().applyGatewayEvent(gatewayEvent("route_deleted", "route-2"));
     expect(providersStore.getState().routes.map((route) => route.id)).toEqual(["route-1"]);

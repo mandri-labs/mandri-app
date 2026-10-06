@@ -195,22 +195,20 @@ export function installTeamStory(waiting: boolean, failed = false): () => void {
   });
   connectionStore.setState({ status: "online" });
   if (waiting)
-    approvalsStore
-      .getState()
-      .ingestFrame({
-        type: "approval.pending",
-        topic: "agent.migration",
-        source: "opencode",
-        seq: 1,
-        ts: Date.now(),
-        approval_id: "migration-smoke",
-        deadline: Date.now() + 3600000,
-        status: "pending",
-        raw: {
-          type: "permission.asked",
-          properties: { permission: "bash", patterns: ["npm run test:migration"] },
-        },
-      });
+    approvalsStore.getState().ingestFrame({
+      type: "approval.pending",
+      topic: "agent.migration",
+      source: "opencode",
+      seq: 1,
+      ts: Date.now(),
+      approval_id: "migration-smoke",
+      deadline: Date.now() + 3600000,
+      status: "pending",
+      raw: {
+        type: "permission.asked",
+        properties: { permission: "bash", patterns: ["npm run test:migration"] },
+      },
+    });
   return () => {
     for (const session of sessions) {
       keepAlive.forget(session.id);

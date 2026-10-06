@@ -57,12 +57,10 @@ export function useExecutionStatus(id: string): void {
           applyExecutionStatus(id, status);
       } catch {
         if (active && generation === daemonIdentity.getState().generation) {
-          sessionsStore
-            .getState()
-            .applySessionPatch(id, {
-              effectiveBinding: false,
-              executionReason: "execution_status_unavailable",
-            });
+          sessionsStore.getState().applySessionPatch(id, {
+            effectiveBinding: false,
+            executionReason: "execution_status_unavailable",
+          });
         }
       } finally {
         pending = false;

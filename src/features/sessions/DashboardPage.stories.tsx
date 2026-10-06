@@ -96,9 +96,7 @@ const meta = {
   title: "Features/Sessions/DashboardPage",
   component: DashboardPage,
   parameters: { layout: "fullscreen" },
-  decorators: [
-    (Story: () => React.ReactNode) => <StoryGate>{<Story />}</StoryGate>,
-  ],
+  decorators: [(Story: () => React.ReactNode) => <StoryGate>{<Story />}</StoryGate>],
 } satisfies Meta<typeof DashboardPage>;
 
 export default meta;

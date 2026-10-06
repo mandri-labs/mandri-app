@@ -1,7 +1,27 @@
 import {
-  Archive, Bot, BookOpen, CircleHelp, ClipboardList, Coins, FilePlus2, FileText,
-  Gauge, GitFork, Goal, KeyRound, Layers, ListChecks, MessageSquarePlus,
-  Minimize2, Plug, SearchCheck, Settings2, ShieldCheck, Sparkles, Terminal, Zap,
+  Archive,
+  Bot,
+  BookOpen,
+  CircleHelp,
+  ClipboardList,
+  Coins,
+  FilePlus2,
+  FileText,
+  Gauge,
+  GitFork,
+  Goal,
+  KeyRound,
+  Layers,
+  ListChecks,
+  MessageSquarePlus,
+  Minimize2,
+  Plug,
+  SearchCheck,
+  Settings2,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import type { NativeCommand } from "@/daemon/types/commands";
@@ -39,7 +59,13 @@ const commandIcons: Record<string, LucideIcon> = {
   "customize-opencode": Sparkles,
 };
 
-export function CommandIcon({ command, size = 16 }: { command: Pick<NativeCommand, "name" | "kind">; size?: number }) {
+export function CommandIcon({
+  command,
+  size = 16,
+}: {
+  command: Pick<NativeCommand, "name" | "kind">;
+  size?: number;
+}) {
   const name = command.name.replace(/^\//, "").toLowerCase();
   const Icon = commandIcons[name] ?? (command.kind === "skill" ? BookOpen : Terminal);
   return <Icon size={size} aria-hidden="true" />;

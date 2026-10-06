@@ -14,9 +14,7 @@ const meta = {
   title: "App/ErrorBoundary",
   component: ErrorBoundary,
   parameters: { layout: "fullscreen" },
-  decorators: [
-    (Story: () => ReactNode) => <StoryGate>{<Story />}</StoryGate>,
-  ],
+  decorators: [(Story: () => ReactNode) => <StoryGate>{<Story />}</StoryGate>],
 } satisfies Meta<typeof ErrorBoundary>;
 
 export default meta;

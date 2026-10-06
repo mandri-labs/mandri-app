@@ -14,7 +14,10 @@ export const CONNECTION_GRACE_MS = 20_000;
 export const CONNECTION_FADE_MS = 180;
 
 /** Lives above the routes so navigation never restarts the connection deadline. */
-export function ConnectionOverlay({ children, onRetry }: {
+export function ConnectionOverlay({
+  children,
+  onRetry,
+}: {
   children: ReactNode;
   onRetry: () => void;
 }) {
@@ -86,11 +89,18 @@ export function ConnectionOverlay({ children, onRetry }: {
           }}
         >
           <div className="connection-overlay-center">
-            <span className="shell-brand-name connection-overlay-wordmark" aria-label="Mandri">Mandri</span>
+            <span className="shell-brand-name connection-overlay-wordmark" aria-label="Mandri">
+              Mandri
+            </span>
             <p className="connection-overlay-status" role={content.failed ? "alert" : "status"}>
               <span className={content.failed ? undefined : "tr-shimmer"}>
-                {t(content.failed ? "core.connection.failed" : content.hasConnected
-                  ? "core.connection.reconnecting" : "core.connection.starting")}
+                {t(
+                  content.failed
+                    ? "core.connection.failed"
+                    : content.hasConnected
+                      ? "core.connection.reconnecting"
+                      : "core.connection.starting",
+                )}
               </span>
             </p>
             {content.showRecovery && (
@@ -105,24 +115,46 @@ export function ConnectionOverlay({ children, onRetry }: {
                   </details>
                 )}
                 <div className="connection-overlay-actions">
-                  <button type="button" onClick={() => { setLogsError(null); onRetry(); }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLogsError(null);
+                      onRetry();
+                    }}
+                  >
                     {t("core.actions.retry")}
                   </button>
                   {isTauri() && (
-                    <button type="button" onClick={() => {
-                      setLogsError(null);
-                      void openDesktopLogs().catch((error: unknown) => setLogsError(String(error)));
-                    }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLogsError(null);
+                        void openDesktopLogs().catch((error: unknown) =>
+                          setLogsError(String(error)),
+                        );
+                      }}
+                    >
                       {t("core.actions.open_logs")}
                     </button>
                   )}
-                  <button type="button" aria-expanded={settingsOpen} onClick={() => setSettingsOpen(!settingsOpen)}>
+                  <button
+                    type="button"
+                    aria-expanded={settingsOpen}
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                  >
                     {t("core.connection.settings")}
                   </button>
                 </div>
-                {logsError && <p className="connection-overlay-note" role="alert">{logsError}</p>}
+                {logsError && (
+                  <p className="connection-overlay-note" role="alert">
+                    {logsError}
+                  </p>
+                )}
                 {settingsOpen && (
-                  <section className="connection-overlay-settings" aria-label={t("core.connection.settings")}>
+                  <section
+                    className="connection-overlay-settings"
+                    aria-label={t("core.connection.settings")}
+                  >
                     <ConnectionSettings />
                   </section>
                 )}

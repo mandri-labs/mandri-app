@@ -245,7 +245,12 @@ try {
   });
   await page.goto(`http://127.0.0.1:${address.port}/#/session/root-0`);
   await page.getByRole("button", { name: "Research child — Running", exact: true }).waitFor();
-  assert.equal(await page.locator(".shell-session-container > .shell-session-row:not(.shell-agent-row)").count(), 5);
+  assert.equal(
+    await page
+      .locator(".shell-session-container > .shell-session-row:not(.shell-agent-row)")
+      .count(),
+    5,
+  );
   assert.equal(await page.getByText("Native duplicate child", { exact: true }).count(), 0);
   assert.equal(await page.locator(".shell-agent-row").count(), 2);
   await page.getByRole("button", { name: "Sub-agents (2)", exact: true }).click();

@@ -74,10 +74,7 @@ export const Overview: Story = {
   decorators: [
     (Story: () => React.ReactNode) => (
       <>
-        <SeedPreferences
-          theme="dark"
-          daemonBaseUrl="http://127.0.0.1:8787"
-        />
+        <SeedPreferences theme="dark" daemonBaseUrl="http://127.0.0.1:8787" />
         <Story />
       </>
     ),

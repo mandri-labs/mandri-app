@@ -103,13 +103,19 @@ it("creates the selected protection only on apply, preserves permissions, and op
 it("keeps execution context read-only while a session is running", () => {
   render(<SessionProtection session={{ ...session, state: "live" }} />);
   fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
-  expect(screen.getByRole("button", { name: /^Docker sandbox/ }).getAttribute("aria-disabled")).toBe("true");
+  expect(
+    screen.getByRole("button", { name: /^Docker sandbox/ }).getAttribute("aria-disabled"),
+  ).toBe("true");
   expect(screen.queryByText("Stop the session to change its execution context.")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: /^Standard/ }));
   expect(screen.queryByRole("status")).toBeNull();
   fireEvent.click(screen.getByRole("button", { name: /^Docker sandbox/ }));
-  expect(screen.getByRole("status").textContent).toBe("Stop the session to change its execution context.");
-  expect(screen.getByRole("button", { name: /^Standard/ }).getAttribute("aria-pressed")).toBe("true");
+  expect(screen.getByRole("status").textContent).toBe(
+    "Stop the session to change its execution context.",
+  );
+  expect(screen.getByRole("button", { name: /^Standard/ }).getAttribute("aria-pressed")).toBe(
+    "true",
+  );
   expect(screen.queryByRole("button", { name: "Create new session" })).toBeNull();
   expect((screen.getByRole("switch") as HTMLButtonElement).disabled).toBe(false);
 });
@@ -119,28 +125,40 @@ it.each([
   ["live", "none", "surrogate"],
   ["stopped", "surrogate", "none"],
   ["live", "surrogate", "none"],
-] as const)("toggles privacy in place for a %s gateway session from %s to %s", async (state, initial, next) => {
-  vi.mocked(setSessionPrivacy).mockResolvedValue({
-    id: session.id, harness: session.harness, state, title: session.title,
-    project_path: "/workspace", model: session.model ?? null, model_source: "gateway",
-    native_id: "native-session", created_at: 0, updated_at: 0,
-    execution_backend: "host", privacy_mode: next, policy_revision: 2,
-  });
-  render(<SessionProtection session={{ ...session, state, privacyMode: initial }} />);
-  fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
-  if (state === "live") {
-    fireEvent.click(screen.getByRole("button", { name: /^Docker sandbox/ }));
-    expect(screen.getByRole("status")).toBeTruthy();
-  }
-  fireEvent.click(screen.getByRole("switch"));
-  await waitFor(() => expect(setSessionPrivacy).toHaveBeenCalledWith("managed", next));
-  await waitFor(() => expect(sessionsStore.getState().sessions.managed?.policyRevision).toBe(2));
-  expect(sessionsStore.getState().sessions.managed?.privacyMode).toBe(next);
-  expect(screen.queryByText("Stop the session to change its execution context.")).toBeNull();
-  expect(forkSession).not.toHaveBeenCalled();
-  expect(screen.queryByRole("button", { name: "Create new session" })).toBeNull();
-  expect(window.location.hash).toBe("");
-});
+] as const)(
+  "toggles privacy in place for a %s gateway session from %s to %s",
+  async (state, initial, next) => {
+    vi.mocked(setSessionPrivacy).mockResolvedValue({
+      id: session.id,
+      harness: session.harness,
+      state,
+      title: session.title,
+      project_path: "/workspace",
+      model: session.model ?? null,
+      model_source: "gateway",
+      native_id: "native-session",
+      created_at: 0,
+      updated_at: 0,
+      execution_backend: "host",
+      privacy_mode: next,
+      policy_revision: 2,
+    });
+    render(<SessionProtection session={{ ...session, state, privacyMode: initial }} />);
+    fireEvent.click(screen.getByRole("button", { name: "Session protection" }));
+    if (state === "live") {
+      fireEvent.click(screen.getByRole("button", { name: /^Docker sandbox/ }));
+      expect(screen.getByRole("status")).toBeTruthy();
+    }
+    fireEvent.click(screen.getByRole("switch"));
+    await waitFor(() => expect(setSessionPrivacy).toHaveBeenCalledWith("managed", next));
+    await waitFor(() => expect(sessionsStore.getState().sessions.managed?.policyRevision).toBe(2));
+    expect(sessionsStore.getState().sessions.managed?.privacyMode).toBe(next);
+    expect(screen.queryByText("Stop the session to change its execution context.")).toBeNull();
+    expect(forkSession).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Create new session" })).toBeNull();
+    expect(window.location.hash).toBe("");
+  },
+);
 
 it("disables privacy for native models", () => {
   render(<SessionProtection session={{ ...session, model: "native:codex/default" }} />);

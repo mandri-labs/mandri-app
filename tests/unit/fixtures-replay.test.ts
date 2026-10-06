@@ -208,7 +208,11 @@ describe("invalid frame handling", () => {
 describe("realtime replay", () => {
   it("honors recorded timing scaled by timeScale with an injected clock", async () => {
     const clock = new FakeClock();
-    const fixture = syntheticFixture([eventFrame(1, 1000), eventFrame(2, 2000), eventFrame(3, 3500)]);
+    const fixture = syntheticFixture([
+      eventFrame(1, 1000),
+      eventFrame(2, 2000),
+      eventFrame(3, 3500),
+    ]);
     const delivered: ServerMessage[] = [];
     const marks: number[] = [];
     const replayer = new FixtureReplayer(

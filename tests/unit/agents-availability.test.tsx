@@ -105,8 +105,16 @@ it("checks a newly hydrated session immediately instead of sharing a pre-snapsho
   sessionsStore.setState({ sessions: {}, order: [] });
   connectionStore.setState({ status: "online" });
   let finish!: (value: SessionAvailability) => void;
-  vi.mocked(getSessionAvailability).mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
-  function Viewer() { useSessionAvailability("parent"); return null; }
+  vi.mocked(getSessionAvailability).mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+  );
+  function Viewer() {
+    useSessionAvailability("parent");
+    return null;
+  }
   const view = render(<Viewer />);
   await act(async () => undefined);
   expect(getSessionAvailability).not.toHaveBeenCalled();
@@ -114,7 +122,10 @@ it("checks a newly hydrated session immediately instead of sharing a pre-snapsho
   expect(getSessionAvailability).toHaveBeenCalledTimes(1);
   expect(sessionsStore.getState().sessions.parent?.availabilityStatus).toBe("checking");
   await act(async () => finish(free));
-  expect(sessionsStore.getState().sessions.parent).toMatchObject({ availabilityStatus: "ready", availability: free });
+  expect(sessionsStore.getState().sessions.parent).toMatchObject({
+    availabilityStatus: "ready",
+    availability: free,
+  });
   view.unmount();
 });
 
@@ -153,7 +164,10 @@ it("backs off failed polling and shares refreshes between viewers", async () => 
 it("checks ownership immediately when a hidden viewer becomes visible, including during retry backoff", async () => {
   connectionStore.setState({ status: "online" });
   const visibility = vi.spyOn(document, "visibilityState", "get").mockReturnValue("hidden");
-  function Viewer() { useSessionAvailability("parent"); return null; }
+  function Viewer() {
+    useSessionAvailability("parent");
+    return null;
+  }
   const view = render(<Viewer />);
   await act(async () => undefined);
   expect(getSessionAvailability).not.toHaveBeenCalled();

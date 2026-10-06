@@ -26,7 +26,8 @@ function TechnicalEvent({ payload, number }: { payload: unknown; number: number 
   const record = asRecord(payload);
   const title =
     stringAt(record, "type") ??
-    stringAt(record, "method") ?? stringAt(record, "event") ??
+    stringAt(record, "method") ??
+    stringAt(record, "event") ??
     t("core.transcript.debug_event", { number });
   return (
     <div className="tr-debug-event">

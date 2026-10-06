@@ -227,28 +227,125 @@
   flex: 0 0 auto;
 }
 
-.approval-decision:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.approval-decision:disabled { opacity: 0.5; cursor: wait; }
+.approval-decision:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.approval-decision:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
 
-.approval-question { display: grid; gap: 8px; border: 0; padding: 8px 0; }
-.approval-question label { display: flex; align-items: center; gap: 8px; }
-.approval-question textarea { width: 100%; min-height: 48px; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 4px; }
+.approval-question {
+  display: grid;
+  gap: 8px;
+  border: 0;
+  padding: 8px 0;
+}
+.approval-question label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.approval-question textarea {
+  width: 100%;
+  min-height: 48px;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+}
 
-.native-questions { display: grid; gap: 12px; min-width: 0; }
-.approval-plan { min-width: 0; overflow-wrap: anywhere; }
-.approval-plan .approval-actions { flex-wrap: wrap; }
-.native-questions > button { justify-self: start; }
-.native-questions .approval-question { min-width: 0; margin: 0; padding: 12px 0; }
-.approval-question legend { font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
-.approval-question-header { display: block; color: var(--color-text-muted); font-size: var(--font-size-small); margin-bottom: 4px; }
-.approval-question-hint, .approval-input-unavailable { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-small); }
-.approval-question .approval-question-option { padding: 10px 12px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-sm); cursor: pointer; align-items: flex-start; }
-.approval-question-option:has(input:checked) { background: var(--color-surface-high); border-color: var(--color-border-strong); }
-.approval-question-option:focus-within { outline: 2px solid var(--color-accent); outline-offset: 2px; }
-.approval-question-option input { margin-top: 3px; accent-color: var(--color-accent); flex-shrink: 0; }
-.approval-question-option strong { font-weight: var(--font-weight-semibold); }
-.approval-question-option span { min-width: 0; overflow-wrap: anywhere; }
-.approval-question-description { display: block; color: var(--color-text-muted); font-size: var(--font-size-small); margin-top: 3px; }
-.approval-question-freeform { display: grid; gap: 6px; font-size: var(--font-size-small); }
-.approval-question-freeform textarea, .approval-question-freeform input, .approval-question-freeform select { box-sizing: border-box; width: 100%; padding: 8px 10px; color: var(--color-text-primary); background: var(--color-base); border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); font: inherit; resize: vertical; }
-.approval-question-freeform textarea:focus-visible, .approval-question-freeform input:focus-visible, .approval-question-freeform select:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.native-questions {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.approval-plan {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.approval-plan .approval-actions {
+  flex-wrap: wrap;
+}
+.native-questions > button {
+  justify-self: start;
+}
+.native-questions .approval-question {
+  min-width: 0;
+  margin: 0;
+  padding: 12px 0;
+}
+.approval-question legend {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+.approval-question-header {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin-bottom: 4px;
+}
+.approval-question-hint,
+.approval-input-unavailable {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+}
+.approval-question .approval-question-option {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  align-items: flex-start;
+}
+.approval-question-option:has(input:checked) {
+  background: var(--color-surface-high);
+  border-color: var(--color-border-strong);
+}
+.approval-question-option:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.approval-question-option input {
+  margin-top: 3px;
+  accent-color: var(--color-accent);
+  flex-shrink: 0;
+}
+.approval-question-option strong {
+  font-weight: var(--font-weight-semibold);
+}
+.approval-question-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.approval-question-description {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  margin-top: 3px;
+}
+.approval-question-freeform {
+  display: grid;
+  gap: 6px;
+  font-size: var(--font-size-small);
+}
+.approval-question-freeform textarea,
+.approval-question-freeform input,
+.approval-question-freeform select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  color: var(--color-text-primary);
+  background: var(--color-base);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  resize: vertical;
+}
+.approval-question-freeform textarea:focus-visible,
+.approval-question-freeform input:focus-visible,
+.approval-question-freeform select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

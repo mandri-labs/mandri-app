@@ -1,4 +1,8 @@
-import { composerStorageKey, readComposerStorage, writeComposerStorage } from "@/lib/composerStorage";
+import {
+  composerStorageKey,
+  readComposerStorage,
+  writeComposerStorage,
+} from "@/lib/composerStorage";
 import { createStore } from "zustand/vanilla";
 import { daemonIdentity } from "@/daemon/identity";
 import { request } from "@/daemon/rest/client";
@@ -44,13 +48,24 @@ export function restoreFiles(key: string): void {
   if (attachmentDrafts.getState().drafts[key] !== undefined) return;
   const stored = readComposerStorage<StoredAttachment[]>(composerStorageKey("files", key), []);
   const files: DraftAttachment[] = [];
-  if (Array.isArray(stored)) for (const item of stored) {
-    try {
-      if (typeof item.key !== "string" || typeof item.name !== "string" || typeof item.data !== "string") continue;
-      const bytes = Uint8Array.from(atob(item.data), (char) => char.charCodeAt(0));
-      files.push({ key: item.key, file: new File([bytes], item.name, { type: item.type, lastModified: item.lastModified }) });
-    } catch { /* Ignore malformed stored files. */ }
-  }
+  if (Array.isArray(stored))
+    for (const item of stored) {
+      try {
+        if (
+          typeof item.key !== "string" ||
+          typeof item.name !== "string" ||
+          typeof item.data !== "string"
+        )
+          continue;
+        const bytes = Uint8Array.from(atob(item.data), (char) => char.charCodeAt(0));
+        files.push({
+          key: item.key,
+          file: new File([bytes], item.name, { type: item.type, lastModified: item.lastModified }),
+        });
+      } catch {
+        /* Ignore malformed stored files. */
+      }
+    }
   attachmentDrafts.setState(({ drafts }) => ({ drafts: { ...drafts, [key]: files } }));
 }
 
@@ -65,7 +80,8 @@ function encodeFile(file: File): Promise<string> {
   if (!encoded) {
     encoded = new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result).slice(String(reader.result).indexOf(",") + 1));
+      reader.onload = () =>
+        resolve(String(reader.result).slice(String(reader.result).indexOf(",") + 1));
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
     });
@@ -85,12 +101,21 @@ export function setFiles(key: string, files: DraftAttachment[]): void {
     writeComposerStorage(storageKey, null);
     return;
   }
-  void Promise.all(files.map(async ({ key: fileKey, file }) => ({
-    key: fileKey, name: file.name, type: file.type, lastModified: file.lastModified,
-    data: await encodeFile(file),
-  }))).then((stored) => {
-    if (writes.get(storageKey) === revision) writeComposerStorage(storageKey, stored);
-  }).catch(() => { /* Keep files in memory if they cannot be persisted. */ });
+  void Promise.all(
+    files.map(async ({ key: fileKey, file }) => ({
+      key: fileKey,
+      name: file.name,
+      type: file.type,
+      lastModified: file.lastModified,
+      data: await encodeFile(file),
+    })),
+  )
+    .then((stored) => {
+      if (writes.get(storageKey) === revision) writeComposerStorage(storageKey, stored);
+    })
+    .catch(() => {
+      /* Keep files in memory if they cannot be persisted. */
+    });
 }
 
 export function removeFiles(key: string, selected: readonly DraftAttachment[]): void {
@@ -134,8 +159,15 @@ export async function uploadFiles(
 
 export function draftMessage(text: string, files: readonly DraftAttachment[]) {
   return {
-    text: [text, ...files.filter(({ file }) => !file.type.startsWith("image/")).map(({ file }) => file.name)].filter(Boolean).join("\n\n"),
-    images: files.filter(({ file }) => file.type.startsWith("image/")).map(({ key, file }) => ({ source: `draft:${key}`, name: file.name, file })),
+    text: [
+      text,
+      ...files.filter(({ file }) => !file.type.startsWith("image/")).map(({ file }) => file.name),
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+    images: files
+      .filter(({ file }) => file.type.startsWith("image/"))
+      .map(({ key, file }) => ({ source: `draft:${key}`, name: file.name, file })),
   };
 }
 
@@ -145,17 +177,26 @@ export function attachmentMessage(text: string, files: readonly UploadedAttachme
 
 daemonIdentity.subscribe(() => attachmentDrafts.setState({ drafts: {}, errors: {} }));
 
-export async function persistFiles(key: string, files: readonly DraftAttachment[]): Promise<boolean> {
+export async function persistFiles(
+  key: string,
+  files: readonly DraftAttachment[],
+): Promise<boolean> {
   const storageKey = composerStorageKey("files", key);
   const generation = daemonIdentity.getState().generation;
   const revision = {};
   writes.set(storageKey, revision);
   try {
-    const stored = await Promise.all(files.map(async ({ key: fileKey, file }) => ({
-      key: fileKey, name: file.name, type: file.type, lastModified: file.lastModified,
-      data: await encodeFile(file),
-    })));
-    if (generation !== daemonIdentity.getState().generation || writes.get(storageKey) !== revision) return false;
+    const stored = await Promise.all(
+      files.map(async ({ key: fileKey, file }) => ({
+        key: fileKey,
+        name: file.name,
+        type: file.type,
+        lastModified: file.lastModified,
+        data: await encodeFile(file),
+      })),
+    );
+    if (generation !== daemonIdentity.getState().generation || writes.get(storageKey) !== revision)
+      return false;
     if (!writeComposerStorage(storageKey, stored.length ? stored : null)) return false;
     attachmentDrafts.setState(({ drafts }) => ({ drafts: { ...drafts, [key]: [...files] } }));
     return true;

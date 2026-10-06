@@ -10,8 +10,22 @@ import usageFr from "@/features/usage/fr.json";
 export type Locale = "fr" | "en";
 
 const resources = {
-  en: { translation: { ...en, commands: commandsEn, usage: usageEn, core: { ...en.core, route: { ...en.core.route, usage: usageEn.title } } } },
-  fr: { translation: { ...fr, commands: commandsFr, usage: usageFr, core: { ...fr.core, route: { ...fr.core.route, usage: usageFr.title } } } },
+  en: {
+    translation: {
+      ...en,
+      commands: commandsEn,
+      usage: usageEn,
+      core: { ...en.core, route: { ...en.core.route, usage: usageEn.title } },
+    },
+  },
+  fr: {
+    translation: {
+      ...fr,
+      commands: commandsFr,
+      usage: usageFr,
+      core: { ...fr.core, route: { ...fr.core.route, usage: usageFr.title } },
+    },
+  },
 };
 
 export async function initI18n(initialLocale: Locale): Promise<typeof i18next> {

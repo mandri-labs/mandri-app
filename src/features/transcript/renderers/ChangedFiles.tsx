@@ -19,7 +19,12 @@ export const ChangedFiles = memo(function ChangedFiles({
     <DisclosureKeyContext.Provider value={scope}>
       <Disclosure
         className="tr-changed-files"
-        title={t(scope === "files:session" ? "core.transcript.session_files_changed" : "core.transcript.files_changed", { count: files.length })}
+        title={t(
+          scope === "files:session"
+            ? "core.transcript.session_files_changed"
+            : "core.transcript.files_changed",
+          { count: files.length },
+        )}
       >
         {files.map((file) => (
           <DisclosureKeyContext.Provider key={file.path} value={`${scope}:${file.path}`}>

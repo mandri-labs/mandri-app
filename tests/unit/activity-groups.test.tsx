@@ -35,10 +35,14 @@ afterEach(cleanup);
 
 describe("activity groups", () => {
   it("keeps diagnostic rows from hiding the foreground tool activity", () => {
-    const rows = groupActivities([
-      { ...command, status: "running" },
-      { kind: "raw", harness: "claude", payload: {} },
-    ], true, 0);
+    const rows = groupActivities(
+      [
+        { ...command, status: "running" },
+        { kind: "raw", harness: "claude", payload: {} },
+      ],
+      true,
+      0,
+    );
     expect(rows[0]).toMatchObject({ kind: "group", active: true });
   });
   it("keeps mixed activities in order and separates assistant messages", () => {
@@ -63,8 +67,13 @@ describe("activity groups", () => {
 
   it("hides the trailing file summary when an active external turn has no loaded anchor", () => {
     const input = [edit, message];
-    expect(groupActivities(input, true, input.length).some((row) => row.kind === "files")).toBe(false);
-    expect(groupActivities(input, false, input.length).at(-1)).toMatchObject({ kind: "files", nodes: [edit] });
+    expect(groupActivities(input, true, input.length).some((row) => row.kind === "files")).toBe(
+      false,
+    );
+    expect(groupActivities(input, false, input.length).at(-1)).toMatchObject({
+      kind: "files",
+      nodes: [edit],
+    });
   });
 
   it("keeps group identity when a command completes and a diff arrives", () => {
@@ -118,38 +127,62 @@ describe("activity groups", () => {
   });
 
   it.each([
-    ["claude", { type: "assistant", uuid: "thinking", message: {
-      id: "message", content: [{ type: "thinking", thinking: "Considering options" }],
-    } }],
-    ["opencode", { type: "message.part.updated", properties: {
-      part: { id: "thinking", type: "reasoning", text: "Considering options" },
-    } }],
-    ["codex", { method: "item/completed", params: {
-      item: { id: "thinking", type: "reasoning", summary: ["Considering options"] },
-    } }],
-  ] as const)("shows %s thinking with one disclosure before and after completion", (harness, raw) => {
-    const nodes = parseFrame(harness, raw);
-    expect(nodes).toHaveLength(1);
-    const rows = groupActivities(nodes, true, 0);
-    expect(rows[0]).toMatchObject({ kind: "node", node: { kind: "thinking" } });
-    const node = rows[0];
-    if (node?.kind !== "node") throw new Error("Thinking should be a standalone row");
-    const view = render(<TranscriptNodeRenderer node={node.node} thinkingActive />);
-    expect(screen.getByRole("button").textContent).toContain("thinking");
-    expect(screen.queryByText("Considering options")).toBeNull();
-    expect(view.container.querySelector(".tr-thinking-title.tr-shimmer")).not.toBeNull();
-    fireEvent.click(screen.getByRole("button"));
-    expect(screen.getByText("Considering options")).toBeTruthy();
-    expect(screen.getAllByRole("button")).toHaveLength(1);
-    view.rerender(<TranscriptNodeRenderer node={node.node} thinkingActive={false} />);
-    expect(screen.getByRole("button").textContent).toContain("reasoning");
-    expect(screen.getByText("Considering options")).toBeTruthy();
-    expect(view.container.querySelector(".tr-shimmer")).toBeNull();
-    expect(view.container.querySelector(".tr-activity-group")).toBeNull();
-    expect(view.container.querySelectorAll("svg")).toHaveLength(1);
-    expect(groupActivities([command, ...nodes, command, message], false, 0).map((row) => row.kind))
-      .toEqual(["group", "node", "group", "node"]);
-  });
+    [
+      "claude",
+      {
+        type: "assistant",
+        uuid: "thinking",
+        message: {
+          id: "message",
+          content: [{ type: "thinking", thinking: "Considering options" }],
+        },
+      },
+    ],
+    [
+      "opencode",
+      {
+        type: "message.part.updated",
+        properties: {
+          part: { id: "thinking", type: "reasoning", text: "Considering options" },
+        },
+      },
+    ],
+    [
+      "codex",
+      {
+        method: "item/completed",
+        params: {
+          item: { id: "thinking", type: "reasoning", summary: ["Considering options"] },
+        },
+      },
+    ],
+  ] as const)(
+    "shows %s thinking with one disclosure before and after completion",
+    (harness, raw) => {
+      const nodes = parseFrame(harness, raw);
+      expect(nodes).toHaveLength(1);
+      const rows = groupActivities(nodes, true, 0);
+      expect(rows[0]).toMatchObject({ kind: "node", node: { kind: "thinking" } });
+      const node = rows[0];
+      if (node?.kind !== "node") throw new Error("Thinking should be a standalone row");
+      const view = render(<TranscriptNodeRenderer node={node.node} thinkingActive />);
+      expect(screen.getByRole("button").textContent).toContain("thinking");
+      expect(screen.queryByText("Considering options")).toBeNull();
+      expect(view.container.querySelector(".tr-thinking-title.tr-shimmer")).not.toBeNull();
+      fireEvent.click(screen.getByRole("button"));
+      expect(screen.getByText("Considering options")).toBeTruthy();
+      expect(screen.getAllByRole("button")).toHaveLength(1);
+      view.rerender(<TranscriptNodeRenderer node={node.node} thinkingActive={false} />);
+      expect(screen.getByRole("button").textContent).toContain("reasoning");
+      expect(screen.getByText("Considering options")).toBeTruthy();
+      expect(view.container.querySelector(".tr-shimmer")).toBeNull();
+      expect(view.container.querySelector(".tr-activity-group")).toBeNull();
+      expect(view.container.querySelectorAll("svg")).toHaveLength(1);
+      expect(
+        groupActivities([command, ...nodes, command, message], false, 0).map((row) => row.kind),
+      ).toEqual(["group", "node", "group", "node"]);
+    },
+  );
 
   it("summarizes every completed activity type, without repeating categories", () => {
     const read: TranscriptNode = { ...command, key: "read", tool: "read", target: "README.md" };

@@ -21,10 +21,16 @@ function ensureApprovalSync(): void {
   approvalsStore.subscribe((state, previous) => {
     if (state.pending === previous.pending) return;
     const pending = Object.values(state.pending);
-    const sessionIds = new Set([...pending, ...Object.values(previous.pending)].map((approval) => approval.sessionId));
+    const sessionIds = new Set(
+      [...pending, ...Object.values(previous.pending)].map((approval) => approval.sessionId),
+    );
     for (const sessionId of sessionIds) {
-      sessionsStore.getState().setPendingApprovals(sessionId,
-        pending.filter((approval) => approval.sessionId === sessionId).length);
+      sessionsStore
+        .getState()
+        .setPendingApprovals(
+          sessionId,
+          pending.filter((approval) => approval.sessionId === sessionId).length,
+        );
     }
   });
 }
@@ -70,22 +76,52 @@ function routeSessionFrame(message: ServerMessage): void {
       harness: known.harness,
       source: "sessionsStore",
     });
-    if ("raw" in message && typeof message.raw === "object" && message.raw !== null &&
-      "external_busy" in message.raw && typeof message.raw.external_busy === "boolean") {
-      sessionsStore.getState().applySessionPatch(sessionId, { externalBusy: message.raw.external_busy, externalUnavailable: false });
+    if (
+      "raw" in message &&
+      typeof message.raw === "object" &&
+      message.raw !== null &&
+      "external_busy" in message.raw &&
+      typeof message.raw.external_busy === "boolean"
+    ) {
+      sessionsStore.getState().applySessionPatch(sessionId, {
+        externalBusy: message.raw.external_busy,
+        externalUnavailable: false,
+      });
     }
-    if ("raw" in message && typeof message.raw === "object" && message.raw !== null &&
-      "external_busy" in message.raw && message.raw.external_busy === null) {
-      sessionsStore.getState().applySessionPatch(sessionId, { externalBusy: undefined, externalUnavailable: true });
+    if (
+      "raw" in message &&
+      typeof message.raw === "object" &&
+      message.raw !== null &&
+      "external_busy" in message.raw &&
+      message.raw.external_busy === null
+    ) {
+      sessionsStore
+        .getState()
+        .applySessionPatch(sessionId, { externalBusy: undefined, externalUnavailable: true });
     }
-    if ("raw" in message && typeof message.raw === "object" && message.raw !== null &&
+    if (
+      "raw" in message &&
+      typeof message.raw === "object" &&
+      message.raw !== null &&
       "external_model" in message.raw &&
-      (typeof message.raw.external_model === "string" || message.raw.external_model === null)) {
-      sessionsStore.getState().applySessionPatch(sessionId, { externalModel: message.raw.external_model ?? undefined });
+      (typeof message.raw.external_model === "string" || message.raw.external_model === null)
+    ) {
+      sessionsStore
+        .getState()
+        .applySessionPatch(sessionId, { externalModel: message.raw.external_model ?? undefined });
     }
-    if ("raw" in message && typeof message.raw === "object" && message.raw !== null &&
-      "unavailable" in message.raw && message.raw.unavailable === true) {
-      sessionsStore.getState().applySessionPatch(sessionId, { externalBusy: undefined, externalModel: undefined, externalUnavailable: true });
+    if (
+      "raw" in message &&
+      typeof message.raw === "object" &&
+      message.raw !== null &&
+      "unavailable" in message.raw &&
+      message.raw.unavailable === true
+    ) {
+      sessionsStore.getState().applySessionPatch(sessionId, {
+        externalBusy: undefined,
+        externalModel: undefined,
+        externalUnavailable: true,
+      });
     }
     sessionFeed.ingestSessionFrame(sessionId, known.harness, message);
     return;
@@ -125,13 +161,22 @@ export function dispatchFrame(message: ServerMessage): void {
   ingestConversationFrame(message);
   ensureApprovalSync();
   approvalsStore.getState().ingestFrame(message);
-  if (!("type" in message && (message.type === "approval.pending" || message.type === "approval.resolved"))) {
+  if (!(
+    "type" in message &&
+    (message.type === "approval.pending" || message.type === "approval.resolved")
+  )) {
     sessionsStore.getState().ingestFrame(message);
   }
   if (
     ("type" in message && (message.type === "snapshot" || message.type === "session_stopped")) ||
-    ("raw" in message && typeof message.raw === "object" && message.raw !== null &&
-      "type" in message.raw && (message.raw.type === "session_started" || message.raw.type === "session_stopped" || message.raw.type === "sessions_changed" || message.raw.type === "session_info_changed"))
+    ("raw" in message &&
+      typeof message.raw === "object" &&
+      message.raw !== null &&
+      "type" in message.raw &&
+      (message.raw.type === "session_started" ||
+        message.raw.type === "session_stopped" ||
+        message.raw.type === "sessions_changed" ||
+        message.raw.type === "session_info_changed"))
   ) {
     void refreshSessionMetadata();
   }

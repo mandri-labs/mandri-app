@@ -14,7 +14,10 @@ describe("device endpoint preferences", () => {
   it("uses Local without localStorage even when a desktop backup contains another address", () => {
     localStorage.removeItem("mandri.preferences");
     const merge = preferencesStore.persist.getOptions().merge!;
-    const restored = merge({ daemonBaseUrl: "https://backup.example" }, preferencesStore.getState());
+    const restored = merge(
+      { daemonBaseUrl: "https://backup.example" },
+      preferencesStore.getState(),
+    );
     expect(restored.selectedEndpointId).toBe("local");
     expect(restored.daemonBaseUrl).toBe(LOCAL_ENDPOINT.url);
   });

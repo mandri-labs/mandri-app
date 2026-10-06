@@ -303,8 +303,12 @@
   font-size: var(--font-size-label);
   line-height: 1.5;
 }
-.tr-agent-activity > svg { flex: none; }
-.tr-agent-activity--failed { color: var(--color-text-primary); }
+.tr-agent-activity > svg {
+  flex: none;
+}
+.tr-agent-activity--failed {
+  color: var(--color-text-primary);
+}
 .tr-tool-summary {
   min-width: 0;
   overflow: hidden;
@@ -577,6 +581,18 @@
 }
 
 .tr-diff > .tr-disclosure-toggle,
-.tr-tool > .tr-disclosure > .tr-disclosure-toggle { width: 100%; }
-.tr-file-path { display: block; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tr-tool-summary:has(.tr-file-path) { flex: 1; min-width: 0; }
+.tr-tool > .tr-disclosure > .tr-disclosure-toggle {
+  width: 100%;
+}
+.tr-file-path {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tr-tool-summary:has(.tr-file-path) {
+  flex: 1;
+  min-width: 0;
+}
