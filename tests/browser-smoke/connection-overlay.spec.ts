@@ -14,7 +14,7 @@ const browser = await chromium.launch({ headless: true });
 const output = process.env.MANDRI_OVERLAY_SCREENSHOTS;
 if (output) await mkdir(output, { recursive: true });
 try {
-  const page = await browser.newPage({ viewport: { width: 1200, height: 800 } });
+  const page = await browser.newPage({ locale: "en-US", viewport: { width: 1200, height: 800 } });
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.clock.install();
