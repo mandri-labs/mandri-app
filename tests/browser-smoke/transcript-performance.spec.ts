@@ -28,20 +28,64 @@ function line(index: number, extra = ""): string {
 }
 
 async function anchor(page: Page, text?: string) {
-  return page.locator(".transcript-viewport").evaluate((viewport, text) => {
-    const top = viewport.getBoundingClientRect().top;
-    const row = [...viewport.querySelectorAll(".transcript-item")].find((row) =>
-      text
-        ? row.querySelector("p")?.textContent === text
-        : row.getBoundingClientRect().bottom > top,
+  return page.locator(".transcript-viewport").evaluate(async (viewport, text) => {
+    const deadline = performance.now() + 5000;
+    let previous = "";
+    let unchangedSince = performance.now();
+    while (performance.now() < deadline) {
+      await new Promise(requestAnimationFrame);
+      const bounds = viewport.getBoundingClientRect();
+      const rows = [...viewport.querySelectorAll(".transcript-item")];
+      const row = rows.find((row) => {
+        if (text) return row.querySelector("p")?.textContent === text;
+        const rect = row.getBoundingClientRect();
+        return rect.bottom > bounds.top && rect.top < bounds.bottom;
+      });
+      const layout = JSON.stringify({
+        scrollTop: viewport.scrollTop,
+        scrollHeight: viewport.scrollHeight,
+        bounds: bounds.toJSON(),
+        rows: rows.map((row) => [
+          row.getAttribute("data-index"),
+          row.getBoundingClientRect().toJSON(),
+        ]),
+      });
+      if (!row || document.fonts.status !== "loaded" || layout !== previous) {
+        previous = layout;
+        unchangedSince = performance.now();
+        continue;
+      }
+      if (performance.now() - unchangedSince < 200) continue;
+      return {
+        text: row.querySelector("p")!.textContent!,
+        offset: row.getBoundingClientRect().top - bounds.top,
+        screenTop: row.getBoundingClientRect().top,
+        scrollTop: viewport.scrollTop,
+      };
+    }
+    throw Error(
+      `Transcript layout did not settle for anchor ${text ?? "at the viewport top"}: ${previous}`,
     );
-    if (!row) throw Error(`Visible anchor missing: ${text}`);
-    return {
-      text: row.querySelector("p")!.textContent!,
-      offset: row.getBoundingClientRect().top - top,
-      screenTop: row.getBoundingClientRect().top,
-      scrollTop: viewport.scrollTop,
-    };
+  }, text);
+}
+
+async function waitFor(check: () => boolean, message: string) {
+  const deadline = performance.now() + 30_000;
+  while (!check()) {
+    assert.ok(performance.now() < deadline, message);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
+async function refreshed(page: Page, entry: string) {
+  const text: string = JSON.parse(entry).message.content[0].text;
+  await page.waitForFunction(async (text) => {
+    const { transcriptStore } = await import(String("/src/stores/sessions.ts"));
+    return transcriptStore
+      .getState()
+      .transcripts["perf-0"]?.nodes.some(
+        (node: { kind: string; text?: string }) => node.kind === "assistant" && node.text === text,
+      );
   }, text);
 }
 
@@ -192,6 +236,7 @@ try {
   await page.goto(`http://127.0.0.1:${address.port}/#/session/perf-0`);
   await page.locator(".composer-input").waitFor();
   await page.getByText("Message 1199", { exact: true }).waitFor();
+  await page.evaluate(() => document.fonts.ready);
   await atEnd(page);
   await page.locator(".transcript-status-top").waitFor({ state: "hidden" });
   assert.equal(
@@ -266,11 +311,9 @@ try {
   await viewport.evaluate((el) => {
     el.scrollTop = 220;
   });
-  await page.waitForTimeout(200);
   const before = await anchor(page);
   pending.shift()!();
   await page.locator(".transcript-status-top").waitFor({ state: "hidden" });
-  await page.waitForTimeout(250);
   const after = await anchor(page, before.text);
   assert.ok(Math.abs(after.offset - before.offset) < 2, JSON.stringify({ before, after }));
   assert.ok(
@@ -285,11 +328,10 @@ try {
 
   // Capture every painted frame, not just the final scroll position. Periodic
   // pings, history refreshes and content growth must not drag a reader around.
-  const capture = page.evaluate(async ({ text, offset }) => {
+  await page.evaluate(({ text, offset }) => {
     const offsets: number[] = [];
-    const until = performance.now() + 900;
-    while (performance.now() < until) {
-      await new Promise(requestAnimationFrame);
+    let animation: number;
+    const sample = () => {
       const viewport = document.querySelector(".transcript-viewport")!;
       const row = [...viewport.querySelectorAll(".transcript-item")].find(
         (el) => el.querySelector("p")?.textContent === text,
@@ -299,8 +341,17 @@ try {
           ? row.getBoundingClientRect().top - viewport.getBoundingClientRect().top - offset
           : 100000,
       );
-    }
-    return Math.max(...offsets.map(Math.abs));
+      animation = requestAnimationFrame(sample);
+    };
+    animation = requestAnimationFrame(sample);
+    Object.assign(window, {
+      readingProbe: {
+        finish: () => {
+          cancelAnimationFrame(animation);
+          return { frames: offsets.length, maxDrift: Math.max(...offsets.map(Math.abs)) };
+        },
+      },
+    });
   }, before);
   for (let i = 0; i < 5; i++) {
     current!.send(JSON.stringify({ type: "ping" }));
@@ -314,9 +365,19 @@ try {
         raw: { type: "history_changed" },
       }),
     );
-    await page.waitForTimeout(100);
+    await refreshed(page, recent[199]!);
+    await waitFor(() => pongs === i + 1, `Ping ${i + 1} was not acknowledged`);
+    await anchor(page, before.text);
   }
-  const maxReadingDrift = await capture;
+  const reading = await page.evaluate(() =>
+    (
+      window as unknown as {
+        readingProbe: { finish: () => { frames: number; maxDrift: number } };
+      }
+    ).readingProbe.finish(),
+  );
+  assert.ok(reading.frames > 0, "No rendered frames were observed during history refresh");
+  const maxReadingDrift = reading.maxDrift;
   assert.ok(maxReadingDrift < 2, `Reading position moved ${maxReadingDrift}px during refresh/ping`);
   assert.equal(pongs, 5);
 
@@ -325,11 +386,9 @@ try {
   });
   await page.locator(".transcript-status-top").waitFor();
   assert.equal(cursors.at(-1), "older-2", "Refresh must preserve the pagination cursor");
-  await page.waitForTimeout(150);
   const secondBefore = await anchor(page);
   pending.shift()!();
   await page.locator(".transcript-status-top").waitFor({ state: "hidden" });
-  await page.waitForTimeout(250);
   const secondAfter = await anchor(page, secondBefore.text);
   assert.ok(
     Math.abs(secondBefore.offset - secondAfter.offset) < 2,
@@ -349,14 +408,13 @@ try {
       raw: { type: "history_changed" },
     }),
   );
-  await page.waitForTimeout(300);
+  await refreshed(page, recent[199]!);
   await atEnd(page);
   // A small deliberate movement must detach immediately, even inside the old
   // 80px threshold. Growth after that must preserve the reading position.
   await viewport.hover();
   await page.mouse.wheel(0, -30);
-  await page.waitForTimeout(100);
-  const pausedTop = await viewport.evaluate((el) => el.scrollTop);
+  const pausedTop = (await anchor(page)).scrollTop;
   recent[199] = line(1199, "\n\n" + "More streamed text. ".repeat(650));
   current!.send(
     JSON.stringify({
@@ -367,7 +425,8 @@ try {
       raw: { type: "history_changed" },
     }),
   );
-  await page.waitForTimeout(300);
+  await refreshed(page, recent[199]!);
+  await anchor(page);
   assert.ok(
     Math.abs((await viewport.evaluate((el) => el.scrollTop)) - pausedTop) < 2,
     "Small upward scroll was overridden by streaming",
@@ -408,7 +467,7 @@ try {
   );
   const toolTop = await tool.evaluate((el) => el.getBoundingClientRect().top);
   await tool.locator("button").click();
-  await page.waitForTimeout(250);
+  await anchor(page);
   const expandedToolTop = await tool.evaluate((el) => el.getBoundingClientRect().top);
   assert.ok(
     Math.abs(expandedToolTop - toolTop) < 2,
@@ -420,10 +479,9 @@ try {
     await page.mouse.wheel(0, -650);
     await page.waitForTimeout(30);
   }
-  await page.waitForTimeout(200);
+  await page.locator(".transcript-jump").waitFor();
   assert.ok(await page.locator(".transcript-jump").isVisible());
   const resting = await anchor(page);
-  await page.waitForTimeout(250);
   const settled = await anchor(page, resting.text);
   assert.ok(Math.abs(resting.offset - settled.offset) < 2);
 
@@ -446,6 +504,7 @@ try {
       paginationDrift: after.offset - before.offset,
       secondPageDrift: secondAfter.offset - secondBefore.offset,
       maxReadingDrift,
+      readingFrames: reading.frames,
       pongs,
       cursors,
       errors,
