@@ -1,7 +1,7 @@
 import { daemonIdentity } from "@/daemon/identity";
 import { DaemonError } from "@/daemon/errors";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
-import { filesFor, persistFiles } from "./attachments";
+import { filesFor, persistFiles, setFiles } from "./attachments";
 
 export function deliveryUncertain(error: unknown): boolean {
   return (
@@ -21,12 +21,7 @@ export function markDelivery(
   key: string,
   state: "preparing" | "sending" | "accepted" | "unknown" | "not_sent",
 ): void {
-  if (!transcriptStore.getState().setDeliveryState(sessionId, key, state)) {
-    throw new DaemonError({
-      code: "composer_storage_unavailable",
-      message: "Unable to save delivery state",
-    });
-  }
+  transcriptStore.getState().setDeliveryState(sessionId, key, state);
 }
 
 export async function restoreDelivery(sessionId: string, key: string): Promise<boolean> {
@@ -40,23 +35,17 @@ export async function restoreDelivery(sessionId: string, key: string): Promise<b
     const retained = filesFor(delivery.filesKey);
     const current = filesFor(sessionId);
     const keys = new Set(current.map((item) => item.key));
-    if (
-      !(await persistFiles(sessionId, [
-        ...current,
-        ...retained.filter((item) => !keys.has(item.key)),
-      ]))
-    )
-      return false;
+    const restored = [...current, ...retained.filter((item) => !keys.has(item.key))];
+    // Keep the durable source until its replacement is saved when storage works.
+    // A quota failure still restores the files in memory without blocking retry.
+    const saved = await persistFiles(sessionId, restored);
+    if (generation !== daemonIdentity.getState().generation) return false;
+    if (!saved) setFiles(sessionId, restored);
   }
   if (generation !== daemonIdentity.getState().generation) return false;
   const current = sessionsStore.getState().drafts[sessionId];
   const content = delivery?.content ?? entry.node.text;
-  if (
-    !sessionsStore
-      .getState()
-      .setDraft(sessionId, current ? `${content}\n\n${current}` : content, true)
-  )
-    return false;
+  sessionsStore.getState().setDraft(sessionId, current ? `${content}\n\n${current}` : content);
   transcriptStore.getState().removePendingUser(sessionId, key);
   return true;
 }

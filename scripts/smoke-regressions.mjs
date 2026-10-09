@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 // Each scenario starts its own Vite server and intercepts every daemon request.
 // Presentation and legacy capture scripts that read an existing daemon are excluded.
 for (const name of [
+  "composer-storage",
   "connection-overlay",
   "app.smoke",
   "remediation",

@@ -1,6 +1,10 @@
 import { beforeEach, expect, it } from "vitest";
 import { transcriptStore } from "@/stores/sessions";
-import { withPendingUsers } from "@/features/transcript/optimistic";
+import {
+  pendingUserBaseline,
+  reconcilePendingUsers,
+  withPendingUsers,
+} from "@/features/transcript/optimistic";
 import { parseFrame, parseHistoryLine } from "@/features/transcript/parse";
 import type { TranscriptNode } from "@/features/transcript/parse/types";
 
@@ -158,4 +162,38 @@ it("reconciles a Windows two-image Codex echo with forward-slash attachment refe
   const state = transcriptStore.getState().transcripts.s!;
   expect(state.pendingUsers).toHaveLength(0);
   expect(withPendingUsers(state.nodes, state.pendingUsers!)).toHaveLength(1);
+});
+
+it("keeps recovery metadata small for large unkeyed desktop history and reconciles after reload", () => {
+  const history: TranscriptNode[] = [{ kind: "assistant", text: "output".repeat(1_000_000) }];
+  const store = transcriptStore.getState();
+  store.setNodes("s", history);
+  store.addPendingUser("s", "Continue", undefined, { content: "Continue", state: "accepted" });
+  const pending = transcriptStore.getState().transcripts.s!.localUsers!;
+  expect(JSON.stringify(pending).length).toBeLessThan(1000);
+  expect(reconcilePendingUsers(pending, history)).toHaveLength(1);
+  store.resetTranscripts();
+  store.setNodes("s", history, history);
+  expect(transcriptStore.getState().transcripts.s?.localUsers).toHaveLength(1);
+  const confirmed: TranscriptNode[] = [...history, { kind: "user", text: "Continue" }];
+  store.setNodes("s", confirmed, confirmed);
+  expect(transcriptStore.getState().transcripts.s?.localUsers).toHaveLength(0);
+});
+
+it("reconciles legacy full-content baselines without matching an older identical prompt", () => {
+  const prior: TranscriptNode = { kind: "assistant", text: "Previous reply" };
+  const pending = [
+    {
+      node: { kind: "user" as const, text: "Repeat" },
+      baseline: [`node:${JSON.stringify(prior)}`],
+    },
+  ];
+  const older: TranscriptNode[] = [{ kind: "user", text: "Repeat" }, prior];
+  expect(reconcilePendingUsers(pending, older)).toHaveLength(1);
+  expect(reconcilePendingUsers(pending, [...older, { kind: "user", text: "Repeat" }])).toHaveLength(
+    0,
+  );
+  expect(pendingUserBaseline([prior])).not.toEqual(
+    pendingUserBaseline([{ ...prior, text: "Different" }]),
+  );
 });

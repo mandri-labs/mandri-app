@@ -1,5 +1,5 @@
 import { deliveryUncertain, markDelivery, restoreDelivery } from "./promptDelivery";
-import { persistFiles, setFiles } from "./attachments";
+import { setFiles } from "./attachments";
 import { useCommands } from "@/features/commands/useCommands";
 import { useComposerAutosize } from "./useComposerAutosize";
 import { commandTransport, type CommandTransport } from "@/features/commands/service";
@@ -270,11 +270,7 @@ export function Composer({
       try {
         if (selected.length) {
           filesKey = `delivery:${crypto.randomUUID()}`;
-          if (!(await persistFiles(filesKey, selected)))
-            throw new DaemonError({
-              code: "composer_storage_unavailable",
-              message: "Unable to retain message attachments",
-            });
+          setFiles(filesKey, selected);
           requireCurrent();
         }
         const preview = draftMessage(composed, selected);

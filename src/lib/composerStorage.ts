@@ -1,4 +1,7 @@
 import { daemonIdentity } from "@/daemon/identity";
+import { createDebugLogger } from "@/lib/debug";
+
+const log = createDebugLogger("composer-storage");
 
 export function composerStorageKey(kind: string, id = ""): string {
   return `mandri.composer.v1:${encodeURIComponent(daemonIdentity.getState().baseUrl)}:${kind}:${encodeURIComponent(id)}`;
@@ -18,7 +21,12 @@ export function writeComposerStorage(key: string, value: unknown): boolean {
     if (value === null) localStorage.removeItem(key);
     else localStorage.setItem(key, JSON.stringify(value));
     return true;
-  } catch {
+  } catch (error) {
+    // Log the category, never draft text, attachment bytes, or session identifiers.
+    log.warn("persistence failed; continuing in memory", {
+      operation: value === null ? "remove" : "write",
+      error: error instanceof Error ? error.name : "UnknownError",
+    });
     return false;
   }
 }

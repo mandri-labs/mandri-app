@@ -405,3 +405,46 @@ it.each(["upload", "prompt"])(
     expect(screen.queryByRole("alert")).toBeNull();
   },
 );
+
+it("uploads files and sends even when local storage is full", async () => {
+  const storage = localStorage;
+  vi.stubGlobal(
+    "localStorage",
+    new Proxy(storage, {
+      get(target, key) {
+        if (key === "setItem")
+          return () => {
+            throw new DOMException("Full", "QuotaExceededError");
+          };
+        const value = Reflect.get(target, key, target);
+        return typeof value === "function" ? value.bind(target) : value;
+      },
+    }),
+  );
+  vi.mocked(request).mockResolvedValue({
+    id: "attachment",
+    name: "notes.txt",
+    size: 5,
+    media_type: "application/octet-stream",
+    reference: "[notes.txt](/files/notes.txt)",
+  });
+  const feed = {
+    sendPrompt: vi.fn(async () => ({ state: "queued" as const, code: null })),
+    interrupt: vi.fn(),
+  };
+  render(<Composer sessionId="s1" feed={feed} />);
+  expect(screen.getByRole("button", { name: "Add files" })).toBeTruthy();
+  const file = new File(["notes"], "notes.txt", { type: "text/plain" });
+  fireEvent.change(document.querySelector('input[type="file"]')!, { target: { files: [file] } });
+  expect(screen.getByText("notes.txt")).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  await waitFor(() => expect(feed.sendPrompt).toHaveBeenCalledWith("s1", "", ["attachment"]));
+  expect(request).toHaveBeenCalledWith(
+    "/v1/sessions/s1/attachments",
+    expect.objectContaining({ rawBody: file, query: { name: "notes.txt" } }),
+  );
+  expect(transcriptStore.getState().transcripts.s1?.pendingUsers?.[0]?.node.text).toBe(
+    "[notes.txt](/files/notes.txt)",
+  );
+  expect(filesFor("s1")).toHaveLength(0);
+});

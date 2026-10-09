@@ -22,7 +22,6 @@ import {
   useAttachmentInput,
 } from "@/features/transcript/AttachmentInput";
 import {
-  persistFiles,
   draftMessage,
   attachmentMessage,
   uploadFiles,
@@ -427,11 +426,7 @@ function WelcomeComposerContent({
           sessionFeed.subscribeSession(created.id);
         }
         const filesKey = selected.length ? `delivery:${crypto.randomUUID()}` : undefined;
-        if (filesKey && !(await persistFiles(filesKey, selected)))
-          throw new DaemonError({
-            code: "composer_storage_unavailable",
-            message: "Unable to retain message attachments",
-          });
+        if (filesKey) setFiles(filesKey, selected);
         if (generation !== daemonIdentity.getState().generation) return;
         const preview = draftMessage(composed, selected);
         let pendingKey: string;

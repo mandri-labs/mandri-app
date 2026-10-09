@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { initI18n } from "@/i18n";
 import { Composer } from "@/features/transcript/Composer";
 import { sessionsStore, transcriptStore } from "@/stores/sessions";
@@ -49,18 +49,51 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-it("does not clear or transmit input when the pending message cannot be saved", async () => {
-  mockStorageWrite(() => {
-    throw new Error("Quota exceeded");
-  });
-  const feed = { sendPrompt: vi.fn(), interrupt: vi.fn() };
-  render(<Composer sessionId="s1" feed={feed} />);
-  fireEvent.click(screen.getByRole("button", { name: "Send" }));
-  await screen.findByRole("alert");
-  expect(sessionsStore.getState().drafts.s1).toBe("Keep this message");
-  expect(feed.sendPrompt).not.toHaveBeenCalled();
-  expect(transcriptStore.getState().transcripts.s1?.localUsers ?? []).toHaveLength(0);
-});
+it.each(["QuotaExceededError", "SecurityError"])(
+  "sends exactly once and tracks acceptance when storage throws %s",
+  async (name) => {
+    mockStorageWrite(() => {
+      throw new DOMException("Unavailable", name);
+    });
+    const feed = { sendPrompt: vi.fn().mockResolvedValue({ state: "queued" }), interrupt: vi.fn() };
+    render(<Composer sessionId="s1" feed={feed} />);
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    await waitFor(() =>
+      expect(transcriptStore.getState().transcripts.s1?.localUsers?.[0]?.delivery?.state).toBe(
+        "accepted",
+      ),
+    );
+    expect(feed.sendPrompt).toHaveBeenCalledExactlyOnceWith("s1", "Keep this message");
+    expect(sessionsStore.getState().drafts.s1).toBe("");
+    expect(screen.queryByRole("alert")).toBeNull();
+  },
+);
+
+it.each(["service_unavailable", "delivery_unknown"])(
+  "preserves recovery in memory for %s when storage is unavailable",
+  async (code) => {
+    mockStorageWrite(() => {
+      throw new DOMException("Full", "QuotaExceededError");
+    });
+    const feed = {
+      sendPrompt: vi.fn().mockRejectedValue(new DaemonError({ code, message: "Failed" })),
+      interrupt: vi.fn(),
+    };
+    render(<Composer sessionId="s1" feed={feed} />);
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+    await screen.findByRole("alert");
+    expect(feed.sendPrompt).toHaveBeenCalledTimes(1);
+    if (code === "delivery_unknown") {
+      expect(transcriptStore.getState().transcripts.s1?.localUsers?.[0]?.delivery?.state).toBe(
+        "unknown",
+      );
+      expect(sessionsStore.getState().drafts.s1).toBe("");
+    } else {
+      expect(sessionsStore.getState().drafts.s1).toBe("Keep this message");
+      expect(transcriptStore.getState().transcripts.s1?.localUsers).toHaveLength(0);
+    }
+  },
+);
 
 it("retains a transmitted message through stop and lost acknowledgement, including reload", async () => {
   let reject!: (error: Error) => void;
@@ -101,7 +134,7 @@ it("retains a transmitted message through stop and lost acknowledgement, includi
   expect(readPendingUsers("s1")).toHaveLength(1);
 });
 
-it("does not discard the retained copy if draft restoration cannot be saved", async () => {
+it("restores the draft in memory if its persistence fails", async () => {
   const key = transcriptStore
     .getState()
     .addPendingUser("s1", "Original", undefined, { content: "Original", state: "not_sent" });
@@ -111,10 +144,6 @@ it("does not discard the retained copy if draft restoration cannot be saved", as
     if (key === composerStorageKey("draft", "s1")) throw new Error("Quota exceeded");
     setItem(key, value);
   });
-  expect(await restoreDelivery("s1", key)).toBe(false);
-  expect(sessionsStore.getState().drafts.s1).toBe("New draft");
-  expect(readPendingUsers("s1")).toHaveLength(1);
-  vi.unstubAllGlobals();
   expect(await restoreDelivery("s1", key)).toBe(true);
   expect(sessionsStore.getState().drafts.s1).toBe("Original\n\nNew draft");
   expect(readPendingUsers("s1")).toHaveLength(0);
@@ -138,6 +167,11 @@ it("restores retained attachment bytes after acknowledgement and reload without 
     new Uint8Array([0, 1, 255]),
   );
   expect(localStorage.getItem(composerStorageKey("files", "delivery:retained"))).toBeNull();
+  // Simulate closing immediately after restoration, before background writes run.
+  attachmentDrafts.setState({ drafts: {} });
+  expect(new Uint8Array(await filesFor("s1")[0]!.file.arrayBuffer())).toEqual(
+    new Uint8Array([0, 1, 255]),
+  );
 });
 
 it("keeps the recovery copy until persisted history confirms the message", () => {

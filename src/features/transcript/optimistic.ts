@@ -13,8 +13,21 @@ export interface PendingUser {
   baseline: readonly string[];
 }
 
+// Unkeyed history nodes can contain megabytes of tool output. Store a compact
+// content fingerprint rather than copying the entire history into every prompt.
+function contentIdentity(value: string): string {
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    first = Math.imul(first ^ code, 0x01000193);
+    second = Math.imul(second ^ code, 0x85ebca6b);
+  }
+  return `hash:${value.length}:${first >>> 0}:${second >>> 0}`;
+}
+
 function nodeIdentity(node: TranscriptNode): string {
-  return node.key ? `key:${node.key}` : `node:${JSON.stringify(node)}`;
+  return node.key ? `key:${node.key}` : contentIdentity(JSON.stringify(node));
 }
 
 export function pendingUserBaseline(nodes: readonly TranscriptNode[]): readonly string[] {
@@ -24,8 +37,12 @@ export function pendingUserBaseline(nodes: readonly TranscriptNode[]): readonly 
 function boundaryOf(baseline: readonly string[], nodes: readonly TranscriptNode[]): number {
   const identities = pendingUserBaseline(nodes);
   for (let i = baseline.length - 1; i >= 0; i -= 1) {
+    // Continue reconciling recovery entries written by older desktop builds.
+    const identity = baseline[i]!.startsWith("node:")
+      ? contentIdentity(baseline[i]!.slice(5))
+      : baseline[i];
     for (let j = nodes.length - 1; j >= 0; j -= 1) {
-      if (identities[j] === baseline[i]) return j;
+      if (identities[j] === identity) return j;
     }
   }
   return -1;

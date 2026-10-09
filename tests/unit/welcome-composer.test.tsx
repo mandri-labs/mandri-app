@@ -744,3 +744,49 @@ it("restores the first message and files when stopped during upload", async () =
     subscribe.mockRestore();
   }
 });
+
+it("delivers the first prompt and files with unavailable desktop local storage", async () => {
+  const send = vi
+    .spyOn(sessionFeed, "sendPrompt")
+    .mockResolvedValue({ state: "queued", code: null });
+  const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
+  try {
+    render(<WelcomeComposer />);
+    await screen.findByText("Claude Code");
+    await pickFolder();
+    const storage = localStorage;
+    vi.stubGlobal(
+      "localStorage",
+      new Proxy(storage, {
+        get(target, key) {
+          if (key === "setItem")
+            return () => {
+              throw new DOMException("Full", "QuotaExceededError");
+            };
+          const value = Reflect.get(target, key, target);
+          return typeof value === "function" ? value.bind(target) : value;
+        },
+      }),
+    );
+    vi.mocked(request).mockResolvedValue({
+      id: "file",
+      reference: "[notes.txt](/files/notes.txt)",
+    });
+    fireEvent.change(document.querySelector('input[type="file"]')!, {
+      target: { files: [new File(["notes"], "notes.txt")] },
+    });
+    await submitPrompt("First prompt");
+    await waitFor(() =>
+      expect(send).toHaveBeenCalledExactlyOnceWith("session-1", "First prompt", ["file"]),
+    );
+    await waitFor(() =>
+      expect(
+        transcriptStore.getState().transcripts["session-1"]?.localUsers?.[0]?.delivery?.state,
+      ).toBe("accepted"),
+    );
+  } finally {
+    vi.unstubAllGlobals();
+    send.mockRestore();
+    subscribe.mockRestore();
+  }
+});

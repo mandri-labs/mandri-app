@@ -30,7 +30,6 @@ import {
 } from "@/features/transcript/optimistic";
 import { readPendingUsers, writePendingUsers } from "@/features/transcript/pendingUserStorage";
 import { userImages } from "@/features/transcript/parse/images";
-import { DaemonError } from "@/daemon/errors";
 import type { PendingDelivery, PendingUser } from "@/features/transcript/optimistic";
 import type { SessionAvailability } from "@/daemon/rest/availability";
 
@@ -745,12 +744,7 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
       baseline: pendingUserBaseline(existing?.nodes ?? []),
       delivery,
     };
-    if (delivery && !writePendingUsers(sessionId, [...previousLocal, pending])) {
-      throw new DaemonError({
-        code: "composer_storage_unavailable",
-        message: "Unable to save the message",
-      });
-    }
+    // Persistence is best effort: sending must remain available without local storage.
     set({
       transcripts: {
         ...get().transcripts,
@@ -776,7 +770,6 @@ export const transcriptStore = createStore<TranscriptsState>()((set, get) => ({
         ? { ...entry, delivery: { ...entry.delivery, state } }
         : entry,
     );
-    if (!writePendingUsers(sessionId, localUsers)) return false;
     set({
       transcripts: {
         ...get().transcripts,
