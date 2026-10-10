@@ -78,7 +78,7 @@ export const NoMatch: Story = {
 
 export const EmptySessions: Story = {
   args: baseArgs,
-  render: () => {
+  render: function EmptySessionsPalette() {
     useEffect(() => {
       seedStore([]);
     }, []);

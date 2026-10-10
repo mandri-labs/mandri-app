@@ -139,7 +139,7 @@ function SessionTranscript({
     () => presentTranscript(withPendingUsers(sourceNodes, pendingUsers), showTechnicalEvents),
     [sourceNodes, showTechnicalEvents, pendingUsers],
   );
-  const expansion = useMemo(() => new Map<string, boolean>(), [sessionId]);
+  const expansion = useMemo(() => new Map<string, boolean>(), []);
   const historyExhausted = useStore(
     transcriptStore,
     useCallback(
@@ -323,7 +323,7 @@ function SessionTranscript({
     observer.observe(element);
     setViewportSize(element.clientHeight);
     return () => observer.disconnect();
-  }, []);
+  }, [scrollRef]);
   // Breathing room is part of the virtual layout, so the follow target remains
   // the actual scroll end and measurements/history anchoring use one coordinate system.
   const endSpace = Math.round(viewportSize * 0.35);
@@ -383,7 +383,7 @@ function SessionTranscript({
     // Reconcile after the sizer grows as well as after new nodes arrive. A
     // measurement correction issued before that commit can be browser-clamped.
     virtualizer.scrollToEnd();
-  }, [nodes, totalSize, endSpace, viewportHeight, virtualizer]);
+  }, [nodes, totalSize, endSpace, viewportHeight, virtualizer, scrollRef]);
 
   const requestHistory = useCallback((): void => {
     if (historyLoadingRef.current || historyExhausted || historyUnavailable) {
@@ -428,7 +428,7 @@ function SessionTranscript({
       setShowJump(
         totalSize - endSpace - element.scrollTop - element.clientHeight > FOLLOW_THRESHOLD_PX,
       );
-  }, [totalSize, endSpace]);
+  }, [totalSize, endSpace, scrollRef]);
   const scrollTowardLatest = useCallback(() => {
     resumeOnScroll.current = true;
     const element = scrollRef.current;
@@ -440,7 +440,7 @@ function SessionTranscript({
       setFollowing(true);
       setShowJump(false);
     }
-  }, []);
+  }, [scrollRef]);
   const handleScroll = useCallback((): void => {
     const element = scrollRef.current;
     if (element === null) {
@@ -469,7 +469,7 @@ function SessionTranscript({
     if (!follow && element.scrollTop < Math.max(TOP_THRESHOLD_PX, element.clientHeight * 1.5)) {
       requestHistory();
     }
-  }, [requestHistory, totalSize, endSpace]);
+  }, [requestHistory, totalSize, endSpace, scrollRef]);
 
   useEffect(() => {
     const element = scrollRef.current;
@@ -490,7 +490,7 @@ function SessionTranscript({
       prefetchedNodesRef.current = sourceNodes;
       requestHistory();
     }
-  }, [sourceNodes, historyLoading, requestHistory]);
+  }, [sourceNodes, historyLoading, requestHistory, scrollRef]);
 
   const jumpToLatest = useCallback((): void => {
     followRef.current = true;

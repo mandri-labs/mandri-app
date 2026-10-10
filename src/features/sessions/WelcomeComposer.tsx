@@ -264,7 +264,7 @@ function WelcomeComposerContent({
     return () => {
       window.removeEventListener(FOCUS_COMPOSER_EVENT, onFocusComposer);
     };
-  }, [initialCwd]);
+  }, [initialCwd, textareaRef]);
 
   const runtimeByHarness = useMemo(() => {
     const map = new Map<string, RuntimeOut>();

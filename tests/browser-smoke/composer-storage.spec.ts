@@ -13,6 +13,9 @@ const html = await server.transformIndexHtml("/storage-check", '<div id="root"><
 try {
   const page = await browser.newPage();
   const origin = server.resolvedUrls!.local[0]!;
+  await page
+    .context()
+    .grantPermissions(["local-network-access"], { origin: new URL(origin).origin });
   await page.route("**/*", (route) => {
     const url = new URL(route.request().url());
     if (url.origin !== new URL(origin).origin) return route.abort();
@@ -26,8 +29,7 @@ try {
     const { sessionsStore, transcriptStore } = await load("/src/stores/sessions.ts");
     const { initI18n } = await load("/src/i18n/index.ts");
     const { Composer } = await load("/src/features/transcript/Composer.tsx");
-    const { default: React } = await load("/node_modules/.vite/deps/react.js");
-    const { default: ReactDOM } = await load("/node_modules/.vite/deps/react-dom_client.js");
+    const { React, ReactDOM } = await load("/tests/browser-smoke/react-runtime.ts");
     await initI18n("en");
     let quotaError = "";
     let storedCharacters = 0;

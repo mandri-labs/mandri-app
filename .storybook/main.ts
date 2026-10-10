@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+import { normalizePath } from "vite";
 import type { StorybookConfig } from "@storybook/react-vite";
 
 const config: StorybookConfig = {
@@ -7,8 +9,9 @@ const config: StorybookConfig = {
   staticDirs: [],
   async viteFinal(config) {
     // Resolve before the general @ alias. Production builds keep the real connection.
-    const replayConnection = new URL("../src/storybook/replayConnection.ts", import.meta.url)
-      .pathname;
+    const replayConnection = normalizePath(
+      fileURLToPath(new URL("../src/storybook/replayConnection.ts", import.meta.url)),
+    );
     const aliases = config.resolve?.alias ?? [];
     config.resolve = {
       ...config.resolve,
