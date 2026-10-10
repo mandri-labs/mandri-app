@@ -26,6 +26,7 @@ export function presentTranscript(
   const visible: TranscriptNode[] = [];
   const pending: unknown[] = [];
   for (const node of nodes) {
+    if ((node.kind === "assistant" || node.kind === "thinking") && !node.text.trim()) continue;
     if (node.kind === "raw") {
       if (!showTechnicalEvents) continue;
       const raw = asRecord(node.payload);

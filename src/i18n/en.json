@@ -157,7 +157,6 @@
       "prompt_required": "Describe the task first."
     },
     "composer": {
-      "permissions_restarted": "Harness restarted with the new permissions. Conversation preserved; the interrupted turn was not replayed.",
       "permissions_live": "Change session permissions",
       "permissions_hooks": "Permissions applied to subsequent tool calls through Antigravity hooks.",
       "permissions_next_turn": "Permissions sent to the harness; they take effect from the next turn.",
@@ -261,8 +260,7 @@
         "failed": "failed"
       },
       "delegation": "Agent task",
-      "agy_denied_actions": "Denied actions: {{actions}}",
-      "agy_usage": "Cumulative process usage: {{tokens}} tokens"
+      "agy_denied_actions": "Denied actions: {{actions}}"
     },
     "sessions": {
       "external_locked": "Open in another application",

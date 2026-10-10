@@ -303,15 +303,6 @@ export function parseAgyEvent(
         text: outputText(result["error"] ?? result["response"] ?? result) ?? "",
       });
     const usage = asRecord(result["usage"]);
-    const tokens = numberAt(usage, "total_tokens");
-    if (tokens !== undefined && tokens > 0)
-      nodes.push({
-        kind: "system",
-        level: "info",
-        text: "",
-        messageKey: "core.transcript.agy_usage",
-        values: { tokens },
-      });
     if (usage) nodes.push({ kind: "raw", harness, payload: raw });
     return nodes;
   }

@@ -559,13 +559,11 @@ export function Composer({
                               resumeMode: undefined,
                             });
                             setModeNotice(
-                              result.outcome === "restarted"
-                                ? "core.composer.permissions_restarted"
-                                : result.outcome === "next_turn_applied"
-                                  ? "core.composer.permissions_next_turn"
-                                  : result.outcome === "hook_policy_applied"
-                                    ? "core.composer.permissions_hooks"
-                                    : null,
+                              result.outcome === "next_turn_applied"
+                                ? "core.composer.permissions_next_turn"
+                                : result.outcome === "hook_policy_applied"
+                                  ? "core.composer.permissions_hooks"
+                                  : null,
                             );
                           })
                           .catch((modeError: unknown) => {

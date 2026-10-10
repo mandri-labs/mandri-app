@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createAgyHistoryContext, parseFrame, parseHistoryLine } from "@/features/transcript/parse";
 import { appendTranscriptNodes, mergeHistoryAndLive } from "@/daemon/ws/transcriptMerge";
 import { presentTranscript } from "@/features/transcript/presentation";
+import { groupActivities } from "@/features/transcript/activityGroups";
 import { nativeTurnActivity } from "@/features/transcript/turnActivity";
 import { modelSelection } from "@/daemon/modelSelection";
 import { classifyKind, HARNESS_VARIANTS } from "@/stores/approvals";
@@ -75,6 +76,35 @@ describe("Antigravity", () => {
     );
     expect(appendTranscriptNodes(live, complete)).toMatchObject([
       { text: "hello", streaming: false },
+    ]);
+  });
+
+  it("keeps commands together across empty response and reasoning steps", () => {
+    let nodes: ReturnType<typeof parseFrame> = [];
+    for (const event of [
+      step(1, { step_type: "tool", state: "DONE", tool_name: "run_command" }),
+      step(2, { step_type: "agent_response", state: "ACTIVE", text_delta: " " }),
+      step(3, { step_type: "thinking", state: "DONE", text: "" }),
+      step(4, { step_type: "tool", state: "DONE", tool_name: "run_command" }),
+    ])
+      nodes = appendTranscriptNodes(nodes, parseFrame("agy", event, context));
+    for (const technical of [false, true]) {
+      expect(groupActivities(presentTranscript(nodes, technical), false, 0)).toMatchObject([
+        { kind: "group", nodes: [{ key: "agy:session:1" }, { key: "agy:session:4" }] },
+      ]);
+    }
+    nodes = appendTranscriptNodes(
+      nodes,
+      parseFrame(
+        "agy",
+        step(2, { step_type: "agent_response", state: "DONE", text_delta: "Result" }),
+        context,
+      ),
+    );
+    expect(groupActivities(presentTranscript(nodes), false, 0)).toMatchObject([
+      { kind: "group", nodes: [{ key: "agy:session:1" }] },
+      { kind: "node", node: { kind: "assistant", text: " Result" } },
+      { kind: "group", nodes: [{ key: "agy:session:4" }] },
     ]);
   });
 
@@ -411,10 +441,8 @@ describe("Antigravity", () => {
         usage: { input_tokens: 12, output_tokens: 3, total_tokens: 15 },
       },
     };
-    expect(parseFrame("agy", result)).toMatchObject([
-      { kind: "system", values: { tokens: 15 } },
-      { kind: "raw", payload: result },
-    ]);
+    expect(parseFrame("agy", result)).toMatchObject([{ kind: "raw", payload: result }]);
+    expect(presentTranscript(parseFrame("agy", result))).toEqual([]);
     const zero = { event: "result", result: { status: "SUCCESS", usage: { total_tokens: 0 } } };
     expect(parseFrame("agy", zero)).toEqual([{ kind: "raw", harness: "agy", payload: zero }]);
     expect(parseFrame("agy", { event: "result", result: { status: "SUCCESS" } })).toEqual([]);

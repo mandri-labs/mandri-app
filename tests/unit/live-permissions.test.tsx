@@ -77,17 +77,21 @@ it("identifies Codex changes that apply on the next turn", async () => {
   await waitFor(() => expect(screen.getByRole("status").textContent).toContain("next turn"));
 });
 
-it("reports an automatic restart after the daemon confirms the mode", async () => {
-  vi.spyOn(sessionFeed, "setMode").mockResolvedValue({
-    session_id: "s1",
-    mode: "acceptEdits",
-    outcome: "restarted",
-  });
-  render(<Composer sessionId="s1" />);
-  fireEvent.click(document.querySelector(".composer-permissions")!);
-  fireEvent.click(screen.getByRole("button", { name: /Accept edits/ }));
-  await waitFor(() =>
-    expect(screen.getByRole("status").textContent).toContain("Harness restarted"),
-  );
-  expect(sessionsStore.getState().sessions.s1?.interactionMode).toBe("acceptEdits");
-});
+it.each(["claude", "codex", "agy", "pi"] as const)(
+  "silently acknowledges a restart for %s",
+  async (harness) => {
+    sessionsStore.getState().applySessionPatch("s1", { harness });
+    vi.spyOn(sessionFeed, "setMode").mockResolvedValue({
+      session_id: "s1",
+      mode: "acceptEdits",
+      outcome: "restarted",
+    });
+    render(<Composer sessionId="s1" />);
+    fireEvent.click(document.querySelector(".composer-permissions")!);
+    fireEvent.click(document.querySelector(".permission-option:not(:disabled)")!);
+    await waitFor(() =>
+      expect(sessionsStore.getState().sessions.s1?.interactionMode).toBe("acceptEdits"),
+    );
+    expect(screen.queryByRole("status")).toBeNull();
+  },
+);

@@ -157,7 +157,6 @@
       "prompt_required": "Décris d'abord la tâche à réaliser."
     },
     "composer": {
-      "permissions_restarted": "Harnais relancé avec les nouvelles permissions. Conversation conservée ; le tour interrompu n’a pas été rejoué.",
       "permissions_live": "Changer les permissions de la session",
       "permissions_hooks": "Permissions appliquées aux prochains appels d’outils via les hooks Antigravity.",
       "permissions_next_turn": "Permissions transmises au harnais ; elles s’appliqueront à partir du prochain tour.",
@@ -261,8 +260,7 @@
         "failed": "échec"
       },
       "delegation": "Tâche déléguée",
-      "agy_denied_actions": "Actions refusées : {{actions}}",
-      "agy_usage": "Usage cumulé du processus : {{tokens}} tokens"
+      "agy_denied_actions": "Actions refusées : {{actions}}"
     },
     "sessions": {
       "external_locked": "Ouverte dans une autre application",
