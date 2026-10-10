@@ -237,6 +237,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/gateway/llm/{route_id}/v1beta/models": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gemini List Models */
+    get: operations["gemini_list_models"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/gateway/llm/{route_id}/v1beta/models/{model_name}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gemini Get Model */
+    get: operations["gemini_get_model"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/gateway/llm/{route_id}/v1beta/models/{model_name}:generateContent": {
     parameters: {
       query?: never;
@@ -2504,6 +2538,69 @@ export interface operations {
       header?: never;
       path: {
         route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  gemini_list_models: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+    };
+  };
+  gemini_get_model: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        route_id: string;
+        model_name: string;
       };
       cookie?: never;
     };
