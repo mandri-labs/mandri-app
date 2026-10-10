@@ -88,6 +88,13 @@ export function CommandPalette({
         },
       },
       {
+        id: "nav-mcp",
+        label: t("core.mcp.title"),
+        run: () => {
+          navigate({ name: "settings", section: "mcp" });
+        },
+      },
+      {
         id: "nav-providers",
         label: t("core.route.providers"),
         run: () => {

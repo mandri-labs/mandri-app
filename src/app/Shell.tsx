@@ -34,6 +34,8 @@ import { EndpointMenu } from "./EndpointMenu";
 import { useStore } from "./useStore";
 import "./shell.css";
 import { ProjectMenu } from "./ProjectMenu";
+import { McpAttention } from "@/features/mcp/McpAttention";
+import "@/features/mcp/mcp.css";
 import { agentsStore } from "@/stores/agents";
 import { AgentSidebar } from "@/features/agents/AgentSidebar";
 import { ShellHeaderActionsContext } from "./ShellHeaderActions";
@@ -391,6 +393,7 @@ export function Shell({ route, children }: ShellProps) {
             >
               <Settings size={16} aria-hidden="true" />
               <span>{t("core.route.settings")}</span>
+              <McpAttention />
             </button>
             <button
               type="button"

@@ -71,7 +71,11 @@ export function useModelProviders(
   }, [native, load, harness, cwd, generation, catalogMissing]);
   return useMemo(() => {
     const gateway =
-      capabilities?.modelSources && !capabilities.modelSources.includes("gateway") ? {} : providers;
+      capabilities?.modelSources && !capabilities.modelSources.includes("gateway")
+        ? {}
+        : Object.fromEntries(
+            Object.entries(providers).filter(([, provider]) => provider.enabled !== false),
+          );
     if (!native) return gateway;
     const models = catalog?.models ?? [];
     return {

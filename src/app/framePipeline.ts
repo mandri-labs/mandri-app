@@ -2,6 +2,7 @@ import { ingestConversationFrame } from "@/stores/conversationStatus";
 import { ingestNativeSessionUi } from "@/stores/nativeSessionUi";
 import { approvalsStore } from "@/stores/approvals";
 import { sessionFeed } from "@/daemon/ws/sessionFeed";
+import { ingestMcpFrame } from "@/stores/mcp";
 import { providersStore } from "@/stores/providers";
 import { sessionsStore } from "@/stores/sessions";
 import { refreshSessionMetadata } from "./sessionSync";
@@ -159,6 +160,7 @@ export function registerIngest(ingest: FrameIngest): () => void {
 
 export function dispatchFrame(message: ServerMessage): void {
   ingestConversationFrame(message);
+  ingestMcpFrame(message);
   ensureApprovalSync();
   approvalsStore.getState().ingestFrame(message);
   if (!(

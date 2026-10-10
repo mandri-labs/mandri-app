@@ -2,8 +2,17 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useStore } from "@/app/useStore";
 import { DaemonError } from "@/daemon/errors";
-import { createProvider, listProviderModels, updateProvider } from "@/daemon/rest/providers";
+import {
+  createProvider,
+  listProviderModels,
+  updateProvider,
+  listProviders,
+  deleteProvider,
+  verifyProvider,
+} from "@/daemon/rest/providers";
 import { providersStore, type ProviderView } from "@/stores/providers";
+import { getGatewayInfo } from "@/daemon/rest/gateway";
+import { ProvidersPage } from "./ProvidersPage";
 import { ModelCatalog } from "./ModelCatalog";
 import { ProviderFormDialog } from "./ProviderForm";
 import { initI18n } from "@/i18n";
@@ -12,7 +21,12 @@ vi.mock("@/daemon/rest/providers", () => ({
   createProvider: vi.fn(),
   updateProvider: vi.fn(),
   listProviderModels: vi.fn(),
+  listProviders: vi.fn(),
+  deleteProvider: vi.fn(),
+  verifyProvider: vi.fn(),
 }));
+
+vi.mock("@/daemon/rest/gateway", () => ({ getGatewayInfo: vi.fn() }));
 
 const provider: ProviderView = {
   name: "local",
@@ -26,6 +40,27 @@ beforeAll(() => initI18n("en"));
 beforeEach(() => {
   vi.clearAllMocks();
   providersStore.setState({ providers: { local: provider } });
+  vi.mocked(listProviders).mockResolvedValue([
+    {
+      name: "local",
+      kind: "lm_studio",
+      state: "verified",
+      api_base: provider.apiBase!,
+      enabled: true,
+    },
+  ]);
+  vi.mocked(getGatewayInfo).mockResolvedValue({
+    providers: [
+      {
+        name: "local",
+        kind: "lm_studio",
+        state: "verified",
+        api_base: provider.apiBase!,
+        enabled: true,
+      },
+    ],
+    routes: [],
+  });
 });
 afterEach(cleanup);
 
@@ -141,4 +176,83 @@ describe("provider settings", () => {
     expect((await screen.findByRole("alert")).textContent).toContain("rate limited (status 429)");
     expect(onSaved).not.toHaveBeenCalled();
   });
+});
+
+describe("provider icon actions", () => {
+  it("uses accessible icons and toggles enabled without replacing credentials", async () => {
+    vi.mocked(updateProvider)
+      .mockResolvedValueOnce({
+        name: "local",
+        kind: "lm_studio",
+        state: "verified",
+        api_base: provider.apiBase!,
+        enabled: false,
+      })
+      .mockResolvedValueOnce({
+        name: "local",
+        kind: "lm_studio",
+        state: "verified",
+        api_base: provider.apiBase!,
+        enabled: true,
+      });
+    const view = render(<ProvidersPage />);
+    await waitFor(() => expect(listProviders).toHaveBeenCalled());
+    const edit = screen.getByRole("button", { name: "Edit" });
+    const remove = screen.getByRole("button", { name: "Remove" });
+    expect(edit.textContent).toBe("");
+    expect(remove.textContent).toBe("");
+    expect(remove.querySelector(".lucide-trash-2")).toBeTruthy();
+    fireEvent.click(screen.getByRole("switch", { name: "Disable" }));
+    await screen.findByRole("switch", { name: "Enable" });
+    expect(updateProvider).toHaveBeenLastCalledWith("local", { enabled: false });
+    expect(providersStore.getState().providers.local?.enabled).toBe(false);
+    expect(view.container.querySelector(".providers-status--disabled")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "Verify" }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByRole("switch", { name: "Enable" }));
+    await screen.findByRole("switch", { name: "Disable" });
+    expect(updateProvider).toHaveBeenLastCalledWith("local", { enabled: true });
+  });
+
+  it("keeps the provider enabled when the toggle request fails", async () => {
+    vi.mocked(updateProvider).mockRejectedValue(
+      new DaemonError({ code: "provider_invalid", message: "Rejected" }),
+    );
+    render(<ProvidersPage />);
+    await waitFor(() => expect(listProviders).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole("switch", { name: "Disable" }));
+    await screen.findByRole("alert");
+    expect(providersStore.getState().providers.local?.enabled).toBe(true);
+    expect(screen.getByRole("switch", { name: "Disable" }).getAttribute("aria-checked")).toBe(
+      "true",
+    );
+  });
+
+  it("retains the delete confirmation before removing a provider", async () => {
+    vi.mocked(deleteProvider).mockResolvedValue(undefined);
+    render(<ProvidersPage />);
+    await waitFor(() => expect(listProviders).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+    expect(deleteProvider).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+    await waitFor(() => expect(providersStore.getState().providers.local).toBeUndefined());
+    expect(deleteProvider).toHaveBeenCalledWith("local");
+  });
+});
+
+it("checks provider health through the verification icon", async () => {
+  vi.mocked(verifyProvider).mockResolvedValue({
+    name: "local",
+    kind: "lm_studio",
+    state: "degraded",
+    api_base: provider.apiBase!,
+    enabled: true,
+  });
+  const view = render(<ProvidersPage />);
+  await waitFor(() => expect(listProviders).toHaveBeenCalled());
+  fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+  await waitFor(() => expect(providersStore.getState().providers.local?.state).toBe("degraded"));
+  expect(verifyProvider).toHaveBeenCalledWith("local");
+  expect(view.container.querySelector(".providers-status--warning")).toBeTruthy();
 });

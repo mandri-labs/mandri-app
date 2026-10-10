@@ -15,6 +15,7 @@ import { Shell } from "./Shell";
 import { ConnectionOverlay } from "./ConnectionOverlay";
 import { connectDaemon } from "./connection";
 import { daemonIdentity } from "@/daemon/identity";
+import { watchMcp } from "@/stores/mcp";
 import { useStore } from "./useStore";
 import { agentsStore } from "@/stores/agents";
 import { useAgentsSync } from "@/features/agents/useAgentsSync";
@@ -46,6 +47,7 @@ export function App() {
   useAgentsSync(route.name === "session" ? route.id : (parentSessionId ?? null));
   const daemonGeneration = useStore(daemonIdentity, (state) => state.generation);
   useEffect(() => registerWindowKeyboardShortcuts(), []);
+  useEffect(watchMcp, []);
   const content =
     route.name === "dashboard" ? (
       <DashboardPage

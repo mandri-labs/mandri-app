@@ -2,7 +2,7 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { App } from "@/app/App";
-import { navigate, type Route } from "@/app/useHashRoute";
+import { navigate, parseHash, type Route } from "@/app/useHashRoute";
 import { initI18n } from "@/i18n";
 
 vi.mock("@/app/connection", () => ({ connectDaemon: vi.fn() }));
@@ -106,6 +106,25 @@ describe("settings navigation", () => {
     await expectClosedAt(hash);
     expect(screen.getByRole("textbox", { name: "New conversation draft" })).toBe(draft);
     expect((draft as HTMLTextAreaElement).value).toBe("New task draft");
+  });
+
+  it("opens MCP settings without replacing the session or its draft", async () => {
+    window.history.replaceState(null, "", "#/session/current");
+    render(<App />);
+    const draft = screen.getByRole("textbox", { name: "Session current draft" });
+    fireEvent.change(draft, { target: { value: "Unsent follow-up" } });
+    await goTo({ name: "settings", section: "connection" });
+    await goTo({ name: "settings", section: "mcp" });
+    await screen.findByRole("heading", { name: "MCP Servers", level: 2 });
+    const nav = screen.getByRole("navigation", { name: "Settings" });
+    const entries = [...nav.querySelectorAll("button")];
+    const providers = entries.findIndex((entry) => entry.textContent === "Providers");
+    expect(entries[providers + 1]?.textContent).toBe("MCP Servers");
+    expect(screen.getByRole("textbox", { name: "Session current draft" })).toBe(draft);
+    fireEvent.keyDown(document, { key: "Escape" });
+    await expectClosedAt("#/session/current");
+    expect((draft as HTMLTextAreaElement).value).toBe("Unsent follow-up");
+    expect(parseHash("#/mcp")).toEqual({ name: "settings", section: "mcp" });
   });
 
   it("falls back to a new conversation when settings is opened directly", async () => {

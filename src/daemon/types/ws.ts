@@ -55,7 +55,8 @@ export type WsTopic =
   | `agent.${string}`
   | "runtimes"
   | "usage.changed"
-  | "gateway.events";
+  | "gateway.events"
+  | "mcp.events";
 
 export type EventSource = HarnessKind | "mandri" | "daemon";
 

@@ -9,7 +9,7 @@ export type Route =
   | { name: "providers" }
   | { name: "routes" }
   | { name: "usage"; sessionId?: string; projectPath?: string }
-  | { name: "settings"; section?: "connection" };
+  | { name: "settings"; section?: "connection" | "mcp" };
 
 export function parseHash(hash: string): Route {
   const [path = "", query] = hash.replace(/^#/, "").split("?");
@@ -35,6 +35,8 @@ export function parseHash(hash: string): Route {
         return { name: first, id, ...(workspace ? { workspace } : {}) };
       }
       return { name: "dashboard" };
+    case "mcp":
+      return { name: "settings", section: "mcp" };
     case "providers":
       return { name: "providers" };
     case "usage": {
@@ -49,10 +51,12 @@ export function parseHash(hash: string): Route {
     }
     case "routes":
       return { name: "routes" };
-    case "settings":
-      return new URLSearchParams(query).get("section") === "connection"
-        ? { name: "settings", section: "connection" }
+    case "settings": {
+      const section = new URLSearchParams(query).get("section");
+      return section === "connection" || section === "mcp"
+        ? { name: "settings", section }
         : { name: "settings" };
+    }
     default:
       return { name: "dashboard" };
   }

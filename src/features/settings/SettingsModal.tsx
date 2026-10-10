@@ -13,6 +13,7 @@ import {
   Settings as SettingsIcon,
   SlidersHorizontal,
   Sun,
+  Server,
   X,
 } from "lucide-react";
 import { useOverlayFocus } from "@/app/dialogFocus";
@@ -28,6 +29,8 @@ import { isTauri } from "@/lib/platform";
 import { listRuntimes } from "@/daemon/rest/runtime";
 import { daemonErrorKey } from "@/daemon/errors";
 import { invalidateNativeModels } from "@/features/providers/nativeModels";
+import { McpPage } from "@/features/mcp/McpPage";
+import { McpAttention } from "@/features/mcp/McpAttention";
 import { ProvidersPage } from "@/features/providers/ProvidersPage";
 import { AntigravityLogo, ClaudeLogo, OpenAILogo, OpencodeLogo, PiLogo } from "@/design/logos";
 import "./settings-modal.css";
@@ -41,6 +44,7 @@ type RuntimeRow = Awaited<ReturnType<typeof listRuntimes>>[number];
 export type SettingsSection =
   | "harnesses"
   | "providers"
+  | "mcp"
   | "appearance"
   | "language"
   | "connection"
@@ -265,6 +269,20 @@ function ProvidersSection() {
   );
 }
 
+function McpSection() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <header className="settings-modal-header">
+        <h2 className="settings-modal-section-title">{t("core.mcp.title")}</h2>
+      </header>
+      <div className="settings-modal-body settings-modal-providers">
+        <McpPage />
+      </div>
+    </>
+  );
+}
+
 function AppearanceSection() {
   const { t } = useTranslation();
   const conversationWidth = useStore(displayPreferencesStore, (state) => state.conversationWidth);
@@ -476,6 +494,7 @@ export function SettingsModal({ open, onClose, initialSection = "harnesses" }: S
   const panelRef = useRef<HTMLDivElement>(null);
   const [section, setSection] = useState<SettingsSection>(initialSection);
   useOverlayFocus(panelRef, open, onClose);
+  useEffect(() => setSection(initialSection), [initialSection]);
 
   if (!open) {
     return null;
@@ -484,6 +503,7 @@ export function SettingsModal({ open, onClose, initialSection = "harnesses" }: S
   const navItems: { id: SettingsSection; labelKey: string; Icon: typeof Plug }[] = [
     { id: "harnesses", labelKey: "core.settings.nav.harnesses", Icon: Plug },
     { id: "providers", labelKey: "core.settings.nav.providers", Icon: SettingsIcon },
+    { id: "mcp", labelKey: "core.mcp.title", Icon: Server },
     { id: "appearance", labelKey: "core.settings.nav.appearance", Icon: Sun },
     { id: "language", labelKey: "core.settings.nav.language", Icon: Languages },
     { id: "connection", labelKey: "core.settings.nav.connection", Icon: PlugZap },
@@ -534,6 +554,7 @@ export function SettingsModal({ open, onClose, initialSection = "harnesses" }: S
               >
                 <Icon size={16} aria-hidden="true" />
                 <span>{t(labelKey)}</span>
+                {id === "mcp" && <McpAttention />}
               </button>
             ))}
           </nav>
@@ -541,6 +562,7 @@ export function SettingsModal({ open, onClose, initialSection = "harnesses" }: S
         <div className="settings-modal-content">
           {section === "harnesses" && <HarnessesSection />}
           {section === "providers" && <ProvidersSection />}
+          {section === "mcp" && <McpSection />}
           {section === "appearance" && <AppearanceSection />}
           {section === "language" && <LanguageSection />}
           {section === "connection" && <ConnectionSection />}

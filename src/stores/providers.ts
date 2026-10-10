@@ -57,6 +57,7 @@ export interface ProviderView {
   kind: string;
   apiBase?: string;
   state: ProviderVerificationState;
+  enabled?: boolean;
   authorizeUrl?: string;
   loginId?: string;
   modelCatalog?: ModelCatalogEntry[];
@@ -97,6 +98,7 @@ export const providersStore = createStore<ProvidersState>()((set) => {
       kind: row.kind,
       apiBase: row.api_base ?? undefined,
       state: parseVerificationState(row.state),
+      enabled: row.enabled ?? true,
       authorizeUrl:
         "authorize_url" in row ? (row.authorize_url ?? undefined) : existing?.authorizeUrl,
       loginId: "login_id" in row ? (row.login_id ?? undefined) : existing?.loginId,
@@ -302,7 +304,10 @@ function asRecord(value: unknown): Record<string, unknown> | undefined {
 
 export const selectVerifiedProviders = createCachedSelector(
   (state: Pick<ProvidersState, "providers">) => state.providers,
-  (providers) => Object.values(providers).filter((provider) => provider.state === "verified"),
+  (providers) =>
+    Object.values(providers).filter(
+      (provider) => provider.enabled !== false && provider.state === "verified",
+    ),
 );
 
 export function selectRoutesForProvider(

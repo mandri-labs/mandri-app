@@ -126,7 +126,8 @@
       "providers": "Providers",
       "routes": "Routes",
       "settings": "Settings",
-      "agent": "Sub-agent"
+      "agent": "Sub-agent",
+      "mcp": "MCP Servers"
     },
     "shell": {
       "sessions_loading": "Loading sessions…",
@@ -415,7 +416,8 @@
         "verified": "Verified",
         "unverified": "Unverified",
         "degraded": "Degraded",
-        "pending_auth": "Sign-in required"
+        "pending_auth": "Sign-in required",
+        "disabled": "Disabled"
       },
       "kind": {
         "openrouter": "OpenRouter",
@@ -513,7 +515,11 @@
         "refresh": "Refresh providers",
         "browser_failed": "The browser could not open. Copy the link, or use the manual connection below.",
         "copy_failed": "The link could not be copied. Select it in the manual connection below."
-      }
+      },
+      "enable": "Enable",
+      "disable": "Disable",
+      "verify": "Verify",
+      "loading": "Loading"
     },
     "routes": {
       "title": "Routes",
@@ -827,6 +833,47 @@
       "line_unavailable": "The requested line or column does not exist in the current file.",
       "excerpt": "Message excerpt — this content does not represent a saved file.",
       "excerpt_title": "Code excerpt"
+    },
+    "mcp": {
+      "title": "MCP Servers",
+      "add": "Add server",
+      "edit": "Edit server",
+      "remove": "Remove",
+      "name": "Name",
+      "local": "Local",
+      "remote": "Remote",
+      "command": "Command",
+      "args": "Arguments",
+      "directory": "Directory",
+      "environment": "Environment",
+      "environment_refs": "Environment references",
+      "headers": "Headers",
+      "advanced": "Advanced",
+      "protected": "Allow in Docker and protected sessions",
+      "startup_timeout": "Startup timeout (s)",
+      "call_timeout": "Call timeout (s)",
+      "key": "Name",
+      "value": "Value",
+      "add_field": "Add field",
+      "enable": "Enable",
+      "disable": "Disable",
+      "reconnect": "Reconnect",
+      "login": "Sign in",
+      "logout": "Sign out",
+      "attention": "MCP needs attention",
+      "loading": "Loading",
+      "unavailable": "MCP unavailable",
+      "tools": "{{count}} tools",
+      "state": {
+        "ready": "Ready",
+        "disabled": "Disabled",
+        "starting": "Starting",
+        "reconnecting": "Reconnecting",
+        "error": "Error",
+        "auth_required": "Sign in required"
+      },
+      "add_argument": "Add argument",
+      "save": "Save"
     }
   },
   "error": {
@@ -922,7 +969,8 @@
     "worktree_no_changes": "No changes to integrate.",
     "chatgpt_auth_pending": "Reconnect this ChatGPT account.",
     "chatgpt_unavailable": "ChatGPT sign-in is unavailable.",
-    "chatgpt_login_not_found": "This sign-in session has expired. Start again."
+    "chatgpt_login_not_found": "This sign-in session has expired. Start again.",
+    "provider_disabled": "This provider is disabled."
   },
   "worktree": {
     "fullscreen": "Expand to full screen",

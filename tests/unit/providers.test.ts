@@ -7,7 +7,7 @@ import {
   verifyProvider,
 } from "@/daemon/rest/providers";
 import { createRoute, deleteRoute, setRouteModel } from "@/daemon/rest/gateway";
-import { providersStore } from "@/stores/providers";
+import { providersStore, selectVerifiedProviders } from "@/stores/providers";
 import type { EventMessage, WsTopic } from "@/daemon/types/ws";
 import type { FetchHandler } from "./helpers/fetchStub";
 import { errorResponse, jsonResponse, stubFetch } from "./helpers/fetchStub";
@@ -304,4 +304,15 @@ describe("providers store", () => {
     providersStore.getState().swapRouteModel("missing", "x");
     expect(providersStore.getState().routes).toHaveLength(1);
   });
+});
+
+it("excludes disabled providers from verified model choices without deleting them", () => {
+  providersStore.getState().hydrateProviders([
+    { name: "active", kind: "openai", api_base: null, state: "verified", enabled: true },
+    { name: "disabled", kind: "openai", api_base: null, state: "verified", enabled: false },
+  ]);
+  expect(
+    selectVerifiedProviders(providersStore.getState()).map((provider) => provider.name),
+  ).toEqual(["active"]);
+  expect(providersStore.getState().providers.disabled?.enabled).toBe(false);
 });

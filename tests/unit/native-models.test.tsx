@@ -318,3 +318,23 @@ it("round trips native and gateway selections without rewriting native aliases",
   expect(nativeHarness("native:codex/gpt-native")).toBe("codex");
   expect(nativeHarness("openrouter/model")).toBeUndefined();
 });
+
+it("hides disabled gateway models while keeping native choices available", async () => {
+  const rows = [
+    { name: "disabled", kind: "openrouter", api_base: null, state: "verified", enabled: false },
+    { name: "active", kind: "openrouter", api_base: null, state: "verified", enabled: true },
+  ];
+  vi.mocked(listProviders).mockResolvedValueOnce(rows);
+  providersStore.getState().hydrateProviders(rows);
+  providersStore
+    .getState()
+    .setCatalog("disabled", [{ id: "hidden", reasoning_efforts: [], default_effort: null }]);
+  providersStore
+    .getState()
+    .setCatalog("active", [{ id: "available", reasoning_efforts: [], default_effort: null }]);
+  render(<ModelMenu harness="codex" onSelect={vi.fn()} />);
+  await screen.findByTitle("native:codex/gpt-native");
+  expect(screen.getByTitle("active/available")).toBeTruthy();
+  expect(screen.queryByTitle("disabled/hidden")).toBeNull();
+  expect(providersStore.getState().providers.disabled?.enabled).toBe(false);
+});
