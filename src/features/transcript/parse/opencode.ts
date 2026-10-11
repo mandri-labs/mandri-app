@@ -1,4 +1,5 @@
 import { nativeToolActions } from "./nativeTools";
+import { opencodeNotification, opencodeNotificationNode } from "./opencodeNotifications";
 import { opencodeTodos } from "./opencodeTodos";
 import { contentImages } from "./images";
 import type { HarnessKind } from "@/daemon/types/ws";
@@ -8,6 +9,7 @@ import {
   asRecord,
   numberAt,
   outputText,
+  parseFileContents,
   parseUnifiedDiff,
   rawNode,
   stringAt,
@@ -28,6 +30,7 @@ const SILENT_EVENT_TYPES: readonly string[] = [
   "reference.updated",
   "integration.updated",
   "todo.updated",
+  "session.agent.selected",
 ];
 
 function parseTextPart(
@@ -44,6 +47,8 @@ function parseTextPart(
   if (role === "user") {
     return [{ kind: "user", text, ...(key ? { key } : {}), ...(messageId ? { messageId } : {}) }];
   }
+  const notification = opencodeNotificationNode(text, key);
+  if (notification) return [notification];
   return [key === undefined ? { kind: "assistant", text } : { kind: "assistant", text, key }];
 }
 
@@ -60,17 +65,23 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
   const todos = opencodeTodos(part);
   if (todos) return [todos];
   const state = asRecord(part["state"]);
-  const tool = stringAt(part, "tool") ?? "tool";
   const input = asRecord(state?.["input"]);
   const statusRaw = stringAt(state, "status");
+  const output = outputText(state?.["output"] ?? state?.["error"]);
+  const notification = output ? opencodeNotification(output) : undefined;
+  const tool = notification?.tool ?? stringAt(part, "tool") ?? "tool";
+  const actionInput =
+    notification?.tool === "shell" ? { ...input, command: notification.target } : input;
   const status =
-    statusRaw === "completed"
-      ? "done"
-      : statusRaw === "error"
-        ? "failed"
-        : statusRaw === "pending"
-          ? "pending"
-          : "running";
+    statusRaw === "error" || notification?.state === "error"
+      ? "failed"
+      : statusRaw === "cancelled" || notification?.state === "cancelled"
+        ? "cancelled"
+        : statusRaw === "completed"
+          ? "done"
+          : statusRaw === "pending"
+            ? "pending"
+            : "running";
   const title = stringAt(state, "title");
   const time = asRecord(state?.["time"]);
   const start = numberAt(time, "start");
@@ -83,9 +94,10 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
     tool,
     label: tool,
     title:
+      (notification?.tool === "subagent" ? notification.target : undefined) ??
       stringAt(input, "description") ??
       (nativeToolActions(tool, input, "opencode")[0]?.kind === "tool" ? title : undefined),
-    actions: nativeToolActions(tool, input, "opencode"),
+    actions: nativeToolActions(tool, actionInput, "opencode"),
     native: {
       callId: key,
       partId: stringAt(part, "id"),
@@ -96,8 +108,12 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
       attachments: state?.["attachments"],
     },
     details: { input, output: state?.["output"] ?? state?.["error"] },
-    target: toolTargetFromInput(input),
-    detailText: outputText(state?.["output"] ?? state?.["error"] ?? input),
+    target: notification?.target ?? toolTargetFromInput(input),
+    detailText: notification
+      ? notification.output.trim() === "(no output)" || !notification.output.trim()
+        ? undefined
+        : notification.output
+      : outputText(state?.["output"] ?? state?.["error"] ?? input),
     status,
     ...(durationMs === undefined ? {} : { durationMs }),
     ...(key === undefined ? {} : { key }),
@@ -114,18 +130,24 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
         const entry = asRecord(file);
         const path =
           stringAt(entry, "movePath") ??
+          stringAt(entry, "file") ??
           stringAt(entry, "filePath") ??
           stringAt(entry, "relativePath");
         const patch = stringAt(entry, "patch") ?? stringAt(entry, "diff");
         if (!path || patch === undefined) return [];
-        const type = stringAt(entry, "type");
+        const type = stringAt(entry, "status") ?? stringAt(entry, "type");
         return [
           {
             kind: "diff",
             path,
             ...parseUnifiedDiff(patch),
             callId: key,
-            change: type === "add" ? "add" : type === "delete" ? "delete" : "update",
+            change:
+              type === "add" || type === "added"
+                ? "add"
+                : type === "delete" || type === "deleted"
+                  ? "delete"
+                  : "update",
             oldPath: entry?.["movePath"] ? stringAt(entry, "filePath") : undefined,
             key: `${key ?? path}:diff:${path}`,
           },
@@ -135,6 +157,26 @@ function parseToolPart(part: Record<string, unknown>): TranscriptNode[] {
   }
   const patch = stringAt(metadata, "diff");
   if (patch === undefined || patch.length === 0) {
+    const content = stringAt(input, "content");
+    const path = stringAt(input, "path") ?? stringAt(input, "filePath");
+    if (
+      tool === "write" &&
+      path &&
+      content !== undefined &&
+      output?.startsWith("Created file successfully:")
+    ) {
+      return [
+        node,
+        {
+          kind: "diff",
+          path,
+          change: "add",
+          callId: key,
+          key: `${key ?? path}:diff:${path}`,
+          ...parseFileContents(content.replace(/^\uFEFF/, ""), "add"),
+        },
+      ];
+    }
     return [node];
   }
   const counts = parseUnifiedDiff(patch);
@@ -166,6 +208,33 @@ function parsePartUpdated(
     return [rawNode(harness, part)];
   }
   const type = stringAt(record, "type");
+  if (type === "compaction") {
+    const status = stringAt(record, "status");
+    return [
+      {
+        kind: "compaction",
+        status: status === "completed" || status === "failed" ? status : "running",
+        text: stringAt(record, "summary") ?? "",
+        reason: stringAt(record, "reason"),
+        error: stringAt(asRecord(record["error"]), "message"),
+        key: stringAt(record, "id"),
+      },
+    ];
+  }
+  if (type === "file_snapshot") {
+    const turnId = stringAt(record, "turnID");
+    return [
+      {
+        kind: "file_snapshot",
+        scope: "turn",
+        turnId,
+        key: `opencode:files:${turnId ?? stringAt(record, "id")}`,
+        files: parseSessionDiff({ diff: record["files"] }, harness).filter(
+          (node): node is Extract<TranscriptNode, { kind: "diff" }> => node.kind === "diff",
+        ),
+      },
+    ];
+  }
   if (type === "text") {
     return parseTextPart(record, context);
   }
@@ -241,6 +310,12 @@ function parseSessionDiff(
       nodes.push({
         kind: "diff",
         path: path ?? "unknown",
+        change:
+          record["status"] === "added"
+            ? "add"
+            : record["status"] === "deleted"
+              ? "delete"
+              : "update",
         additions: parsed.additions,
         deletions: parsed.deletions,
         lines: parsed.lines,
@@ -298,11 +373,14 @@ export function parseOpenCodeEvent(
     return parseDelta(properties, context, harness);
   }
   if (type === "session.diff") {
+    const turnId = stringAt(properties, "turnID");
+    if (properties["scope"] === "turn" && asArray(properties["diff"])?.length === 0) return [];
     return [
       {
         kind: "file_snapshot",
-        scope: "session",
-        key: `opencode:files:${stringAt(properties, "sessionID") ?? "session"}`,
+        scope: properties["scope"] === "turn" ? "turn" : "session",
+        turnId,
+        key: `opencode:files:${turnId ?? stringAt(properties, "sessionID") ?? "session"}`,
         files: parseSessionDiff(properties, harness).filter(
           (node): node is Extract<TranscriptNode, { kind: "diff" }> => node.kind === "diff",
         ),

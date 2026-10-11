@@ -11,6 +11,7 @@ import { ToolLine } from "./ToolLine";
 import { CodexTool } from "./CodexTool";
 import { UserBubble } from "./UserBubble";
 import { TranscriptRecord } from "./TranscriptRecord";
+import { Compaction } from "./Compaction";
 
 export interface TranscriptNodeRendererProps {
   node: TranscriptNode;
@@ -27,6 +28,8 @@ export const TranscriptNodeRenderer = memo(function TranscriptNodeRenderer({
 }: TranscriptNodeRendererProps) {
   const { t } = useTranslation();
   switch (node.kind) {
+    case "compaction":
+      return <Compaction node={node} />;
     case "record":
       return (
         <TranscriptRecord

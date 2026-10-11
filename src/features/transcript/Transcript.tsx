@@ -76,6 +76,7 @@ function estimateNodeHeight(node: TranscriptNode): number {
         ),
       );
     case "thinking":
+    case "compaction":
       return 28;
     case "tool":
       return 32;

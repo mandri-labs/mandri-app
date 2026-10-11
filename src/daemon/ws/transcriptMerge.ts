@@ -108,6 +108,26 @@ export function appendTranscriptNodes(
     }
     const existing = index === undefined ? undefined : nodes[index];
     if (existing === undefined || index === undefined) {
+      if (node.kind === "file_snapshot" && node.scope === "turn" && node.turnId) {
+        const user = nodes.findIndex(
+          (entry) => entry.kind === "user" && entry.messageId === node.turnId,
+        );
+        const next = nodes.findIndex((entry, position) => position > user && entry.kind === "user");
+        if (user >= 0 && next >= 0) {
+          nodes.splice(next, 0, node);
+          for (const [identity, position] of indices) {
+            if (position >= next) indices.set(identity, position + 1);
+          }
+          for (const [identity, positions] of claudeIndices) {
+            claudeIndices.set(
+              identity,
+              positions.map((position) => (position >= next ? position + 1 : position)),
+            );
+          }
+          if (key !== undefined) indices.set(key, next);
+          continue;
+        }
+      }
       if (key !== undefined) indices.set(key, nodes.length);
       indexClaudeNode(node, nodes.length);
       nodes.push(node);

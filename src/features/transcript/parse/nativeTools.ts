@@ -23,6 +23,7 @@ const opencode: Record<string, ActivityKind> = {
   apply_patch: "edit",
   patch: "edit",
   bash: "command",
+  shell: "command",
   webfetch: "web",
   websearch: "web",
   codesearch: "search",

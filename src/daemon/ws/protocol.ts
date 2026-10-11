@@ -13,6 +13,7 @@ import type {
   ServerMessage,
   SessionInterruptParams,
   SessionModeParams,
+  SessionAgentParams,
   SessionPromptParams,
   SnapshotMessage,
   SnapshotSession,
@@ -30,6 +31,7 @@ export type RequestParamsOf<A extends RequestAction> = (CommandParams &
     "approval.answer": ApprovalAnswerParams;
     "approval.cancel": ApprovalCancelParams;
     "session.mode": SessionModeParams;
+    "session.agent": SessionAgentParams;
     "session.prompt": SessionPromptParams;
     "session.interrupt": SessionInterruptParams;
   })[A];

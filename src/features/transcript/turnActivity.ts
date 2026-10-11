@@ -21,8 +21,23 @@ export function nativeCompactionActive(
   nativeId: string | null | undefined,
   value: unknown,
 ): boolean | undefined {
-  if (harness !== "codex") return undefined;
   const raw = record(value);
+  if (harness === "opencode") {
+    const properties = record(raw?.properties);
+    const part = record(properties?.part);
+    const owner = properties?.sessionID ?? part?.sessionID;
+    if (nativeId && owner !== nativeId) return undefined;
+    if (raw?.type === "message.part.updated" && part?.type === "compaction")
+      return part.status === "running";
+    if (
+      raw?.type === "session.idle" ||
+      raw?.type === "session.error" ||
+      (raw?.type === "session.status" && record(properties?.status)?.type === "idle")
+    )
+      return false;
+    return undefined;
+  }
+  if (harness !== "codex") return undefined;
   const params = record(raw?.params);
   if (nativeId && params?.threadId && params.threadId !== nativeId) return undefined;
   if (record(params?.item)?.type === "contextCompaction") {

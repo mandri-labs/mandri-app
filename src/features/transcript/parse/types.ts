@@ -79,6 +79,14 @@ export type TranscriptNode =
       key?: string;
     }
   | {
+      kind: "compaction";
+      status: "running" | "completed" | "failed";
+      text: string;
+      reason?: string;
+      error?: string;
+      key?: string;
+    }
+  | {
       kind: "thinking";
       claude?: ClaudeBlockIdentity;
       text: string;

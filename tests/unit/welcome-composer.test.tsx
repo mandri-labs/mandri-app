@@ -15,6 +15,7 @@ import { sessionsStore, transcriptStore } from "@/stores/sessions";
 import { readPendingUsers } from "@/features/transcript/pendingUserStorage";
 import { restoreDelivery } from "@/features/transcript/promptDelivery";
 import { WelcomeComposer } from "@/features/sessions/WelcomeComposer";
+import { composerStorageKey, writeComposerStorage } from "@/lib/composerStorage";
 
 vi.mock("@/daemon/rest/client", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/daemon/rest/client")>()),
@@ -112,6 +113,67 @@ afterEach(() => {
 });
 
 describe("WelcomeComposer", () => {
+  it.each([undefined, "plan"])(
+    "selects Build by default while preserving the saved agent %s before the first prompt",
+    async (savedAgent) => {
+      const agent = savedAgent ?? "build";
+      if (savedAgent)
+        writeComposerStorage(composerStorageKey("welcome"), {
+          harness: "opencode",
+          nativeAgent: savedAgent,
+        });
+      listRuntimesMock.mockResolvedValue([
+        { harness: "opencode", installed: true, version: "2.0", degraded: false },
+      ]);
+      startSessionMock.mockResolvedValue({ ...SESSION_PAYLOAD, harness: "opencode" });
+      const transport: CommandTransport = {
+        catalog: vi.fn(async () => ({
+          commands: [
+            { id: "agent:build", name: "Build", description: "", kind: "agent", aliases: [] },
+            { id: "agent:plan", name: "Plan", description: "", kind: "agent", aliases: [] },
+          ],
+        })),
+        invoke: vi.fn(),
+        list: vi.fn(async () => []),
+        cancel: vi.fn(),
+      };
+      const select = vi
+        .spyOn(sessionFeed, "selectAgent")
+        .mockResolvedValue({ session_id: "session-1", agent });
+      const send = vi
+        .spyOn(sessionFeed, "sendPrompt")
+        .mockResolvedValue({ state: "queued", code: null });
+      const subscribe = vi.spyOn(sessionFeed, "subscribeSession").mockImplementation(() => {});
+      try {
+        render(<WelcomeComposer initialCwd="D:/Dev/alpha" commands={transport} />);
+        const menu = await screen.findByLabelText("OpenCode agents");
+        await waitFor(() =>
+          expect(menu.textContent).toContain(agent === "build" ? "Build" : "Plan"),
+        );
+        fireEvent.click(menu);
+        const selected = await screen.findByRole("button", {
+          name: agent === "build" ? "Build" : "Plan",
+        });
+        expect(selected.getAttribute("aria-pressed")).toBe("true");
+        expect(
+          screen
+            .getByRole("button", { name: agent === "build" ? "Plan" : "Build" })
+            .getAttribute("aria-pressed"),
+        ).toBe("false");
+        fireEvent.click(menu);
+        await submitPrompt("Inspect the project");
+        await waitFor(() => expect(send).toHaveBeenCalledWith("session-1", "Inspect the project"));
+        expect(select).toHaveBeenCalledWith("session-1", agent);
+        expect(select.mock.invocationCallOrder[0]).toBeLessThan(send.mock.invocationCallOrder[0]!);
+        expect(sessionsStore.getState().sessions["session-1"]?.nativeAgent).toBe(agent);
+      } finally {
+        select.mockRestore();
+        send.mockRestore();
+        subscribe.mockRestore();
+      }
+    },
+  );
+
   it("waits for the daemon before loading runtimes", async () => {
     connectionStore.setState({ status: "connecting" });
     render(<WelcomeComposer />);
@@ -223,17 +285,16 @@ describe("WelcomeComposer", () => {
 
   it.each([
     ["codex", "Ask for approval", "Full access", "full-access"],
-    ["opencode", "Standard permissions", "Automatic", "auto"],
+    ["opencode", "Build", "Automatic", "auto"],
   ])("submits the native permission profile for %s", async (harness, initial, label, mode) => {
     listRuntimesMock.mockResolvedValue([
       { harness, installed: true, version: "1.0", degraded: false },
     ]);
     startSessionMock.mockResolvedValue({ ...SESSION_PAYLOAD, harness, mode });
     render(<WelcomeComposer />);
-    await waitFor(() =>
-      expect(screen.getByLabelText("Permission mode").textContent).toContain(initial),
-    );
-    fireEvent.click(screen.getByLabelText("Permission mode"));
+    const menuLabel = harness === "opencode" ? "OpenCode agents" : "Permission mode";
+    await waitFor(() => expect(screen.getByLabelText(menuLabel).textContent).toContain(initial));
+    fireEvent.click(screen.getByLabelText(menuLabel));
     const option = await screen.findByText(label);
     fireEvent.click(option);
     await pickFolder();

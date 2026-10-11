@@ -48,6 +48,7 @@ export interface HistoryPage {
   turn_active?: boolean | null;
   external_busy?: boolean | null;
   external_model?: string | null;
+  native_agent?: string | null;
   entries: readonly string[];
   next_cursor: string | null;
   has_more: boolean;
@@ -470,6 +471,12 @@ export class SessionFeedService {
           .applySessionPatch(sessionId, { externalModel: page.external_model ?? undefined });
       }
       const preserve = refresh && options.preserveOlder === true && buffer.historyCount > 0;
+      if (
+        typeof page.native_agent === "string" &&
+        sessionsStore.getState().sessions[sessionId]?.nativeAgent === lifecycle?.nativeAgent
+      ) {
+        sessionsStore.getState().applySessionPatch(sessionId, { nativeAgent: page.native_agent });
+      }
       if (buffer.harness === "agy") {
         buffer.agyHistory = mergeAgyHistory(
           !refresh || preserve ? buffer.agyHistory : [],
@@ -704,6 +711,7 @@ export class SessionFeedService {
     sessionId: string,
     content: string,
     attachments?: string[],
+    agent?: string,
   ): Promise<PromptOutcome> {
     log.info("sendPrompt dispatching ws request", {
       sessionId,
@@ -714,6 +722,7 @@ export class SessionFeedService {
       session_id: sessionId,
       content,
       ...(attachments?.length ? { attachments } : {}),
+      ...(agent ? { agent } : {}),
     });
     log.info("sendPrompt result", { sessionId, state: result.state, code: result.code });
     const outcome: PromptOutcome = { state: result.state, code: result.code };
@@ -737,6 +746,10 @@ export class SessionFeedService {
 
   setMode(sessionId: string, mode: string) {
     return this.request("session.mode", { session_id: sessionId, mode });
+  }
+
+  selectAgent(sessionId: string, agent: string) {
+    return this.request("session.agent", { session_id: sessionId, agent });
   }
 
   answerApproval(approvalId: string, decision: ApprovalDecision) {

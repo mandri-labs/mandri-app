@@ -24,7 +24,7 @@ import { useModelProviders } from "@/features/providers/nativeModels";
 import { useRuntimeCapabilities } from "@/daemon/runtimeCapabilities";
 import { nativeHarness } from "@/daemon/modelSelection";
 import { permitsModel, permitsNative } from "@/daemon/protection";
-import { ArrowUp, ChevronDown, Square, X } from "lucide-react";
+import { ArrowUp, Bot, ChevronDown, Square, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStore } from "@/app/useStore";
@@ -44,6 +44,7 @@ import {
 import { SessionProtection } from "@/features/sessions/SessionProtection";
 import { PermissionModeIcon } from "@/features/sessions/PermissionModeIcon";
 import { PermissionMenu } from "@/features/sessions/PermissionMenu";
+import { OpenCodeAgentMenu } from "@/features/sessions/OpenCodeAgentMenu";
 import {
   isSessionResumable,
   resumeSessionAction,
@@ -59,6 +60,7 @@ export interface ComposerFeed {
     sessionId: string,
     content: string,
     attachments?: string[],
+    agent?: string,
   ) => Promise<PromptOutcome>;
   interrupt: (sessionId: string) => Promise<boolean>;
 }
@@ -204,6 +206,58 @@ export function Composer({
     canDeliver &&
     !nativeCommands.pending &&
     (text.trim().length > 0 || attachmentInput.files.length > 0);
+  const nativeAgents = nativeCommands.catalog.filter(
+    (command) => command.kind === "agent" && command.id.startsWith("agent:"),
+  );
+  const nativeAgent = session?.resumeAgent ?? session?.nativeAgent;
+  const nativeAgentLabel =
+    nativeAgents.find((agent) => agent.id === `agent:${nativeAgent}`)?.name ??
+    nativeAgent ??
+    t("core.composer.native_agent");
+  const selectMode = (mode: string) => {
+    if (sessionId === undefined) return;
+    if (!live) {
+      sessionsStore.getState().applySessionPatch(sessionId, { resumeMode: mode });
+      return;
+    }
+    setModePending(true);
+    setError(null);
+    void sessionFeed
+      .setMode(sessionId, mode)
+      .then((result) => {
+        sessionsStore
+          .getState()
+          .applySessionPatch(sessionId, { interactionMode: result.mode, resumeMode: undefined });
+        setModeNotice(
+          result.outcome === "next_turn_applied"
+            ? "core.composer.permissions_next_turn"
+            : result.outcome === "hook_policy_applied"
+              ? "core.composer.permissions_hooks"
+              : null,
+        );
+      })
+      .catch((failure: unknown) => setError(errorKeyOf(failure)))
+      .finally(() => setModePending(false));
+  };
+  const selectAgent = (agent: string) => {
+    setPermissionsOpen(false);
+    if (sessionId === undefined) return;
+    if (!live) {
+      sessionsStore.getState().applySessionPatch(sessionId, { resumeAgent: agent });
+      return;
+    }
+    setModePending(true);
+    setError(null);
+    void sessionFeed
+      .selectAgent(sessionId, agent)
+      .then((result) => {
+        sessionsStore
+          .getState()
+          .applySessionPatch(sessionId, { nativeAgent: result.agent, resumeAgent: undefined });
+      })
+      .catch((failure: unknown) => setError(errorKeyOf(failure)))
+      .finally(() => setModePending(false));
+  };
   const showStop = live && text.trim().length === 0 && isSessionBusy(session);
   const question = useStore(
     transcriptStore,
@@ -260,10 +314,18 @@ export function Composer({
         requireCurrent();
         markDelivery(id, pendingKey!, "sending");
         submitted = true;
-        await (identities.length
-          ? service.sendPrompt(id, composed, identities)
-          : service.sendPrompt(id, composed));
+        const agent = sessionsStore.getState().sessions[id]?.resumeAgent;
+        await (agent
+          ? service.sendPrompt(id, composed, identities, agent)
+          : identities.length
+            ? service.sendPrompt(id, composed, identities)
+            : service.sendPrompt(id, composed));
         if (generation !== daemonIdentity.getState().generation) return;
+        if (agent && sessionsStore.getState().sessions[id]?.resumeAgent === agent) {
+          sessionsStore
+            .getState()
+            .applySessionPatch(id, { nativeAgent: agent, resumeAgent: undefined });
+        }
         markDelivery(id, pendingKey!, "accepted");
         removeFiles(id, selected);
       };
@@ -505,7 +567,9 @@ export function Composer({
                     harnessKind,
                     session?.resumeMode ?? session?.interactionMode ?? "",
                   )}
-                  aria-label={t("core.start.mode")}
+                  aria-label={t(
+                    harnessKind === "opencode" ? "core.composer.native_agents" : "core.start.mode",
+                  )}
                   aria-haspopup="dialog"
                   aria-expanded={permissionsOpen}
                   title={t(
@@ -517,16 +581,22 @@ export function Composer({
                     setPermissionsOpen((open) => !open);
                   }}
                 >
-                  <PermissionModeIcon
-                    harness={harnessKind}
-                    mode={session?.resumeMode ?? session?.interactionMode ?? ""}
-                  />
+                  {harnessKind === "opencode" ? (
+                    <Bot size={14} aria-hidden="true" />
+                  ) : (
+                    <PermissionModeIcon
+                      harness={harnessKind}
+                      mode={session?.resumeMode ?? session?.interactionMode ?? ""}
+                    />
+                  )}
                   <span className="composer-chip-label">
-                    {permissionLabel(
-                      harnessKind,
-                      session?.resumeMode ?? session?.interactionMode ?? "",
-                      t,
-                    )}
+                    {harnessKind === "opencode"
+                      ? nativeAgentLabel
+                      : permissionLabel(
+                          harnessKind,
+                          session?.resumeMode ?? session?.interactionMode ?? "",
+                          t,
+                        )}
                   </span>
                   <ChevronDown size={12} aria-hidden="true" />
                 </button>
@@ -536,42 +606,29 @@ export function Composer({
                     className="permission-popover"
                     onClose={() => setPermissionsOpen(false)}
                   >
-                    <PermissionMenu
-                      harness={harnessKind}
-                      modes={capabilities?.permissionModes}
-                      selected={session?.resumeMode ?? session?.interactionMode ?? ""}
-                      onSelect={(mode) => {
-                        setPermissionsOpen(false);
-                        if (sessionId === undefined) return;
-                        if (!live) {
-                          sessionsStore
-                            .getState()
-                            .applySessionPatch(sessionId, { resumeMode: mode });
-                          return;
-                        }
-                        setModePending(true);
-                        setError(null);
-                        void sessionFeed
-                          .setMode(sessionId, mode)
-                          .then((result) => {
-                            sessionsStore.getState().applySessionPatch(sessionId, {
-                              interactionMode: result.mode,
-                              resumeMode: undefined,
-                            });
-                            setModeNotice(
-                              result.outcome === "next_turn_applied"
-                                ? "core.composer.permissions_next_turn"
-                                : result.outcome === "hook_policy_applied"
-                                  ? "core.composer.permissions_hooks"
-                                  : null,
-                            );
-                          })
-                          .catch((modeError: unknown) => {
-                            setError(errorKeyOf(modeError));
-                          })
-                          .finally(() => setModePending(false));
-                      }}
-                    />
+                    {harnessKind === "opencode" ? (
+                      <OpenCodeAgentMenu
+                        agents={nativeAgents}
+                        selected={nativeAgent}
+                        automatic={(session?.resumeMode ?? session?.interactionMode) === "auto"}
+                        pending={modePending}
+                        loading={nativeCommands.loading}
+                        failed={nativeCommands.failed}
+                        onSelect={selectAgent}
+                        onAutomatic={(enabled) => selectMode(enabled ? "auto" : "default")}
+                        onRefresh={nativeCommands.refresh}
+                      />
+                    ) : (
+                      <PermissionMenu
+                        harness={harnessKind}
+                        modes={capabilities?.permissionModes}
+                        selected={session?.resumeMode ?? session?.interactionMode ?? ""}
+                        onSelect={(mode) => {
+                          setPermissionsOpen(false);
+                          selectMode(mode);
+                        }}
+                      />
+                    )}
                   </ChipPopover>
                 )}
               </div>

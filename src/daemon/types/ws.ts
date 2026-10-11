@@ -138,6 +138,11 @@ export interface SessionModeParams {
   mode: string;
 }
 
+export interface SessionAgentParams {
+  session_id: string;
+  agent: string;
+}
+
 export interface SessionPromptParams {
   session_id: string;
   content: string;
@@ -159,6 +164,7 @@ export type RequestAction =
   | "approval.answer"
   | "approval.cancel"
   | "session.mode"
+  | "session.agent"
   | "session.prompt"
   | "session.interrupt";
 
@@ -181,6 +187,7 @@ export type RequestMessage =
   | { type: "request"; op_id: string; action: "approval.answer"; params: ApprovalAnswerParams }
   | { type: "request"; op_id: string; action: "approval.cancel"; params: ApprovalCancelParams }
   | { type: "request"; op_id: string; action: "session.mode"; params: SessionModeParams }
+  | { type: "request"; op_id: string; action: "session.agent"; params: SessionAgentParams }
   | { type: "request"; op_id: string; action: "session.prompt"; params: SessionPromptParams }
   | { type: "request"; op_id: string; action: "session.interrupt"; params: SessionInterruptParams };
 
@@ -226,10 +233,12 @@ export type ActionResultMap = CommandResults &
       turn_active?: boolean | null;
       external_busy?: boolean | null;
       external_model?: string | null;
+      native_agent?: string | null;
     };
     "approval.answer": ApprovalAnswerResult;
     "approval.cancel": ApprovalCancelResult;
     "session.mode": SessionModeResult;
+    "session.agent": { session_id: string; agent: string };
     "session.prompt": SessionPromptResult;
     "session.interrupt": SessionInterruptResult;
   };

@@ -39,9 +39,10 @@ import {
 } from "@/daemon/protection";
 import { PermissionModeIcon } from "./PermissionModeIcon";
 import { PermissionMenu } from "./PermissionMenu";
+import { OpenCodeAgentMenu } from "./OpenCodeAgentMenu";
 import { ProtectionMenu } from "./ProtectionMenu";
 import { HARNESS_MODES, DEFAULT_MODE, permissionLabel, permissionTone } from "./permissionModes";
-import { ArrowUp, ChevronDown, Folder, Box, X } from "lucide-react";
+import { ArrowUp, Bot, ChevronDown, Folder, Box, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FOCUS_COMPOSER_EVENT } from "@/app/keyboard";
@@ -93,6 +94,7 @@ interface WelcomeDraft {
   text: string;
   harness: string;
   mode: string;
+  nativeAgent?: string;
   protection: ProtectionChoice;
   worktreeId: string;
   model: string;
@@ -137,6 +139,10 @@ function WelcomeComposerContent({
     typeof saved.harness === "string" && isHarnessKind(saved.harness) ? saved.harness : "",
   );
   const [mode, setMode] = useState(typeof saved.mode === "string" ? saved.mode : "");
+  const [nativeAgent, setNativeAgent] = useState(
+    typeof saved.nativeAgent === "string" ? saved.nativeAgent : undefined,
+  );
+  const effectiveNativeAgent = nativeAgent || "build";
   const [protection, setProtection] = useState<ProtectionChoice>(
     initialProtection ??
       (saved.protection && PROTECTION_CHOICES.includes(saved.protection)
@@ -233,13 +239,14 @@ function WelcomeComposerContent({
       text,
       harness,
       mode,
+      nativeAgent,
       protection,
       worktreeId,
       model,
       effort,
       cwd,
     });
-  }, [storageKey, text, harness, mode, protection, worktreeId, model, effort, cwd]);
+  }, [storageKey, text, harness, mode, nativeAgent, protection, worktreeId, model, effort, cwd]);
 
   const providers = useModelProviders(harness, cwd ?? undefined, false, allowNative);
   const modelEntry = useMemo(() => {
@@ -354,6 +361,7 @@ function WelcomeComposerContent({
             model: model.trim(),
             cwd,
             mode: mode || null,
+            agent: harness === "opencode" ? effectiveNativeAgent : undefined,
             effort: effectiveEffort,
             ...policy,
             operation_id: operation.id,
@@ -368,6 +376,7 @@ function WelcomeComposerContent({
               text: "",
               harness,
               mode,
+              nativeAgent,
               protection,
               worktreeId,
               model,
@@ -409,6 +418,7 @@ function WelcomeComposerContent({
         model: model.trim(),
         cwd,
         mode: mode.length > 0 ? mode : null,
+        agent: harness === "opencode" ? effectiveNativeAgent : undefined,
         effort: effectiveEffort,
         ...policy,
         ...(operation ? { operation_id: operation.id } : {}),
@@ -446,6 +456,7 @@ function WelcomeComposerContent({
           text: "",
           harness,
           mode,
+          nativeAgent,
           protection,
           worktreeId,
           model,
@@ -800,11 +811,23 @@ function WelcomeComposerContent({
               aria-haspopup="dialog"
               data-setting-tone={permissionTone(harness, mode)}
               aria-expanded={openMenu === "permissions"}
-              aria-label={t("core.start.mode")}
+              aria-label={t(
+                harness === "opencode" ? "core.composer.native_agents" : "core.start.mode",
+              )}
               onClick={() => toggleMenu("permissions")}
             >
-              <PermissionModeIcon harness={harness} mode={mode} />
-              <span className="welcome-config-label">{permissionLabel(harness, mode, t)}</span>
+              {harness === "opencode" ? (
+                <Bot size={14} aria-hidden="true" />
+              ) : (
+                <PermissionModeIcon harness={harness} mode={mode} />
+              )}
+              <span className="welcome-config-label">
+                {harness === "opencode"
+                  ? (nativeCommands.catalog.find(
+                      (agent) => agent.id === `agent:${effectiveNativeAgent}`,
+                    )?.name ?? (effectiveNativeAgent === "build" ? "Build" : effectiveNativeAgent))
+                  : permissionLabel(harness, mode, t)}
+              </span>
               <ChevronDown size={12} aria-hidden="true" />
             </button>
             {openMenu === "permissions" ? (
@@ -815,16 +838,35 @@ function WelcomeComposerContent({
                 placement="bottom"
                 align="start"
               >
-                <PermissionMenu
-                  harness={harness}
-                  selected={mode}
-                  indicatorSide="left"
-                  modes={parseRuntimeCapabilities(selectedRuntime?.capabilities)?.permissionModes}
-                  onSelect={(next) => {
-                    setMode(next);
-                    closeMenu();
-                  }}
-                />
+                {harness === "opencode" ? (
+                  <OpenCodeAgentMenu
+                    agents={nativeCommands.catalog.filter(
+                      (command) => command.kind === "agent" && command.id.startsWith("agent:"),
+                    )}
+                    selected={effectiveNativeAgent}
+                    automatic={mode === "auto"}
+                    pending={submitting}
+                    loading={nativeCommands.loading}
+                    failed={nativeCommands.failed}
+                    onSelect={(agent) => {
+                      setNativeAgent(agent);
+                      closeMenu();
+                    }}
+                    onAutomatic={(enabled) => setMode(enabled ? "auto" : "default")}
+                    onRefresh={nativeCommands.refresh}
+                  />
+                ) : (
+                  <PermissionMenu
+                    harness={harness}
+                    selected={mode}
+                    indicatorSide="left"
+                    modes={parseRuntimeCapabilities(selectedRuntime?.capabilities)?.permissionModes}
+                    onSelect={(next) => {
+                      setMode(next);
+                      closeMenu();
+                    }}
+                  />
+                )}
               </ChipPopover>
             ) : null}
           </div>

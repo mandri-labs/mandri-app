@@ -59,11 +59,11 @@
       "opencode": {
         "default": {
           "label": "Permissions standard",
-          "description": "Demander une approbation avant d’exécuter les outils."
+          "description": "OpenCode décide quelles actions nécessitent une approbation."
         },
         "auto": {
           "label": "Automatique",
-          "description": "Autoriser les outils via les permissions natives de la session OpenCode."
+          "description": "Répondre automatiquement aux demandes de permission émises par OpenCode."
         }
       },
       "pi": {
@@ -165,7 +165,9 @@
       "permissions_inherit": "Conserver les permissions actuelles",
       "external_active": "Cette session a été lancée avec {{harness}}. Attends la fin du tour pour lui envoyer un message avec Mandri.",
       "model_locked": "Disponible dans une session en cours.",
-      "steering_stop_resume": "Interrompre et reprendre cette conversation avec votre message"
+      "steering_stop_resume": "Interrompre et reprendre cette conversation avec votre message",
+      "native_agent": "Agent",
+      "native_agents": "Agents OpenCode"
     },
     "transcript": {
       "other_answer": "Autre réponse",
@@ -261,7 +263,10 @@
         "failed": "échec"
       },
       "delegation": "Tâche déléguée",
-      "agy_denied_actions": "Actions refusées : {{actions}}"
+      "agy_denied_actions": "Actions refusées : {{actions}}",
+      "compaction_running": "Compaction en cours",
+      "compaction_completed": "Contexte compacté",
+      "compaction_failed": "Échec de la compaction"
     },
     "sessions": {
       "external_locked": "Ouverte dans une autre application",

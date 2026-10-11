@@ -62,6 +62,8 @@ export interface SessionView extends SessionPolicy {
   interactionMode?: string | null;
   interactionModeUpdatedAt?: number;
   resumeMode?: string;
+  nativeAgent?: string;
+  resumeAgent?: string;
   externalBusy?: boolean;
   externalModel?: string;
   externalUnavailable?: boolean;
@@ -563,6 +565,14 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
             });
             const notice = nativeTurnNotice(session.harness, session.nativeId, event.raw);
             const compacting = nativeCompactionActive(session.harness, session.nativeId, event.raw);
+            const native = asRecord(event.raw);
+            const properties = asRecord(native?.["properties"]);
+            const agent =
+              session.harness === "opencode" &&
+              native?.["type"] === "session.agent.selected" &&
+              properties?.["sessionID"] === session.nativeId
+                ? properties?.["agent"]
+                : undefined;
             patchSession(id, (existing) => {
               const turns = turnEvent
                 ? reduceTurnEvent(existing.turnWork ?? [], turnEvent)
@@ -577,6 +587,7 @@ export const sessionsStore = createStore<SessionsState>()((set, get) => {
                   : turnEvent?.active;
               return {
                 ...existing,
+                ...(typeof agent === "string" ? { nativeAgent: agent } : {}),
                 ...(notice !== undefined ? { nativeTurnNotice: notice } : {}),
                 ...(compacting !== undefined ? { nativeTurnCompacting: compacting } : {}),
                 ...(active !== undefined

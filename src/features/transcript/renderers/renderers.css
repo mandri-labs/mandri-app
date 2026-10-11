@@ -281,6 +281,11 @@
   margin: 6px 0 10px;
   min-width: 0;
 }
+.tr-compaction-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 .tr-thinking {
   color: var(--color-text-muted);
   font-size: var(--font-size-label);

@@ -40,6 +40,7 @@ export interface SessionStartInput {
   model: string;
   cwd: string;
   mode?: string | null;
+  agent?: string;
   effort?: string | null;
   execution_backend?: PolicyRequest["execution_backend"];
   privacy_mode?: PolicyRequest["privacy_mode"];
@@ -146,6 +147,11 @@ export async function startNewSession(
       gatewayRouteId: result.gateway_route_id ?? null,
     });
     if (acceptResult()) seedStartedSession(result, input.cwd, input.effort ?? null, input.model);
+    if (acceptResult() && input.harness === "opencode" && input.agent) {
+      await sessionFeed.selectAgent(result.id, input.agent);
+      if (acceptResult())
+        sessionsStore.getState().applySessionPatch(result.id, { nativeAgent: input.agent });
+    }
     return result;
   } catch (error) {
     log.error("session start failed", {

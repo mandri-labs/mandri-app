@@ -211,6 +211,12 @@ export function useCommands({
     return false;
   };
   return {
+    catalog,
+    loading,
+    failed,
+    refresh: () => {
+      if (scope) void ensureCommandCatalog(transport, scope, true);
+    },
     pending: pending || submitting,
     submit,
     onKeyDown,
