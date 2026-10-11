@@ -98,7 +98,7 @@ try {
   await page.screenshot({ path: resolve(output, "provider-edit.png") });
   await page.keyboard.press("Escape");
   assert.equal(await page.getByRole("dialog").count(), 1);
-  assert.equal(await page.locator(":focus").innerText(), "Modifier");
+  assert.equal(await page.locator(":focus").getAttribute("aria-label"), "Modifier");
   await page.setViewportSize({ width: 640, height: 800 });
   const name = await page.locator(".providers-item-name").boundingBox();
   assert(name && name.width >= 80);

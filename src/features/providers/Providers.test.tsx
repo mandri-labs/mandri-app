@@ -38,7 +38,7 @@ const provider: ProviderView = {
 
 beforeAll(() => initI18n("en"));
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   providersStore.setState({ providers: { local: provider } });
   vi.mocked(listProviders).mockResolvedValue([
     {
@@ -201,7 +201,7 @@ describe("provider icon actions", () => {
     const remove = screen.getByRole("button", { name: "Remove" });
     expect(edit.textContent).toBe("");
     expect(remove.textContent).toBe("");
-    expect(remove.querySelector(".lucide-trash-2")).toBeTruthy();
+    expect(remove.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
     fireEvent.click(screen.getByRole("switch", { name: "Disable" }));
     await screen.findByRole("switch", { name: "Enable" });
     expect(updateProvider).toHaveBeenLastCalledWith("local", { enabled: false });
