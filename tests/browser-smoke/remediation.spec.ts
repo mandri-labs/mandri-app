@@ -48,13 +48,15 @@ await context.route("**/v1/**", (route) => {
     json:
       url.pathname === "/v1/providers"
         ? providers
-        : url.pathname === "/v1/runtimes"
-          ? runtimes
-          : url.pathname === "/v1/gateway/info"
-            ? { providers, routes }
-            : url.pathname.includes("/models")
-              ? [{ id: "anthropic/claude-sonnet-4", reasoning_efforts: [], default_effort: null }]
-              : [],
+        : url.pathname === "/v1/mcp/servers"
+          ? { servers: [], revision: 0 }
+          : url.pathname === "/v1/runtimes"
+            ? runtimes
+            : url.pathname === "/v1/gateway/info"
+              ? { providers, routes }
+              : url.pathname.includes("/models")
+                ? [{ id: "anthropic/claude-sonnet-4", reasoning_efforts: [], default_effort: null }]
+                : [],
   });
 });
 await page.routeWebSocket("**/v1/ws", (ws) => {
